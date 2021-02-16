@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-02-16 Tue 01:29 -->
+<!-- 2021-02-16 Tue 03:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The Advent of Code 2020</title>
@@ -241,30 +241,15 @@ My solutions implemented in Scala."
 <li><a href="#Day--1-–-Report-Repair">Day  1 – Report Repair</a>
 <ul>
 <li><a href="#The-narrative">The part 1 narrative</a></li>
-<li><a href="#The-code">The part 1 code</a>
-<ul>
-<li><a href="#The-workhorses">The workhorses</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 1 code</a></li>
 <li><a href="#The-narrative">The part 2 narrative</a></li>
-<li><a href="#The-code">The part 2 code</a>
-<ul>
-<li><a href="#The-workhorse">The workhorse</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 2 code</a></li>
 </ul>
 </li>
 <li><a href="#Day--2-–-Password-Philosophy">Day  2 – Password Philosophy</a>
 <ul>
 <li><a href="#The-narrative">The part 1 narrative</a></li>
-<li><a href="#The-code">The part 1 code</a>
-<ul>
-<li><a href="#The-workhorses">The workhorses</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 1 code</a></li>
 <li><a href="#The-narrative">The part 2 narrative</a></li>
 <li><a href="#The-code">The part 2 code</a></li>
 </ul>
@@ -272,48 +257,23 @@ My solutions implemented in Scala."
 <li><a href="#Day--3-–-Toboggan-Trajectory">Day  3 – Toboggan Trajectory</a>
 <ul>
 <li><a href="#The-narrative">The part 1 narrative</a></li>
-<li><a href="#The-code">The part 1 code</a>
-<ul>
-<li><a href="#The-workhorses">The workhorses</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 1 code</a></li>
 <li><a href="#The-narrative">The part 2 narrative</a></li>
-<li><a href="#The-code">The part 2 code</a>
-<ul>
-<li><a href="#The-workhorse">The workhorse</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 2 code</a></li>
 </ul>
 </li>
 <li><a href="#Day--4-–-Passport-Processing">Day  4 – Passport Processing</a>
 <ul>
 <li><a href="#The-narrative">The part 1 narrative</a></li>
-<li><a href="#The-code">The part 1 code</a>
-<ul>
-<li><a href="#The-workhorse">The workhorse</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 1 code</a></li>
 <li><a href="#The-narrative">The part 2 narrative</a></li>
-<li><a href="#The-code">The part 2 code</a>
-<ul>
-<li><a href="#The-workhorses">The workhorses</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 2 code</a></li>
 </ul>
 </li>
 <li><a href="#Day--5-–-Binary-Boarding">Day  5 – Binary Boarding</a>
 <ul>
 <li><a href="#The-narrative">The part 1 narrative</a></li>
-<li><a href="#The-code">The part 1 code</a>
-<ul>
-<li><a href="#The-workhorses">The workhorses</a></li>
-<li><a href="#The-answer">The answer</a></li>
-</ul>
-</li>
+<li><a href="#The-code">The part 1 code</a></li>
 <li><a href="#The-narrative">The part 2 narrative</a></li>
 <li><a href="#The-answer">The part 2 answer</a></li>
 </ul>
@@ -322,8 +282,8 @@ My solutions implemented in Scala."
 <ul>
 <li><a href="#The-narrative">The part 1 narrative</a></li>
 <li><a href="#The-part-1-solution">The part 1 solution</a></li>
-<li><a href="#org20a6c5d">The part 2 narrative</a></li>
-<li><a href="#org59b2d27">The part 2 solution</a></li>
+<li><a href="#org3160ddd">The part 2 narrative</a></li>
+<li><a href="#orgc5cb831">The part 2 solution</a></li>
 </ul>
 </li>
 <li><a href="#Day--7-–-???">Day  7 – ???</a>
@@ -597,11 +557,23 @@ though I will usually want to filter them out in my usage.
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 1 code</h3>
 <div class="outline-text-3" id="text-The-code">
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">import</span> scala.io.<span style="color: #00bcff;">Source</span>
+</pre>
 </div>
 
-<div id="outline-container-The-workhorses" class="outline-4">
-<h4 id="The-workhorses">The workhorses</h4>
-<div class="outline-text-4" id="text-The-workhorses">
+<p>
+Read the input into a list of integers.
+</p>
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">source</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">Source</span>.fromFile<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"../../input/advent-of-code-2020/day1.txt"</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">raw_input</span> <span style="color: #b6a0ff;">=</span> source.getLines<span style="color: #00cd68;">()</span>.toList
+source.close<span style="color: #00cd68;">()</span>
+
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">input</span> <span style="color: #b6a0ff;">=</span> raw_input.map<span style="color: #00cd68;">(</span><span style="color: #b6a0ff;">(</span>s<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> s.toInt<span style="color: #00cd68;">)</span>
+</pre>
+</div>
+
 <p>
 The intuitive solution is to perform a a double walkthrough
 of the list; walk through and, at each element <code>e</code>,
@@ -615,7 +587,7 @@ the <code>collectFirst</code> method for sequences;
 see the sequence <a href="https://www.scala-lang.org/api/2.12.0/scala/collection/Seq.html">documentation</a>.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="org1c03e14"><span style="color: #b0d6f5;">/**</span>
+<pre class="src src-amm"><span style="color: #b0d6f5;">/**</span>
 <span style="color: #b0d6f5;">  * Find a pair of elements in `xs` which sum to `sum`,</span>
 <span style="color: #b0d6f5;">  * if such elements exist.</span>
 <span style="color: #b0d6f5;">  * If multiple such pairs exist, returns the pair</span>
@@ -633,42 +605,22 @@ see the sequence <a href="https://www.scala-lang.org/api/2.12.0/scala/collection
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
 <p>
 Now we apply that method to the provided input,
 then match on it to produce the product of the pair.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm">
-<span style="color: #b0d6f5;">/**</span>
-<span style="color: #b0d6f5;">  * Find a pair of elements in `xs` which sum to `sum`,</span>
-<span style="color: #b0d6f5;">  * if such elements exist.</span>
-<span style="color: #b0d6f5;">  * If multiple such pairs exist, returns the pair</span>
-<span style="color: #b0d6f5;">  * whose first element has the lowest index and</span>
-<span style="color: #b0d6f5;">  * whose second element has the lowest index amongst</span>
-<span style="color: #b0d6f5;">  * candidates to pair with that first element.</span>
-<span style="color: #b0d6f5;">  */</span>
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">summingPair</span><span style="color: #00cd68;">(</span>xs <span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Seq</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span>, sum<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Option</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Tuple2</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> xs <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">Nil</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">None</span>
-  <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">fst</span> <span style="color: #6ae4b9;">::</span> <span style="color: #00d3d0;">rest</span> <span style="color: #b6a0ff;">=&gt;</span>
-    rest.collectFirst<span style="color: #b6a0ff;">(</span><span style="color: #6ae4b9;">{</span><span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">snd</span> <span style="color: #b6a0ff;">if</span> fst + snd == sum <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #f0ce43;">(</span>fst,snd<span style="color: #f0ce43;">)</span><span style="color: #6ae4b9;">}</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">match</span> <span style="color: #b6a0ff;">{</span>
-      <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Some</span><span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">pair</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Some</span><span style="color: #6ae4b9;">(</span>pair<span style="color: #6ae4b9;">)</span>
-      <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">None</span> <span style="color: #b6a0ff;">=&gt;</span> summingPair<span style="color: #6ae4b9;">(</span>rest, sum<span style="color: #6ae4b9;">)</span>
-    <span style="color: #b6a0ff;">}</span>
-<span style="color: #00cd68;">}</span>
-
-summingPair<span style="color: #00cd68;">(</span>input,<span style="color: #00bcff;">2020</span><span style="color: #00cd68;">)</span> <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
+<pre class="src src-amm">summingPair<span style="color: #00cd68;">(</span>input,<span style="color: #00bcff;">2020</span><span style="color: #00cd68;">)</span> <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
   <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Some</span><span style="color: #b6a0ff;">(</span><span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">fst</span>,<span style="color: #00d3d0;">snd</span><span style="color: #6ae4b9;">)</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> println<span style="color: #b6a0ff;">(</span>s<span style="color: #79a8ff;">"The product of the summing pair is </span><span style="color: #00d3d0;">${fst * snd}</span><span style="color: #79a8ff;">."</span><span style="color: #b6a0ff;">)</span>
   <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">None</span> <span style="color: #b6a0ff;">=&gt;</span> println<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"Summing pair not found."</span><span style="color: #b6a0ff;">)</span>
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
+
+<p>
+My answer here was 866436.
+</p>
 </div>
 </div>
 
@@ -684,11 +636,6 @@ summingPair<span style="color: #00cd68;">(</span>input,<span style="color: #00bc
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 2 code</h3>
 <div class="outline-text-3" id="text-The-code">
-</div>
-
-<div id="outline-container-The-workhorse" class="outline-4">
-<h4 id="The-workhorse">The workhorse</h4>
-<div class="outline-text-4" id="text-The-workhorse">
 <p>
 This generalisation of the problem requires that we move away
 from the use of a tuple; of course we could move to a triple instead,
@@ -700,7 +647,7 @@ This time we will need to recurse on the new argument <code>n</code> when
 for the inner “loop”.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="orgabafe04"><span style="color: #b0d6f5;">/**</span>
+<pre class="src src-amm"><span style="color: #b0d6f5;">/**</span>
 <span style="color: #b0d6f5;"> * Find a sequence of elements of length `n`</span>
 <span style="color: #b0d6f5;"> * in `xs` which sum to `sum`,</span>
 <span style="color: #b0d6f5;"> * if such elements exist.</span>
@@ -725,49 +672,22 @@ for the inner “loop”.
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
 <p>
 Now we apply that method to the provided input,
 then match on it to extract the list and take its product.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm">
-<span style="color: #b0d6f5;">/**</span>
-<span style="color: #b0d6f5;"> * Find a sequence of elements of length `n`</span>
-<span style="color: #b0d6f5;"> * in `xs` which sum to `sum`,</span>
-<span style="color: #b0d6f5;"> * if such elements exist.</span>
-<span style="color: #b0d6f5;"> * If multiple such sequences exist, returns the sequence</span>
-<span style="color: #b0d6f5;"> * whose first element has the lowest index and</span>
-<span style="color: #b0d6f5;"> * whose second element has the lowest index amongst</span>
-<span style="color: #b0d6f5;"> * candidates to pair with that first element, etc.</span>
-<span style="color: #b0d6f5;"> */</span>
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">summingSeq</span><span style="color: #00cd68;">(</span>xs <span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Seq</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span>, sum<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>, n<span style="color: #b6a0ff;">:</span><span style="color: #6ae4b9;">Int</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Either</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> n <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">0</span> <span style="color: #b6a0ff;">if</span> sum == <span style="color: #00bcff;">0</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Right</span><span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">Nil</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">0</span>             <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Left</span><span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"Ran out of return space with some leftover amount."</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">if</span> n &gt; <span style="color: #00bcff;">0</span> <span style="color: #b6a0ff;">=&gt;</span> xs <span style="color: #b6a0ff;">match</span> <span style="color: #b6a0ff;">{</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">Nil</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Left</span><span style="color: #6ae4b9;">(</span><span style="color: #79a8ff;">"Ran out of elements with some leftover amount."</span><span style="color: #6ae4b9;">)</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">fst</span> <span style="color: #6ae4b9;">::</span> <span style="color: #00d3d0;">rest</span> <span style="color: #b6a0ff;">if</span> sum &gt;= fst <span style="color: #b6a0ff;">=&gt;</span>
-      summingSeq<span style="color: #6ae4b9;">(</span>rest, sum-fst, n-1<span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-        <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Right</span><span style="color: #f0ce43;">(</span><span style="color: #00d3d0;">ys</span><span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Right</span><span style="color: #f0ce43;">(</span>fst :: ys<span style="color: #f0ce43;">)</span>
-        <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Left</span><span style="color: #f0ce43;">(</span><span style="color: #b6a0ff;">_</span><span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">=&gt;</span> summingSeq<span style="color: #f0ce43;">(</span>rest,sum,n<span style="color: #f0ce43;">)</span>
-      <span style="color: #6ae4b9;">}</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #b6a0ff;">_</span> <span style="color: #6ae4b9;">::</span> <span style="color: #00d3d0;">rest</span> <span style="color: #b6a0ff;">=&gt;</span> summingSeq<span style="color: #6ae4b9;">(</span>rest,sum,n<span style="color: #6ae4b9;">)</span>
-  <span style="color: #b6a0ff;">}</span>
-  <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">if</span> n &lt; <span style="color: #00bcff;">0</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Left</span><span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"Cannot sum many negative elements"</span><span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-
-summingSeq<span style="color: #00cd68;">(</span>input,<span style="color: #00bcff;">2020</span>,<span style="color: #00bcff;">3</span><span style="color: #00cd68;">)</span> <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
+<pre class="src src-amm">summingSeq<span style="color: #00cd68;">(</span>input,<span style="color: #00bcff;">2020</span>,<span style="color: #00bcff;">3</span><span style="color: #00cd68;">)</span> <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
   <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Right</span><span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">l</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> println<span style="color: #b6a0ff;">(</span>s<span style="color: #79a8ff;">"The product of the summing triple is </span><span style="color: #00d3d0;">${l.product}</span><span style="color: #79a8ff;">."</span><span style="color: #b6a0ff;">)</span>
   <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Left</span><span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">s</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> println<span style="color: #b6a0ff;">(</span>s<span style="color: #79a8ff;">"Summing triple not found; error </span><span style="color: #00d3d0;">${s}</span><span style="color: #79a8ff;">."</span><span style="color: #b6a0ff;">)</span>
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
+
+<p>
+My answer here was 276650720.
+</p>
 </div>
 </div>
 </div>
@@ -798,11 +718,21 @@ summingSeq<span style="color: #00cd68;">(</span>input,<span style="color: #00bcf
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 1 code</h3>
 <div class="outline-text-3" id="text-The-code">
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">import</span> scala.io.<span style="color: #00bcff;">Source</span>
+</pre>
 </div>
 
-<div id="outline-container-The-workhorses" class="outline-4">
-<h4 id="The-workhorses">The workhorses</h4>
-<div class="outline-text-4" id="text-The-workhorses">
+<p>
+This days input is easy to handle; we just want a list of strings.
+</p>
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">source</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">Source</span>.fromFile<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"../../input/advent-of-code-2020/day2.txt"</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">input</span> <span style="color: #b6a0ff;">=</span> source.getLines.toList
+source.close<span style="color: #00cd68;">()</span>
+</pre>
+</div>
+
 <p>
 We require a parser for each line of the input.
 This takes the string giving the password policy and the password,
@@ -813,34 +743,6 @@ satisfies that policy.
 <p>
 This requires the use of regular expressions to break the string
 into its parts, and a character counting method.
-</p>
-<div class="org-src-container">
-<pre class="src src-amm" id="org6fef493"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parsePolicy</span><span style="color: #00cd68;">(</span>s<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple4</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Char</span>,<span style="color: #00bcff;">String</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">pattern</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"([0-9]+)-([0-9]+) ([A-Za-z]): ([A-Za-z]+)"</span>.r
-  <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">pattern</span><span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">low</span>, <span style="color: #00d3d0;">high</span>, <span style="color: #00d3d0;">c</span>, <span style="color: #00d3d0;">pass</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> s
-  <span style="color: #b6a0ff;">return</span> <span style="color: #b6a0ff;">(</span>low.toInt,high.toInt,c.head,pass<span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">satisfiesPolicy</span><span style="color: #00cd68;">(</span>s <span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">low</span>,<span style="color: #00d3d0;">high</span>,<span style="color: #00d3d0;">c</span>,<span style="color: #00d3d0;">pass</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> parsePolicy<span style="color: #b6a0ff;">(</span>s<span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">occurrences</span> <span style="color: #b6a0ff;">=</span> pass.count<span style="color: #b6a0ff;">(</span><span style="color: #b6a0ff;">_</span> == c<span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">return</span> low &lt;= occurrences &amp;&amp; occurrences &lt;= high
-<span style="color: #00cd68;">}</span>
-</pre>
-</div>
-
-<pre class="example">
-defined function parsePolicy
-defined function satisfiesPolicy
-</pre>
-</div>
-</div>
-
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
-<p>
-For this problem, we just directly use a <code>fold</code>.
 </p>
 <div class="org-src-container">
 <pre class="src src-amm"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parsePolicy</span><span style="color: #00cd68;">(</span>s<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple4</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Char</span>,<span style="color: #00bcff;">String</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
@@ -854,14 +756,24 @@ For this problem, we just directly use a <code>fold</code>.
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">occurrences</span> <span style="color: #b6a0ff;">=</span> pass.count<span style="color: #b6a0ff;">(</span><span style="color: #b6a0ff;">_</span> == c<span style="color: #b6a0ff;">)</span>
   <span style="color: #b6a0ff;">return</span> low &lt;= occurrences &amp;&amp; occurrences &lt;= high
 <span style="color: #00cd68;">}</span>
-
-
-input.foldLeft<span style="color: #00cd68;">(</span><span style="color: #00bcff;">0</span><span style="color: #00cd68;">){</span>
-  <span style="color: #b6a0ff;">(</span>accum, i<span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">(</span>satisfiesPolicy<span style="color: #6ae4b9;">(</span>i<span style="color: #6ae4b9;">)</span><span style="color: #b6a0ff;">)</span> accum + <span style="color: #00bcff;">1</span> <span style="color: #b6a0ff;">else</span> accum
-<span style="color: #00cd68;">}</span>
 </pre>
 </div>
+
+<p>
+For this problem, we just directly use a <code>fold</code>.
+</p>
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">answer</span> <span style="color: #b6a0ff;">=</span> input.foldLeft<span style="color: #00cd68;">(</span><span style="color: #00bcff;">0</span><span style="color: #00cd68;">){</span>
+  <span style="color: #b6a0ff;">(</span>accum, i<span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">(</span>satisfiesPolicy<span style="color: #6ae4b9;">(</span>i<span style="color: #6ae4b9;">)</span><span style="color: #b6a0ff;">)</span> accum + <span style="color: #00bcff;">1</span> <span style="color: #b6a0ff;">else</span> accum
+<span style="color: #00cd68;">}</span>
+
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"</span><span style="color: #00d3d0;">$answer</span><span style="color: #79a8ff;"> passwords are valid according to the part 1 policy."</span><span style="color: #00cd68;">)</span>
+</pre>
 </div>
+
+<p>
+In my input, 519 passwords were valid according to the policy here.
+</p>
 </div>
 </div>
 
@@ -908,20 +820,7 @@ with the necessary adjustments to call <code>parsePolicy</code> here
 and then perform the new check.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parsePolicy</span><span style="color: #00cd68;">(</span>s<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple4</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Char</span>,<span style="color: #00bcff;">String</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">pattern</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"([0-9]+)-([0-9]+) ([A-Za-z]): ([A-Za-z]+)"</span>.r
-  <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">pattern</span><span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">low</span>, <span style="color: #00d3d0;">high</span>, <span style="color: #00d3d0;">c</span>, <span style="color: #00d3d0;">pass</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> s
-  <span style="color: #b6a0ff;">return</span> <span style="color: #b6a0ff;">(</span>low.toInt,high.toInt,c.head,pass<span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">satisfiesPolicy</span><span style="color: #00cd68;">(</span>s <span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">low</span>,<span style="color: #00d3d0;">high</span>,<span style="color: #00d3d0;">c</span>,<span style="color: #00d3d0;">pass</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> parsePolicy<span style="color: #b6a0ff;">(</span>s<span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">occurrences</span> <span style="color: #b6a0ff;">=</span> pass.count<span style="color: #b6a0ff;">(</span><span style="color: #b6a0ff;">_</span> == c<span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">return</span> low &lt;= occurrences &amp;&amp; occurrences &lt;= high
-<span style="color: #00cd68;">}</span>
-
-
-input.foldLeft<span style="color: #00cd68;">(</span><span style="color: #00bcff;">0</span><span style="color: #00cd68;">){</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">answer2</span> <span style="color: #b6a0ff;">=</span> input.foldLeft<span style="color: #00cd68;">(</span><span style="color: #00bcff;">0</span><span style="color: #00cd68;">){</span>
   <span style="color: #b6a0ff;">(</span>accum, i<span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">{</span>
     <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">m</span>,<span style="color: #00d3d0;">n</span>,<span style="color: #00d3d0;">c</span>,<span style="color: #00d3d0;">pass</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> parsePolicy<span style="color: #6ae4b9;">(</span>i<span style="color: #6ae4b9;">)</span>
     <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">m_is_c</span> <span style="color: #b6a0ff;">=</span> pass<span style="color: #6ae4b9;">(</span>m-1<span style="color: #6ae4b9;">)</span> == c
@@ -933,8 +832,14 @@ input.foldLeft<span style="color: #00cd68;">(</span><span style="color: #00bcff;
       accum
   <span style="color: #b6a0ff;">}</span>
 <span style="color: #00cd68;">}</span>
+
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"</span><span style="color: #00d3d0;">$answer2</span><span style="color: #79a8ff;"> passwords are valid according to the part 2 policy."</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
+
+<p>
+In my input, 708 passwords were valid according to the policy here.
+</p>
 </div>
 </div>
 </div>
@@ -998,13 +903,23 @@ input.foldLeft<span style="color: #00cd68;">(</span><span style="color: #00bcff;
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 1 code</h3>
 <div class="outline-text-3" id="text-The-code">
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">import</span> scala.io.<span style="color: #00bcff;">Source</span>
+</pre>
 </div>
 
-<div id="outline-container-The-workhorses" class="outline-4">
-<h4 id="The-workhorses">The workhorses</h4>
-<div class="outline-text-4" id="text-The-workhorses">
 <p>
-This is a fairly particular problem. I don't see an obvious
+Same as yesterday, this input is easy to handle; we just want a list of strings.
+</p>
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">source</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">Source</span>.fromFile<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"../../input/advent-of-code-2020/day3.txt"</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">input</span> <span style="color: #b6a0ff;">=</span> source.getLines.toList
+source.close<span style="color: #00cd68;">()</span>
+</pre>
+</div>
+
+<p>
+Now, this is a fairly particular problem. I don't see an obvious
 generalisation, so I'll proceed with a fairly particular solution.
 </p>
 
@@ -1054,7 +969,7 @@ and add this encounter (or lack of encounter) to the tally.</li>
 </ul></li>
 </ul>
 <div class="org-src-container">
-<pre class="src src-amm" id="org189eb0b"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters</span><span style="color: #00cd68;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span>,
+<pre class="src src-amm"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters</span><span style="color: #00cd68;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span>,
                entity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Char</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span>,
                x_position<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>,
                velocity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple2</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
@@ -1071,34 +986,22 @@ and add this encounter (or lack of encounter) to the tally.</li>
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
+<p>
+Now the answer is obtained by setting the starting x-position to 0,
+entering an x-velocity of 3 and y-velocity of 1,
+and setting <code>#</code> as the only entity.
+</p>
 <div class="org-src-container">
-<pre class="src src-amm">
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters</span><span style="color: #00cd68;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span>,
-               entity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Char</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span>,
-               x_position<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>,
-               velocity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple2</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">x_velocity</span>,<span style="color: #00d3d0;">y_velocity</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> velocity
-  map.length <span style="color: #b6a0ff;">match</span> <span style="color: #b6a0ff;">{</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">if</span> n &lt;= y_velocity <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">0</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">=&gt;</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">next_x</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">(</span>x_position + x_velocity<span style="color: #6ae4b9;">)</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">remaining_map</span> <span style="color: #b6a0ff;">=</span> map.drop<span style="color: #6ae4b9;">(</span>y_velocity<span style="color: #6ae4b9;">)</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">map_width</span> <span style="color: #b6a0ff;">=</span> remaining_map<span style="color: #6ae4b9;">(</span><span style="color: #00bcff;">0</span><span style="color: #6ae4b9;">)</span>.length
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">encounter</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">if</span> <span style="color: #6ae4b9;">(</span>entity<span style="color: #f0ce43;">(</span>remaining_map<span style="color: #00bcff;">(</span><span style="color: #00bcff;">0</span><span style="color: #00bcff;">)(</span>next_x % map_width<span style="color: #00bcff;">)</span><span style="color: #f0ce43;">)</span><span style="color: #6ae4b9;">)</span> <span style="color: #00bcff;">1</span> <span style="color: #b6a0ff;">else</span> <span style="color: #00bcff;">0</span>
-      encounters<span style="color: #6ae4b9;">(</span>remaining_map, entity, next_x, velocity<span style="color: #6ae4b9;">)</span> + encounter
-  <span style="color: #b6a0ff;">}</span>
-<span style="color: #00cd68;">}</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">answer</span> <span style="color: #b6a0ff;">=</span> encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">3</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
 
-encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">3</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"On this hill, with this velocity, we will encounter </span><span style="color: #00d3d0;">$answer</span><span style="color: #79a8ff;"> trees."</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
-</div>
+
+<p>
+We get an answer of 228 tees encountered here.
+</p>
 </div>
 </div>
 
@@ -1122,11 +1025,6 @@ encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 2 code</h3>
 <div class="outline-text-3" id="text-The-code">
-</div>
-
-<div id="outline-container-The-workhorse" class="outline-4">
-<h4 id="The-workhorse">The workhorse</h4>
-<div class="outline-text-4" id="text-The-workhorse">
 <p>
 This second problem does not actually require
 a different solution; only a change to my <code>velocity</code> argument
@@ -1145,10 +1043,15 @@ Note that the <code>entity</code> and the <code>velocity</code> arguments never 
 so they are not necessary arguments for the helper.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="org43dbed2"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters</span><span style="color: #00cd68;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span>,
+<pre class="src src-amm"><span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">The @tailrec annotation on a method results in a static error</span>
+<span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">if the definition is not actually tail recursive.</span>
+<span style="color: #b6a0ff;">import</span> scala.annotation.tailrec
+
+<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encountersTR</span><span style="color: #00cd68;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span>,
                entity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Char</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span>,
                x_position<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>,
                velocity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple2</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
+  <span style="color: #ff9977;">@tailrec</span>
   <span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters_helper</span><span style="color: #b6a0ff;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">String</span><span style="color: #6ae4b9;">]</span>,
                         x_position<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>,
                         count<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span><span style="color: #b6a0ff;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">{</span>
@@ -1167,48 +1070,26 @@ so they are not necessary arguments for the helper.
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
 <p>
-Just multiply together the results.
+Now just multiply together the results.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm">
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters</span><span style="color: #00cd68;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span>,
-               entity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Char</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span>,
-               x_position<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>,
-               velocity<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Tuple2</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Int</span>,<span style="color: #00bcff;">Int</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">encounters_helper</span><span style="color: #b6a0ff;">(</span>map<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">String</span><span style="color: #6ae4b9;">]</span>,
-                        x_position<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>,
-                        count<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span><span style="color: #b6a0ff;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">{</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">x_velocity</span>,<span style="color: #00d3d0;">y_velocity</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> velocity
-    map.length <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-      <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">if</span> n &lt;= y_velocity <span style="color: #b6a0ff;">=&gt;</span> count
-      <span style="color: #b6a0ff;">case</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">=&gt;</span>
-        <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">next_x</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f0ce43;">(</span>x_position + x_velocity<span style="color: #f0ce43;">)</span>
-        <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">remaining_map</span> <span style="color: #b6a0ff;">=</span> map.drop<span style="color: #f0ce43;">(</span>y_velocity<span style="color: #f0ce43;">)</span>
-        <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">map_width</span> <span style="color: #b6a0ff;">=</span> remaining_map<span style="color: #f0ce43;">(</span><span style="color: #00bcff;">0</span><span style="color: #f0ce43;">)</span>.length
-        <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">encounter</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">if</span> <span style="color: #f0ce43;">(</span>entity<span style="color: #00bcff;">(</span>remaining_map<span style="color: #80d200;">(</span><span style="color: #00bcff;">0</span><span style="color: #80d200;">)(</span>next_x % map_width<span style="color: #80d200;">)</span><span style="color: #00bcff;">)</span><span style="color: #f0ce43;">)</span> <span style="color: #00bcff;">1</span> <span style="color: #b6a0ff;">else</span> <span style="color: #00bcff;">0</span>
-        encounters_helper<span style="color: #f0ce43;">(</span>remaining_map, next_x, count+encounter<span style="color: #f0ce43;">)</span>
-    <span style="color: #6ae4b9;">}</span>
-  <span style="color: #b6a0ff;">}</span>
-  encounters_helper<span style="color: #b6a0ff;">(</span>map,x_position,<span style="color: #00bcff;">0</span><span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e11</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Long</span> <span style="color: #b6a0ff;">=</span> encountersTR<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">1</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e31</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Long</span> <span style="color: #b6a0ff;">=</span> encountersTR<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">3</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e51</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Long</span> <span style="color: #b6a0ff;">=</span> encountersTR<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">5</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e71</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Long</span> <span style="color: #b6a0ff;">=</span> encountersTR<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">7</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e12</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Long</span> <span style="color: #b6a0ff;">=</span> encountersTR<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">1</span>,<span style="color: #00bcff;">2</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
 
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e11</span> <span style="color: #b6a0ff;">=</span> encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">1</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e31</span> <span style="color: #b6a0ff;">=</span> encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">3</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e51</span> <span style="color: #b6a0ff;">=</span> encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">5</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e71</span> <span style="color: #b6a0ff;">=</span> encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">7</span>,<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">e12</span> <span style="color: #b6a0ff;">=</span> encounters<span style="color: #00cd68;">(</span>input, <span style="color: #b6a0ff;">{</span><span style="color: #b6a0ff;">_</span> == <span style="color: #79a8ff;">'#'</span><span style="color: #b6a0ff;">}</span>, <span style="color: #00bcff;">0</span>, <span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">1</span>,<span style="color: #00bcff;">2</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">answer2</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Long</span> <span style="color: #b6a0ff;">=</span> e11 * e31 * e51 * e71 * e12
 
-e11 * e31 * e51 * e71 * e12
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"On this hill, with these velocities, the product of the number of trees we will encounter is </span><span style="color: #00d3d0;">$answer2</span><span style="color: #79a8ff;">"</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
-</div>
+
+<p>
+Here, we get the answer 6818112000.
+</p>
 </div>
 </div>
 </div>
@@ -1262,16 +1143,24 @@ iyr:2011 ecl:brn hgt:59in
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 1 code</h3>
 <div class="outline-text-3" id="text-The-code">
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">import</span> scala.io.<span style="color: #00bcff;">Source</span>
+</pre>
 </div>
 
-<div id="outline-container-The-workhorse" class="outline-4">
-<h4 id="The-workhorse">The workhorse</h4>
-<div class="outline-text-4" id="text-The-workhorse">
 <p>
-Another string parsing problem. This time, we take the whole input
-as a single string, and break off lines as we work
+Another string parsing problem. This time, I want the whole input
+as a single string; we will break off lines as we work
 (always at double line breaks.)
+(Note from the future; I have a better approach than this in later
+problems, using <code>spans</code> defined in <a href="#Resources">Resources</a>.)
 </p>
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">source</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">Source</span>.fromFile<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"../../input/advent-of-code-2020/day4.txt"</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">input</span> <span style="color: #b6a0ff;">=</span> source.getLines<span style="color: #00cd68;">()</span>.mkString<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"</span><span style="color: #00bcff;">\n</span><span style="color: #79a8ff;">"</span><span style="color: #00cd68;">)</span>
+source.close<span style="color: #00cd68;">()</span>
+</pre>
+</div>
 
 <p>
 The <code>String</code> method <code>indexOf</code> lets us find double line breaks,
@@ -1298,7 +1187,7 @@ When we make use of this method, we can just count
 the number of <code>Right</code>'s.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="orgc37a53d"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validateParagraphs</span><span style="color: #00cd68;">(</span>text<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span>,
+<pre class="src src-amm"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validateParagraphs</span><span style="color: #00cd68;">(</span>text<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span>,
                        validator<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
     <span style="color: #00bcff;">Vector</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Either</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
 
@@ -1328,59 +1217,27 @@ the number of <code>Right</code>'s.
 </div>
 
 <div class="org-src-container">
-<pre class="src src-amm" id="orgaf42877"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validator</span><span style="color: #00cd68;">(</span>paragraph<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validator</span><span style="color: #00cd68;">(</span>paragraph<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">fields</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"byr:"</span>, <span style="color: #79a8ff;">"iyr:"</span>, <span style="color: #79a8ff;">"eyr:"</span>, <span style="color: #79a8ff;">"hgt:"</span>, <span style="color: #79a8ff;">"hcl:"</span>, <span style="color: #79a8ff;">"ecl:"</span>, <span style="color: #79a8ff;">"pid:"</span><span style="color: #b6a0ff;">)</span>
   fields forall <span style="color: #b6a0ff;">{</span>paragraph contains <span style="color: #b6a0ff;">_</span><span style="color: #b6a0ff;">}</span>
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
 <p>
 We now just count the number of <code>Right</code> elements we get back
 from the paragraph validator.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="orgc7f384d">
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validateParagraphs</span><span style="color: #00cd68;">(</span>text<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span>,
-                       validator<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
-    <span style="color: #00bcff;">Vector</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Either</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">answer</span> <span style="color: #b6a0ff;">=</span> validateParagraphs<span style="color: #00cd68;">(</span>input,validator<span style="color: #00cd68;">)</span>.count<span style="color: #00cd68;">(</span><span style="color: #b6a0ff;">_</span>.isRight<span style="color: #00cd68;">)</span>
 
-  <span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validateParagraphsHelper</span><span style="color: #b6a0ff;">(</span>text<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span>,
-                               results<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Vector</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">Either</span><span style="color: #f0ce43;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #f0ce43;">]</span><span style="color: #6ae4b9;">]</span><span style="color: #b6a0ff;">)</span><span style="color: #b6a0ff;">:</span>
-      <span style="color: #00bcff;">Vector</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Either</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #6ae4b9;">]</span><span style="color: #b6a0ff;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">{</span>
-    
-    <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Break off the portion up to the next double empty string.</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">parbreak</span> <span style="color: #b6a0ff;">=</span> text.indexOf<span style="color: #6ae4b9;">(</span><span style="color: #79a8ff;">"</span><span style="color: #00bcff;">\n\n</span><span style="color: #79a8ff;">"</span><span style="color: #6ae4b9;">)</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">prepar</span>, <span style="color: #00d3d0;">prerest</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> text.splitAt<span style="color: #6ae4b9;">(</span>parbreak<span style="color: #6ae4b9;">)</span>
-    <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Then trim whitespace on the ends of the paragraph and the rest.</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">par</span>, <span style="color: #00d3d0;">rest</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">(</span>prepar.trim, prerest.trim<span style="color: #6ae4b9;">)</span>
-    <span style="color: #b6a0ff;">if</span> <span style="color: #6ae4b9;">(</span>par.nonEmpty<span style="color: #6ae4b9;">)</span> <span style="color: #6ae4b9;">{</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">par_validated</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">if</span> <span style="color: #f0ce43;">(</span>validator<span style="color: #00bcff;">(</span>par<span style="color: #00bcff;">)</span><span style="color: #f0ce43;">)</span> <span style="color: #00bcff;">Right</span><span style="color: #f0ce43;">(</span>par<span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">else</span> <span style="color: #00bcff;">Left</span><span style="color: #f0ce43;">(</span>par<span style="color: #f0ce43;">)</span>
-      validateParagraphsHelper<span style="color: #f0ce43;">(</span>rest, results :+ par_validated<span style="color: #f0ce43;">)</span>
-    <span style="color: #6ae4b9;">}</span> <span style="color: #b6a0ff;">else</span> <span style="color: #6ae4b9;">{</span>
-      <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Finally, check what's left over.</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">rest_validated</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">if</span> <span style="color: #f0ce43;">(</span>validator<span style="color: #00bcff;">(</span>rest<span style="color: #00bcff;">)</span><span style="color: #f0ce43;">)</span> <span style="color: #00bcff;">Right</span><span style="color: #f0ce43;">(</span>rest<span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">else</span> <span style="color: #00bcff;">Left</span><span style="color: #f0ce43;">(</span>rest<span style="color: #f0ce43;">)</span>
-      results :+ rest_validated
-    <span style="color: #6ae4b9;">}</span>
-  <span style="color: #b6a0ff;">}</span>
-
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Trim whitespace from the ends of the text before we begin.</span>
-  validateParagraphsHelper<span style="color: #b6a0ff;">(</span>text.trim, <span style="color: #00bcff;">Vector</span><span style="color: #6ae4b9;">()</span><span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validator</span><span style="color: #00cd68;">(</span>paragraph<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">fields</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"byr:"</span>, <span style="color: #79a8ff;">"iyr:"</span>, <span style="color: #79a8ff;">"eyr:"</span>, <span style="color: #79a8ff;">"hgt:"</span>, <span style="color: #79a8ff;">"hcl:"</span>, <span style="color: #79a8ff;">"ecl:"</span>, <span style="color: #79a8ff;">"pid:"</span><span style="color: #b6a0ff;">)</span>
-  fields forall <span style="color: #b6a0ff;">{</span>paragraph contains <span style="color: #b6a0ff;">_</span><span style="color: #b6a0ff;">}</span>
-<span style="color: #00cd68;">}</span>
-
-validateParagraphs<span style="color: #00cd68;">(</span>input,validator<span style="color: #00cd68;">)</span>.count<span style="color: #00cd68;">(</span><span style="color: #b6a0ff;">_</span>.isRight<span style="color: #00cd68;">)</span>
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"There were </span><span style="color: #00d3d0;">$answer</span><span style="color: #79a8ff;"> valid passports by the given rules."</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
-</div>
+
+<p>
+Under this first set of rules, there were 233 valid passports in my input.
+</p>
 </div>
 </div>
 
@@ -1459,11 +1316,6 @@ iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 2 code</h3>
 <div class="outline-text-3" id="text-The-code">
-</div>
-
-<div id="outline-container-The-workhorses" class="outline-4">
-<h4 id="The-workhorses">The workhorses</h4>
-<div class="outline-text-4" id="text-The-workhorses">
 <p>
 The <code>validateParagraphs</code> method from earlier still fits this problem.
 But we now require a much more involved <code>validator</code> method
@@ -1471,9 +1323,9 @@ to give to it; specifically, we have a lot of regular expression
 matching to do to extract fields and check them.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="orgb4c49ec"><span style="color: #b6a0ff;">import</span> scala.util.matching.<span style="color: #b6a0ff;">_</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">import</span> scala.util.matching.<span style="color: #b6a0ff;">_</span>
 
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validator</span><span style="color: #00cd68;">(</span>paragraph<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
+<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validator2</span><span style="color: #00cd68;">(</span>paragraph<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
   <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Many of the fields we need to validate are numbers</span>
   <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">needing to fall within a certain range.</span>
   <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">This helper handles the extraction of the match and the range check.</span>
@@ -1514,79 +1366,20 @@ after the 9 required digits. That is why all these expressions
 now check for the beginning of the string or whitespace beforehand,
 and the end of the string or whitespace afterwards.
 </p>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
 <p>
 The answer is easily calculated once the validator is correct.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="org5e2e62d">
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validateParagraphs</span><span style="color: #00cd68;">(</span>text<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span>,
-                       validator<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">Boolean</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
-    <span style="color: #00bcff;">Vector</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">Either</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">answer2</span> <span style="color: #b6a0ff;">=</span> validateParagraphs<span style="color: #00cd68;">(</span>input,validator2<span style="color: #00cd68;">)</span>.count<span style="color: #00cd68;">(</span><span style="color: #b6a0ff;">_</span>.isRight<span style="color: #00cd68;">)</span>
 
-  <span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validateParagraphsHelper</span><span style="color: #b6a0ff;">(</span>text<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span>,
-                               results<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Vector</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">Either</span><span style="color: #f0ce43;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #f0ce43;">]</span><span style="color: #6ae4b9;">]</span><span style="color: #b6a0ff;">)</span><span style="color: #b6a0ff;">:</span>
-      <span style="color: #00bcff;">Vector</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">Either</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">String</span>,<span style="color: #00bcff;">String</span><span style="color: #6ae4b9;">]</span><span style="color: #b6a0ff;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">{</span>
-    
-    <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Break off the portion up to the next double empty string.</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">parbreak</span> <span style="color: #b6a0ff;">=</span> text.indexOf<span style="color: #6ae4b9;">(</span><span style="color: #79a8ff;">"</span><span style="color: #00bcff;">\n\n</span><span style="color: #79a8ff;">"</span><span style="color: #6ae4b9;">)</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">prepar</span>, <span style="color: #00d3d0;">prerest</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> text.splitAt<span style="color: #6ae4b9;">(</span>parbreak<span style="color: #6ae4b9;">)</span>
-    <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Then trim whitespace on the ends of the paragraph and the rest.</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">par</span>, <span style="color: #00d3d0;">rest</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">(</span>prepar.trim, prerest.trim<span style="color: #6ae4b9;">)</span>
-    <span style="color: #b6a0ff;">if</span> <span style="color: #6ae4b9;">(</span>par.nonEmpty<span style="color: #6ae4b9;">)</span> <span style="color: #6ae4b9;">{</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">par_validated</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">if</span> <span style="color: #f0ce43;">(</span>validator<span style="color: #00bcff;">(</span>par<span style="color: #00bcff;">)</span><span style="color: #f0ce43;">)</span> <span style="color: #00bcff;">Right</span><span style="color: #f0ce43;">(</span>par<span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">else</span> <span style="color: #00bcff;">Left</span><span style="color: #f0ce43;">(</span>par<span style="color: #f0ce43;">)</span>
-      validateParagraphsHelper<span style="color: #f0ce43;">(</span>rest, results :+ par_validated<span style="color: #f0ce43;">)</span>
-    <span style="color: #6ae4b9;">}</span> <span style="color: #b6a0ff;">else</span> <span style="color: #6ae4b9;">{</span>
-      <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Finally, check what's left over.</span>
-      <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">rest_validated</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">if</span> <span style="color: #f0ce43;">(</span>validator<span style="color: #00bcff;">(</span>rest<span style="color: #00bcff;">)</span><span style="color: #f0ce43;">)</span> <span style="color: #00bcff;">Right</span><span style="color: #f0ce43;">(</span>rest<span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">else</span> <span style="color: #00bcff;">Left</span><span style="color: #f0ce43;">(</span>rest<span style="color: #f0ce43;">)</span>
-      results :+ rest_validated
-    <span style="color: #6ae4b9;">}</span>
-  <span style="color: #b6a0ff;">}</span>
-
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Trim whitespace from the ends of the text before we begin.</span>
-  validateParagraphsHelper<span style="color: #b6a0ff;">(</span>text.trim, <span style="color: #00bcff;">Vector</span><span style="color: #6ae4b9;">()</span><span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-<span style="color: #b6a0ff;">import</span> scala.util.matching.<span style="color: #b6a0ff;">_</span>
-
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">validator</span><span style="color: #00cd68;">(</span>paragraph<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Boolean</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Many of the fields we need to validate are numbers</span>
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">needing to fall within a certain range.</span>
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">This helper handles the extraction of the match and the range check.</span>
-  <span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">numValidator</span><span style="color: #b6a0ff;">(</span>pattern<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Regex</span>, group<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>, low<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span>, high<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">Int</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> <span style="color: #b6a0ff;">{</span>
-    <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">the_match</span> <span style="color: #b6a0ff;">=</span> pattern.unanchored.findFirstMatchIn<span style="color: #6ae4b9;">(</span>paragraph<span style="color: #6ae4b9;">)</span>
-    the_match <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-      <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Some</span><span style="color: #f0ce43;">(</span><span style="color: #00d3d0;">m</span><span style="color: #f0ce43;">)</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">n</span> <span style="color: #b6a0ff;">=</span> m.group<span style="color: #f0ce43;">(</span>group<span style="color: #f0ce43;">)</span>.toInt; low &lt;= n &amp;&amp; n &lt;= high
-      <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">None</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">false</span>
-    <span style="color: #6ae4b9;">}</span>
-  <span style="color: #b6a0ff;">}</span>
-
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Fields which require numerical validation.</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_birth_year</span> <span style="color: #b6a0ff;">=</span> numValidator<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"""(^|\s)byr:(\d\d\d\d)($|\s)"""</span>.r, <span style="color: #00bcff;">2</span>, <span style="color: #00bcff;">1920</span>, <span style="color: #00bcff;">2002</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_issue_year</span> <span style="color: #b6a0ff;">=</span> numValidator<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"""(^|\s)iyr:(\d\d\d\d)($|\s)"""</span>.r, <span style="color: #00bcff;">2</span>, <span style="color: #00bcff;">2010</span>, <span style="color: #00bcff;">2020</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_expir_year</span> <span style="color: #b6a0ff;">=</span> numValidator<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"""(^|\s)eyr:(\d\d\d\d)($|\s)"""</span>.r, <span style="color: #00bcff;">2</span>, <span style="color: #00bcff;">2020</span>, <span style="color: #00bcff;">2030</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">(Note: only one of these heights be present.)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_height_in</span> <span style="color: #b6a0ff;">=</span> numValidator<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"""(^|\s)hgt:(\d\d)in($|\s)"""</span>.r, <span style="color: #00bcff;">2</span>, <span style="color: #00bcff;">59</span>, <span style="color: #00bcff;">76</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_height_cm</span> <span style="color: #b6a0ff;">=</span> numValidator<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"""(^|\s)hgt:(\d\d\d)cm($|\s)"""</span>.r, <span style="color: #00bcff;">2</span>, <span style="color: #00bcff;">150</span>, <span style="color: #00bcff;">193</span><span style="color: #b6a0ff;">)</span>
-  
-  <span style="color: #a8a8a8;">// </span><span style="color: #a8a8a8;">Fields which do not require additional validation.</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_hair_colour</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"""(^|\s)hcl:#[0-9a-f]{6}($|\s)"""</span>.r.unanchored.matches<span style="color: #b6a0ff;">(</span>paragraph<span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_eye_colour</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"""(^|\s)ecl:(amb|blu|brn|gry|grn|hzl|oth)($|\s)"""</span>.r.unanchored.matches<span style="color: #b6a0ff;">(</span>paragraph<span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">has_passport_id</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"""(^|\s)pid:\d{9}($|\s)"""</span>.r.unanchored.matches<span style="color: #b6a0ff;">(</span>paragraph<span style="color: #b6a0ff;">)</span>
-
-  <span style="color: #b6a0ff;">(</span>has_birth_year &amp;&amp; has_issue_year &amp;&amp; has_expir_year
-    &amp;&amp; <span style="color: #6ae4b9;">(</span>has_height_in || has_height_cm<span style="color: #6ae4b9;">)</span>
-    &amp;&amp; has_hair_colour &amp;&amp; has_eye_colour &amp;&amp; has_passport_id<span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-
-validateParagraphs<span style="color: #00cd68;">(</span>input,validator<span style="color: #00cd68;">)</span>.count<span style="color: #00cd68;">(</span><span style="color: #b6a0ff;">_</span>.isRight<span style="color: #00cd68;">)</span>
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"Under the new rules, </span><span style="color: #00d3d0;">$answer2</span><span style="color: #79a8ff;"> passports are valid."</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
-</div>
+
+<p>
+Under the new rules, there were 111 valid passports.
+</p>
 </div>
 </div>
 </div>
@@ -1637,11 +1430,21 @@ validateParagraphs<span style="color: #00cd68;">(</span>input,validator<span sty
 <div id="outline-container-The-code" class="outline-3">
 <h3 id="The-code">The part 1 code</h3>
 <div class="outline-text-3" id="text-The-code">
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">import</span> scala.io.<span style="color: #00bcff;">Source</span>
+</pre>
 </div>
 
-<div id="outline-container-The-workhorses" class="outline-4">
-<h4 id="The-workhorses">The workhorses</h4>
-<div class="outline-text-4" id="text-The-workhorses">
+<p>
+The input is easy today; just a list of strings.
+</p>
+<div class="org-src-container">
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">source</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">Source</span>.fromFile<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"../../input/advent-of-code-2020/day5.txt"</span><span style="color: #00cd68;">)</span>
+<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">input</span> <span style="color: #b6a0ff;">=</span> source.getLines<span style="color: #00cd68;">()</span>.toList
+source.close<span style="color: #00cd68;">()</span>
+</pre>
+</div>
+
 <p>
 We begin with a general method to shrink “binary spaces”.
 Given a range, and a list of “increase lower/decrease upper”
@@ -1649,7 +1452,7 @@ commands, we return a new range resulting from
 applying the commands.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="orgf6750a7"><span style="color: #f78fe7;">sealed</span> <span style="color: #b6a0ff;">trait</span> <span style="color: #6ae4b9;">BinSpaceModifier</span>
+<pre class="src src-amm"><span style="color: #f78fe7;">sealed</span> <span style="color: #b6a0ff;">trait</span> <span style="color: #6ae4b9;">BinSpaceModifier</span>
 <span style="color: #b6a0ff;">case</span> <span style="color: #b6a0ff;">object</span> <span style="color: #00bcff;">IncreaseLower</span> <span style="color: #b6a0ff;">extends</span> <span style="color: #6ae4b9;">BinSpaceModifier</span>
 <span style="color: #b6a0ff;">case</span> <span style="color: #b6a0ff;">object</span> <span style="color: #00bcff;">DecreaseUpper</span> <span style="color: #b6a0ff;">extends</span> <span style="color: #6ae4b9;">BinSpaceModifier</span>
 
@@ -1680,7 +1483,7 @@ Since we know the exact form of the input strings,
 this method is quite exact; not generally useful.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm" id="org27d7335"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parseSeatCode</span><span style="color: #00cd68;">(</span>code<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parseSeatCode</span><span style="color: #00cd68;">(</span>code<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
     <span style="color: #00bcff;">Tuple2</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">BinSpaceModifier</span><span style="color: #b6a0ff;">]</span>,<span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">BinSpaceModifier</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">rowLetters</span>, <span style="color: #00d3d0;">columnLetters</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> code.splitAt<span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">7</span><span style="color: #b6a0ff;">)</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">rowCommands</span> <span style="color: #b6a0ff;">=</span> rowLetters.map<span style="color: #b6a0ff;">(</span>l <span style="color: #b6a0ff;">=&gt;</span> l <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
@@ -1694,28 +1497,9 @@ this method is quite exact; not generally useful.
 <span style="color: #00cd68;">}</span>
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-The-answer" class="outline-4">
-<h4 id="The-answer">The answer</h4>
-<div class="outline-text-4" id="text-The-answer">
 <div class="org-src-container">
-<pre class="src src-amm">
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parseSeatCode</span><span style="color: #00cd68;">(</span>code<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
-    <span style="color: #00bcff;">Tuple2</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">BinSpaceModifier</span><span style="color: #b6a0ff;">]</span>,<span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">BinSpaceModifier</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">rowLetters</span>, <span style="color: #00d3d0;">columnLetters</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> code.splitAt<span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">7</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">rowCommands</span> <span style="color: #b6a0ff;">=</span> rowLetters.map<span style="color: #b6a0ff;">(</span>l <span style="color: #b6a0ff;">=&gt;</span> l <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'F'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">DecreaseUpper</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'B'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">IncreaseLower</span><span style="color: #6ae4b9;">}</span><span style="color: #b6a0ff;">)</span>.toList
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">columnCommands</span> <span style="color: #b6a0ff;">=</span> columnLetters.map<span style="color: #b6a0ff;">(</span>l <span style="color: #b6a0ff;">=&gt;</span> l <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'L'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">DecreaseUpper</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'R'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">IncreaseLower</span><span style="color: #6ae4b9;">}</span><span style="color: #b6a0ff;">)</span>.toList
-
-  <span style="color: #00bcff;">Tuple2</span><span style="color: #b6a0ff;">(</span>rowCommands,columnCommands<span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">highest_id</span> <span style="color: #b6a0ff;">=</span> input.map<span style="color: #00cd68;">(</span>code <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">{</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">highest_id</span> <span style="color: #b6a0ff;">=</span> input.map<span style="color: #00cd68;">(</span>code <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">{</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">rowCommands</span>, <span style="color: #00d3d0;">columnCommands</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> parseSeatCode<span style="color: #6ae4b9;">(</span>code<span style="color: #6ae4b9;">)</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">row</span> <span style="color: #b6a0ff;">=</span> shrinkBinSpace<span style="color: #6ae4b9;">(</span><span style="color: #00bcff;">Tuple2</span><span style="color: #f0ce43;">(</span><span style="color: #00bcff;">0</span>,<span style="color: #00bcff;">127</span><span style="color: #f0ce43;">)</span>,rowCommands<span style="color: #6ae4b9;">)</span>._1
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">column</span> <span style="color: #b6a0ff;">=</span> shrinkBinSpace<span style="color: #6ae4b9;">(</span><span style="color: #00bcff;">Tuple2</span><span style="color: #f0ce43;">(</span><span style="color: #00bcff;">0</span>,<span style="color: #00bcff;">7</span><span style="color: #f0ce43;">)</span>,columnCommands<span style="color: #6ae4b9;">)</span>._1
@@ -1723,10 +1507,13 @@ this method is quite exact; not generally useful.
   row * <span style="color: #00bcff;">8</span> + column
 <span style="color: #b6a0ff;">}</span><span style="color: #00cd68;">)</span>.max
 
-println<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"The highest ID for a seat is ${highest_id}."</span><span style="color: #00cd68;">)</span>
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"The highest ID for a seat is </span><span style="color: #00d3d0;">$highest_id</span><span style="color: #79a8ff;">."</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
-</div>
+
+<p>
+In my input, the highest seat ID is 858.
+</p>
 </div>
 </div>
 
@@ -1749,21 +1536,7 @@ created earlier. Search for the ID which is not in the list,
 but whose successor and predecessor are.
 </p>
 <div class="org-src-container">
-<pre class="src src-amm">
-<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">parseSeatCode</span><span style="color: #00cd68;">(</span>code<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">String</span><span style="color: #00cd68;">)</span><span style="color: #b6a0ff;">:</span>
-    <span style="color: #00bcff;">Tuple2</span><span style="color: #00cd68;">[</span><span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">BinSpaceModifier</span><span style="color: #b6a0ff;">]</span>,<span style="color: #00bcff;">List</span><span style="color: #b6a0ff;">[</span><span style="color: #00bcff;">BinSpaceModifier</span><span style="color: #b6a0ff;">]</span><span style="color: #00cd68;">]</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">{</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">rowLetters</span>, <span style="color: #00d3d0;">columnLetters</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=</span> code.splitAt<span style="color: #b6a0ff;">(</span><span style="color: #00bcff;">7</span><span style="color: #b6a0ff;">)</span>
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">rowCommands</span> <span style="color: #b6a0ff;">=</span> rowLetters.map<span style="color: #b6a0ff;">(</span>l <span style="color: #b6a0ff;">=&gt;</span> l <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'F'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">DecreaseUpper</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'B'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">IncreaseLower</span><span style="color: #6ae4b9;">}</span><span style="color: #b6a0ff;">)</span>.toList
-  <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">columnCommands</span> <span style="color: #b6a0ff;">=</span> columnLetters.map<span style="color: #b6a0ff;">(</span>l <span style="color: #b6a0ff;">=&gt;</span> l <span style="color: #b6a0ff;">match</span> <span style="color: #6ae4b9;">{</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'L'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">DecreaseUpper</span>
-    <span style="color: #b6a0ff;">case</span> <span style="color: #79a8ff;">'R'</span> <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #00bcff;">IncreaseLower</span><span style="color: #6ae4b9;">}</span><span style="color: #b6a0ff;">)</span>.toList
-
-  <span style="color: #00bcff;">Tuple2</span><span style="color: #b6a0ff;">(</span>rowCommands,columnCommands<span style="color: #b6a0ff;">)</span>
-<span style="color: #00cd68;">}</span>
-
-<span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">seat_ids</span> <span style="color: #b6a0ff;">=</span> input.map<span style="color: #00cd68;">(</span>code <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">{</span>
+<pre class="src src-amm"><span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">seat_ids</span> <span style="color: #b6a0ff;">=</span> input.map<span style="color: #00cd68;">(</span>code <span style="color: #b6a0ff;">=&gt;</span> <span style="color: #b6a0ff;">{</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #6ae4b9;">(</span><span style="color: #00d3d0;">rowCommands</span>, <span style="color: #00d3d0;">columnCommands</span><span style="color: #6ae4b9;">)</span> <span style="color: #b6a0ff;">=</span> parseSeatCode<span style="color: #6ae4b9;">(</span>code<span style="color: #6ae4b9;">)</span>
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">row</span> <span style="color: #b6a0ff;">=</span> shrinkBinSpace<span style="color: #6ae4b9;">(</span><span style="color: #00bcff;">Tuple2</span><span style="color: #f0ce43;">(</span><span style="color: #00bcff;">0</span>,<span style="color: #00bcff;">127</span><span style="color: #f0ce43;">)</span>,rowCommands<span style="color: #6ae4b9;">)</span>._1
   <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">column</span> <span style="color: #b6a0ff;">=</span> shrinkBinSpace<span style="color: #6ae4b9;">(</span><span style="color: #00bcff;">Tuple2</span><span style="color: #f0ce43;">(</span><span style="color: #00bcff;">0</span>,<span style="color: #00bcff;">7</span><span style="color: #f0ce43;">)</span>,columnCommands<span style="color: #6ae4b9;">)</span>._1
@@ -1774,9 +1547,16 @@ but whose successor and predecessor are.
 <span style="color: #b6a0ff;">val</span> <span style="color: #00d3d0;">our_id</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00cd68;">(</span><span style="color: #00bcff;">0</span> to <span style="color: #00bcff;">1023</span><span style="color: #00cd68;">)</span>.find<span style="color: #00cd68;">(</span>id <span style="color: #b6a0ff;">=&gt;</span>
   seat_ids.contains<span style="color: #b6a0ff;">(</span>id-1<span style="color: #b6a0ff;">)</span> &amp;&amp; !seat_ids.contains<span style="color: #b6a0ff;">(</span>id<span style="color: #b6a0ff;">)</span> &amp;&amp; seat_ids.contains<span style="color: #b6a0ff;">(</span>id+<span style="color: #00bcff;">1</span><span style="color: #b6a0ff;">)</span><span style="color: #00cd68;">)</span>
 
-println<span style="color: #00cd68;">(</span><span style="color: #79a8ff;">"Our seat is ${our_id}."</span><span style="color: #00cd68;">)</span>
+our_id <span style="color: #b6a0ff;">match</span> <span style="color: #00cd68;">{</span>
+  <span style="color: #b6a0ff;">case</span> <span style="color: #6ae4b9;">Some</span><span style="color: #b6a0ff;">(</span><span style="color: #00d3d0;">id</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> println<span style="color: #b6a0ff;">(</span>s<span style="color: #79a8ff;">"Our seat is </span><span style="color: #00d3d0;">$id</span><span style="color: #79a8ff;">."</span><span style="color: #b6a0ff;">)</span>
+  <span style="color: #b6a0ff;">case</span> <span style="color: #00bcff;">None</span> <span style="color: #b6a0ff;">=&gt;</span> println<span style="color: #b6a0ff;">(</span><span style="color: #79a8ff;">"Oops; didn't find our seat id!"</span><span style="color: #b6a0ff;">)</span>
+<span style="color: #00cd68;">}</span>
 </pre>
 </div>
+
+<p>
+Our seat ID is 557.
+</p>
 </div>
 </div>
 </div>
@@ -1877,19 +1657,19 @@ returned by <code>groupAnswers</code>.
   <span style="color: #b6a0ff;">(</span>accum, g<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">String</span><span style="color: #6ae4b9;">]</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> accum + groupAnswers<span style="color: #b6a0ff;">(</span>g<span style="color: #b6a0ff;">)</span>.length
 <span style="color: #00cd68;">}</span>
 
-println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"The solution to part 1 is </span><span style="color: #00d3d0;">$answer</span><span style="color: #79a8ff;">"</span><span style="color: #00cd68;">)</span>
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"The sum of the counts of characters which occur at least once for a group is </span><span style="color: #00d3d0;">$answer</span><span style="color: #79a8ff;">"</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
 
 <p>
-For my input, the answer was 6532.
+For my input, the sum was 6532.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org20a6c5d" class="outline-3">
-<h3 id="org20a6c5d">The part 2 narrative</h3>
-<div class="outline-text-3" id="text-org20a6c5d">
+<div id="outline-container-org3160ddd" class="outline-3">
+<h3 id="org3160ddd">The part 2 narrative</h3>
+<div class="outline-text-3" id="text-org3160ddd">
 <p>As you finish the last group's customs declaration, you notice that <span title="Don't worry, nobody ever misreads just one word in real life.">you misread one word</span> in the instructions:</p>
 <p>You don't need to identify the questions to which <em>anyone</em> answered "yes"; you need to identify the questions to which <em>everyone</em> answered "yes"!</p>
 <p>Using the same  example as above:</p>
@@ -1923,9 +1703,9 @@ b
 </div>
 </div>
 
-<div id="outline-container-org59b2d27" class="outline-3">
-<h3 id="org59b2d27">The part 2 solution</h3>
-<div class="outline-text-3" id="text-org59b2d27">
+<div id="outline-container-orgc5cb831" class="outline-3">
+<h3 id="orgc5cb831">The part 2 solution</h3>
+<div class="outline-text-3" id="text-orgc5cb831">
 <p>
 A simple solution tweak gives us this solution;
 unfortunately we do need another method,
@@ -1948,12 +1728,12 @@ returned by <code>groupConsensus</code>.
   <span style="color: #b6a0ff;">(</span>accum, g<span style="color: #b6a0ff;">:</span> <span style="color: #6ae4b9;">List</span><span style="color: #6ae4b9;">[</span><span style="color: #00bcff;">String</span><span style="color: #6ae4b9;">]</span><span style="color: #b6a0ff;">)</span> <span style="color: #b6a0ff;">=&gt;</span> accum + groupConsensus<span style="color: #b6a0ff;">(</span>g<span style="color: #b6a0ff;">)</span>.length
 <span style="color: #00cd68;">}</span>
 
-println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"The solution to part 2 is </span><span style="color: #00d3d0;">$answer2</span><span style="color: #79a8ff;">"</span><span style="color: #00cd68;">)</span>
+println<span style="color: #00cd68;">(</span>s<span style="color: #79a8ff;">"The sum of the counts of characters which occur for all of a group is </span><span style="color: #00d3d0;">$answer2</span><span style="color: #79a8ff;">"</span><span style="color: #00cd68;">)</span>
 </pre>
 </div>
 
 <p>
-For my input, the answer was 3427.
+For my input, that sum was 3427.
 </p>
 </div>
 </div>
@@ -8243,7 +8023,7 @@ smg
 <p class="author">Author: Mark Armstrong</p>
      <p class="author">Contact: <a href="mailto:markparmstrong@gmail.com">markparmstrong@gmail.com</a></p>
      <p class="date">Original date: </p>
-     <p class="date">Last updated: 2021-02-16 Tue 01:29</p>
+     <p class="date">Last updated: 2021-02-16 Tue 02:59</p>
      <p class="creator">Created using <a href="https://www.gnu.org/software/emacs/">Emacs</a> 27.0.90 (<a href="https://orgmode.org">Org</a> mode 9.4.4)</p>
      <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

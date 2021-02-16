@@ -15,7 +15,7 @@ val answer: Int = groups.foldLeft(0) {
   (accum, g: List[String]) => accum + groupAnswers(g).length
 }
 
-println(s"The solution to part 1 is $answer")
+println(s"The sum of the counts of characters which occur at least once for a group is $answer")
 
 def groupConsensus(group: List[String]): List[Char] =
   ('a' to 'z').filter((c: Char) => group.forall(g => g.contains(c))).toList
@@ -24,4 +24,4 @@ val answer2: Int = groups.foldLeft(0) {
   (accum, g: List[String]) => accum + groupConsensus(g).length
 }
 
-println(s"The solution to part 2 is $answer2")
+println(s"The sum of the counts of characters which occur for all of a group is $answer2")

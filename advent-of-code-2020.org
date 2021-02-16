@@ -34,6 +34,7 @@ It was entertaining to try, though.
 * Resources
 :PROPERTIES:
 :CUSTOM_ID: Resources
+:header-args:amm: :tangle ./src/advent-of-code-2020/resources.sc
 :END:
 
 We begin with the definition of some methods which are used
@@ -56,7 +57,7 @@ Our new ~spans~ method breaks the list at every element which satisfies
 the given predicate; note that the “breaking” elements are
 included as singleton lists; this seems in spirit with the ~span~ method,
 though I will usually want to filter them out in my usage.
-#+begin_src amm :tangle ./src/advent-of-code-2020/resources.sc
+#+begin_src amm
 def spans[A](l: List[A], p: A => Boolean): List[List[A]] = l match {
   case Nil => Nil
   case _ => l.span(p) match {
@@ -67,12 +68,10 @@ def spans[A](l: List[A], p: A => Boolean): List[List[A]] = l match {
 }
 #+end_src
 
-#+RESULTS:
-: defined function spans
-
 * Day  1 – Report Repair
 :PROPERTIES:
 :CUSTOM_ID: Day--1-–-Report-Repair
+:header-args:amm: :tangle ./src/advent-of-code-2020/day1.sc
 :END:
 
 ** The part 1 narrative
@@ -104,10 +103,18 @@ def spans[A](l: List[A], p: A => Boolean): List[List[A]] = l match {
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
+#+begin_src amm
+import scala.io.Source
+#+end_src
+
+Read the input into a list of integers.
+#+begin_src amm
+val source = Source.fromFile("../../input/advent-of-code-2020/day1.txt")
+val raw_input = source.getLines().toList
+source.close()
+
+val input = raw_input.map((s: String) => s.toInt)
+#+end_src
 
 The intuitive solution is to perform a a double walkthrough
 of the list; walk through and, at each element ~e~,
@@ -117,7 +124,6 @@ check if the sum of ~e~ and ~e'~ is the specified constant ~2020~.
 Rather than perform the second walkthrough manually, we make use of
 the ~collectFirst~ method for sequences;
 see the sequence [[https://www.scala-lang.org/api/2.12.0/scala/collection/Seq.html][documentation]].
-#+name: summingPair
 #+begin_src amm
 /**
   * Find a pair of elements in `xs` which sum to `sum`,
@@ -137,25 +143,16 @@ def summingPair(xs : Seq[Int], sum: Int): Option[Tuple2[Int,Int]] = xs match {
 }
 #+end_src
 
-#+RESULTS: summingPair
-: defined function summingPair
-
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
 Now we apply that method to the provided input,
 then match on it to produce the product of the pair.
-#+begin_src amm :noweb yes
-<<day1-input-scala>>
-<<summingPair>>
-
+#+begin_src amm
 summingPair(input,2020) match {
   case Some((fst,snd)) => println(s"The product of the summing pair is ${fst * snd}.")
   case None => println("Summing pair not found.")
 }
 #+end_src
+
+My answer here was 866436.
 
 ** The part 2 narrative
 :PROPERTIES:
@@ -173,19 +170,13 @@ summingPair(input,2020) match {
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorse
-:PROPERTIES:
-:CUSTOM_ID: The-workhorse
-:END:
-
 This generalisation of the problem requires that we move away
 from the use of a tuple; of course we could move to a triple instead,
 but we may as well generalise to returning a sequence of a given length.
 
 This time we will need to recurse on the new argument ~n~ when
 for the inner “loop”.
-#+name: summingSeq
-#+begin_src amm
+#+begin_src amm 
 /**
  ,* Find a sequence of elements of length `n`
  ,* in `xs` which sum to `sum`,
@@ -211,29 +202,21 @@ def summingSeq(xs : Seq[Int], sum: Int, n:Int): Either[String,List[Int]] = n mat
 }
 #+end_src
 
-#+RESULTS: summingSeq
-: defined function summingSeq
-
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
 Now we apply that method to the provided input,
 then match on it to extract the list and take its product.
-#+begin_src amm :noweb yes :results output
-<<day1-input-scala>>
-<<summingSeq>>
-
+#+begin_src amm
 summingSeq(input,2020,3) match {
   case Right(l) => println(s"The product of the summing triple is ${l.product}.")
   case Left(s) => println(s"Summing triple not found; error ${s}.")
 }
 #+end_src
 
+My answer here was 276650720.
+
 * Day  2 – Password Philosophy
 :PROPERTIES:
 :CUSTOM_ID: Day--2-–-Password-Philosophy
+:header-args:amm: :tangle ./src/advent-of-code-2020/day2.sc
 :END:
 
 ** The part 1 narrative
@@ -261,10 +244,16 @@ summingSeq(input,2020,3) match {
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
+#+begin_src amm
+import scala.io.Source
+#+end_src
+
+This days input is easy to handle; we just want a list of strings.
+#+begin_src amm
+val source = Source.fromFile("../../input/advent-of-code-2020/day2.txt")
+val input = source.getLines.toList
+source.close()
+#+end_src
 
 We require a parser for each line of the input.
 This takes the string giving the password policy and the password,
@@ -273,7 +262,6 @@ satisfies that policy.
 
 This requires the use of regular expressions to break the string
 into its parts, and a character counting method.
-#+name: policy-handlers
 #+begin_src amm
 def parsePolicy(s: String): Tuple4[Int,Int,Char,String] = {
   val pattern = "([0-9]+)-([0-9]+) ([A-Za-z]): ([A-Za-z]+)".r
@@ -288,24 +276,16 @@ def satisfiesPolicy(s : String): Boolean = {
 }
 #+end_src
 
-#+RESULTS:
-: defined function parsePolicy
-: defined function satisfiesPolicy
-
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
 For this problem, we just directly use a ~fold~.
-#+begin_src amm :noweb yes
-<<policy-handlers>>
-<<day2-input-scala>>
-
-input.foldLeft(0){
+#+begin_src amm
+val answer = input.foldLeft(0){
   (accum, i) => if (satisfiesPolicy(i)) accum + 1 else accum
 }
+
+println(s"$answer passwords are valid according to the part 1 policy.")
 #+end_src
+
+In my input, 519 passwords were valid according to the policy here.
 
 ** The part 2 narrative
 :PROPERTIES:
@@ -347,11 +327,8 @@ because the check is so simple (and it is again this time.)
 So we just repeat the fold,
 with the necessary adjustments to call ~parsePolicy~ here
 and then perform the new check.
-#+begin_src amm :noweb yes
-<<policy-handlers>>
-<<day2-input-scala>>
-
-input.foldLeft(0){
+#+begin_src amm
+val answer2 = input.foldLeft(0){
   (accum, i) => {
     val (m,n,c,pass) = parsePolicy(i)
     val m_is_c = pass(m-1) == c
@@ -363,11 +340,16 @@ input.foldLeft(0){
       accum
   }
 }
+
+println(s"$answer2 passwords are valid according to the part 2 policy.")
 #+end_src
+
+In my input, 708 passwords were valid according to the policy here.
 
 * Day  3 – Toboggan Trajectory
 :PROPERTIES:
 :CUSTOM_ID: Day--3-–-Toboggan-Trajectory
+:header-args:amm: :tangle ./src/advent-of-code-2020/day3.sc
 :END:
 
 ** The part 1 narrative
@@ -428,12 +410,18 @@ input.foldLeft(0){
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
+#+begin_src amm
+import scala.io.Source
+#+end_src
 
-This is a fairly particular problem. I don't see an obvious
+Same as yesterday, this input is easy to handle; we just want a list of strings.
+#+begin_src amm
+val source = Source.fromFile("../../input/advent-of-code-2020/day3.txt")
+val input = source.getLines.toList
+source.close()
+#+end_src
+
+Now, this is a fairly particular problem. I don't see an obvious
 generalisation, so I'll proceed with a fairly particular solution.
 
 I think of this operation as counting the number of encounters
@@ -467,7 +455,6 @@ We proceed roughly as follows:
     Thankfully each line repeats!
   - Finally, recursively check for more encounters,
     and add this encounter (or lack of encounter) to the tally.
-#+name: encounters
 #+begin_src amm
 def encounters(map: List[String],
                entity: Char => Boolean,
@@ -486,17 +473,16 @@ def encounters(map: List[String],
 }
 #+end_src
 
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
+Now the answer is obtained by setting the starting x-position to 0,
+entering an x-velocity of 3 and y-velocity of 1,
+and setting ~#~ as the only entity.
+#+begin_src amm
+val answer = encounters(input, {_ == '#'}, 0, (3,1))
 
-#+begin_src amm :noweb yes
-<<day3-input-scala>>
-<<encounters>>
-
-encounters(input, {_ == '#'}, 0, (3,1))
+println(s"On this hill, with this velocity, we will encounter $answer trees.")
 #+end_src
+
+We get an answer of 228 tees encountered here.
 
 ** The part 2 narrative
 :PROPERTIES:
@@ -522,11 +508,6 @@ encounters(input, {_ == '#'}, 0, (3,1))
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorse
-:PROPERTIES:
-:CUSTOM_ID: The-workhorse
-:END:
-
 This second problem does not actually require
 a different solution; only a change to my ~velocity~ argument
 for each check.
@@ -538,12 +519,16 @@ by making the method tail recursive.
 
 Note that the ~entity~ and the ~velocity~ arguments never change,
 so they are not necessary arguments for the helper.
-#+name: encounters-tailrec
 #+begin_src amm
-def encounters(map: List[String],
+// The @tailrec annotation on a method results in a static error
+// if the definition is not actually tail recursive.
+import scala.annotation.tailrec
+
+def encountersTR(map: List[String],
                entity: Char => Boolean,
                x_position: Int,
                velocity: Tuple2[Int,Int]): Int = {
+  @tailrec
   def encounters_helper(map: List[String],
                         x_position: Int,
                         count: Int): Int = {
@@ -562,28 +547,25 @@ def encounters(map: List[String],
 }
 #+end_src
 
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
+Now just multiply together the results.
+#+begin_src amm
+val e11: Long = encountersTR(input, {_ == '#'}, 0, (1,1))
+val e31: Long = encountersTR(input, {_ == '#'}, 0, (3,1))
+val e51: Long = encountersTR(input, {_ == '#'}, 0, (5,1))
+val e71: Long = encountersTR(input, {_ == '#'}, 0, (7,1))
+val e12: Long = encountersTR(input, {_ == '#'}, 0, (1,2))
 
-Just multiply together the results.
-#+begin_src amm :noweb yes
-<<day3-input-scala>>
-<<encounters-tailrec>>
+val answer2: Long = e11 * e31 * e51 * e71 * e12
 
-val e11 = encounters(input, {_ == '#'}, 0, (1,1))
-val e31 = encounters(input, {_ == '#'}, 0, (3,1))
-val e51 = encounters(input, {_ == '#'}, 0, (5,1))
-val e71 = encounters(input, {_ == '#'}, 0, (7,1))
-val e12 = encounters(input, {_ == '#'}, 0, (1,2))
-
-e11 * e31 * e51 * e71 * e12
+println(s"On this hill, with these velocities, the product of the number of trees we will encounter is $answer2")
 #+end_src
+
+Here, we get the answer 6818112000.
 
 * Day  4 – Passport Processing
 :PROPERTIES:
 :CUSTOM_ID: Day--4-–-Passport-Processing
+:header-args:amm: :tangle ./src/advent-of-code-2020/day4.sc
 :END:
 
 ** The part 1 narrative
@@ -634,14 +616,20 @@ iyr:2011 ecl:brn hgt:59in
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorse
-:PROPERTIES:
-:CUSTOM_ID: The-workhorse
-:END:
+#+begin_src amm
+import scala.io.Source
+#+end_src
 
-Another string parsing problem. This time, we take the whole input
-as a single string, and break off lines as we work
+Another string parsing problem. This time, I want the whole input
+as a single string; we will break off lines as we work
 (always at double line breaks.)
+(Note from the future; I have a better approach than this in later
+problems, using ~spans~ defined in [[Resources]].)
+#+begin_src amm
+val source = Source.fromFile("../../input/advent-of-code-2020/day4.txt")
+val input = source.getLines().mkString("\n")
+source.close()
+#+end_src
 
 The ~String~ method ~indexOf~ lets us find double line breaks,
 and then ~splitAt~ lets us break the string there.
@@ -661,7 +649,6 @@ each tagged as ~Either~ a ~Right~ (correct) string,
 or a ~Left~ (incorrect) string.
 When we make use of this method, we can just count
 the number of ~Right~'s.
-#+name: validateParagraphs
 #+begin_src amm
 def validateParagraphs(text: String,
                        validator: String => Boolean):
@@ -691,7 +678,6 @@ def validateParagraphs(text: String,
 }
 #+end_src
 
-#+name: passport-validator
 #+begin_src amm
 def validator(paragraph: String): Boolean = {
   val fields = List("byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:")
@@ -699,21 +685,15 @@ def validator(paragraph: String): Boolean = {
 }
 #+end_src
 
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
 We now just count the number of ~Right~ elements we get back
 from the paragraph validator.
-#+name: validateParagraphs
-#+begin_src amm :noweb yes
-<<day4-input-scala>>
-<<validateParagraphs>>
-<<passport-validator>>
+#+begin_src amm
+val answer = validateParagraphs(input,validator).count(_.isRight)
 
-validateParagraphs(input,validator).count(_.isRight)
+println(s"There were $answer valid passports by the given rules.")
 #+end_src
+
+Under this first set of rules, there were 233 valid passports in my input.
 
 ** The part 2 narrative
 :PROPERTIES:
@@ -794,20 +774,14 @@ iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
-
 The ~validateParagraphs~ method from earlier still fits this problem.
 But we now require a much more involved ~validator~ method
 to give to it; specifically, we have a lot of regular expression
 matching to do to extract fields and check them.
-#+name: passport-validator-improved
 #+begin_src amm
 import scala.util.matching._
 
-def validator(paragraph: String): Boolean = {
+def validator2(paragraph: String): Boolean = {
   // Many of the fields we need to validate are numbers
   // needing to fall within a certain range.
   // This helper handles the extraction of the match and the range check.
@@ -846,24 +820,19 @@ after the 9 required digits. That is why all these expressions
 now check for the beginning of the string or whitespace beforehand,
 and the end of the string or whitespace afterwards.
 
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
 The answer is easily calculated once the validator is correct.
-#+name: validateParagraphs
-#+begin_src amm :noweb yes
-<<day4-input-scala>>
-<<validateParagraphs>>
-<<passport-validator-improved>>
+#+begin_src amm
+val answer2 = validateParagraphs(input,validator2).count(_.isRight)
 
-validateParagraphs(input,validator).count(_.isRight)
+println(s"Under the new rules, $answer2 passports are valid.")
 #+end_src
+
+Under the new rules, there were 111 valid passports.
 
 * Day  5 – Binary Boarding
 :PROPERTIES:
 :CUSTOM_ID: Day--5-–-Binary-Boarding
+:header-args:amm: :tangle ./src/advent-of-code-2020/day5.sc
 :END:
 
 ** The part 1 narrative
@@ -911,16 +880,21 @@ validateParagraphs(input,validator).count(_.isRight)
 :CUSTOM_ID: The-code
 :END:
 
-*** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
+#+begin_src amm
+import scala.io.Source
+#+end_src
+
+The input is easy today; just a list of strings.
+#+begin_src amm
+val source = Source.fromFile("../../input/advent-of-code-2020/day5.txt")
+val input = source.getLines().toList
+source.close()
+#+end_src
 
 We begin with a general method to shrink “binary spaces”.
 Given a range, and a list of “increase lower/decrease upper”
 commands, we return a new range resulting from
 applying the commands.
-#+name: shrinkBinSpace
 #+begin_src amm
 sealed trait BinSpaceModifier
 case object IncreaseLower extends BinSpaceModifier
@@ -945,17 +919,10 @@ def shrinkBinSpace(space: Tuple2[Int,Int],
 }
 #+end_src
 
-#+RESULTS: shrinkBinSpace
-: defined trait BinSpaceModifier
-: defined object IncreaseLower
-: defined object DecreaseUpper
-: defined function shrinkBinSpace
-
 Now, we need only convert the strings into two lists
 of such commands.
 Since we know the exact form of the input strings,
 this method is quite exact; not generally useful.
-#+name: parseSeatCode
 #+begin_src amm
 def parseSeatCode(code: String):
     Tuple2[List[BinSpaceModifier],List[BinSpaceModifier]] = {
@@ -971,18 +938,7 @@ def parseSeatCode(code: String):
 }
 #+end_src
 
-#+RESULTS: parseSeatCode
-: defined function parseSeatCode
-
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-#+begin_src amm :noweb yes
-<<day5-input-scala>>
-<<parseSeatCode>>
-
+#+begin_src amm
 val highest_id = input.map(code => {
   val (rowCommands, columnCommands) = parseSeatCode(code)
   val row = shrinkBinSpace(Tuple2(0,127),rowCommands)._1
@@ -991,8 +947,10 @@ val highest_id = input.map(code => {
   row * 8 + column
 }).max
 
-println("The highest ID for a seat is ${highest_id}.")
+println(s"The highest ID for a seat is $highest_id.")
 #+end_src
+
+In my input, the highest seat ID is 858.
 
 ** The part 2 narrative
 :PROPERTIES:
@@ -1014,10 +972,7 @@ println("The highest ID for a seat is ${highest_id}.")
 A simple enough search using ~find~ on the list of IDs we
 created earlier. Search for the ID which is not in the list,
 but whose successor and predecessor are.
-#+begin_src amm :noweb yes
-<<day5-input-scala>>
-<<parseSeatCode>>
-
+#+begin_src amm
 val seat_ids = input.map(code => {
   val (rowCommands, columnCommands) = parseSeatCode(code)
   val row = shrinkBinSpace(Tuple2(0,127),rowCommands)._1
@@ -1029,12 +984,18 @@ val seat_ids = input.map(code => {
 val our_id = (0 to 1023).find(id =>
   seat_ids.contains(id-1) && !seat_ids.contains(id) && seat_ids.contains(id+1))
 
-println("Our seat is ${our_id}.")
+our_id match {
+  case Some(id) => println(s"Our seat is $id.")
+  case None => println("Oops; didn't find our seat id!")
+}
 #+end_src
+
+Our seat ID is 557.
 
 * Day  6 – Custom Customs
 :PROPERTIES:
 :CUSTOM_ID: Day--6-–-Custom-Customs
+:header-args:amm: :tangle ./src/advent-of-code-2020/day6.sc
 :END:
 
 ** The part 1 narrative
@@ -1085,13 +1046,13 @@ b
 :CUSTOM_ID: The-part-1-solution
 :END:
 
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+#+begin_src amm
 import $file.resources, resources._
 import scala.io.Source
 #+end_src
 
 Parse the inputs as list of strings, then split the list on empty strings.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+#+begin_src amm
 val source = Source.fromFile("../../input/advent-of-code-2020/day6.txt")
 val raw_input = source.getLines().toList
 source.close()
@@ -1109,22 +1070,22 @@ Then we can just check the list size afterward.
 
 We obtain the list by
 filtering down from the collection of lowercase characters.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+#+begin_src amm
 def groupAnswers(group: List[String]): List[Char] =
   ('a' to 'z').filter((c: Char) => group.exists(g => g.contains(c))).toList
 #+end_src
 
 Now fold over the list of groups, summing up the size of the lists
 returned by ~groupAnswers~.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+#+begin_src amm
 val answer: Int = groups.foldLeft(0) {
   (accum, g: List[String]) => accum + groupAnswers(g).length
 }
 
-println(s"The solution to part 1 is $answer")
+println(s"The sum of the counts of characters which occur at least once for a group is $answer")
 #+end_src
 
-For my input, the answer was 6532.
+For my input, the sum was 6532.
 
 ** The part 2 narrative
 
@@ -1168,22 +1129,22 @@ unfortunately we do need another method,
 as the ~exists~ used in ~groupAnswers~ must be replaced by a ~forall~.
 We call the new method that results from this change
 “~groupConsensus~”.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+#+begin_src amm
 def groupConsensus(group: List[String]): List[Char] =
   ('a' to 'z').filter((c: Char) => group.forall(g => g.contains(c))).toList
 #+end_src
 
 Now fold over the list of groups, summing up the size of the lists
 returned by ~groupConsensus~.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+#+begin_src amm
 val answer2: Int = groups.foldLeft(0) {
   (accum, g: List[String]) => accum + groupConsensus(g).length
 }
 
-println(s"The solution to part 2 is $answer2")
+println(s"The sum of the counts of characters which occur for all of a group is $answer2")
 #+end_src
 
-For my input, the answer was 3427.
+For my input, that sum was 3427.
 
 * Day  7 – ???
 :PROPERTIES:
