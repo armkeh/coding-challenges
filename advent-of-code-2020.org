@@ -2,11 +2,42 @@
 #+Author: Mark Armstrong
 #+Description: A daily coding puzzle challenge from December 2020.
 #+Description: My solutions implemented in Scala.
+#+Setupfile: ./org-html-themes/org/theme-readtheorg-local.setup
+#+Options: num:nil
+
+* Introduction                                  :ignore:
+
+I undertook the 2020 Advent of Code challenge when it began
+in December 2020, though after the first five days I was
+distracted by other work (a sessional teaching position)
+and I did not return to complete the challenge until
+February 2021.
+
+For this year's puzzles, I chose to use Scala;
+specifically, using the [[https://ammonite.io/][Ammonite]] REPL.
+I had some experience with Scala,
+having used it as one of four language in the
+principles of programming languages course I was teaching at the time.
+This was a welcome opportunity to test my knowledge.
+
+Throughout the challenge, my main goal was
+#+begin_center
+try, to the extent that it is reasonable, to make the solution
+to the first part of each day's puzzle general enough
+that the second part will only require a change of arguments.
+#+end_center
+I did not “peek ahead” to the second part,
+and so naturally I did not always succeed at this;
+sometimes I picked the wrong sort of generalisation.
+It was entertaining to try, though.
 
 * Resources
 :PROPERTIES:
 :CUSTOM_ID: Resources
 :END:
+
+We begin with the definition of some methods which are used
+in several places in the below.
 
 ** ~spans~: breaking up a list into a list of lists
 :PROPERTIES:
@@ -44,69 +75,1605 @@ def spans[A](l: List[A], p: A => Boolean): List[List[A]] = l match {
 :CUSTOM_ID: Day--1-–-Report-Repair
 :END:
 
-** Part 1
-:PROPERTIES:
-:CUSTOM_ID: Part-1
-:END:
-
-*** The narrative
+** The part 1 narrative
 :PROPERTIES:
 :CUSTOM_ID: The-narrative
 :END:
 
-After saving Christmas five years in a row, you've decided
-to take a vacation at a nice resort on a tropical island.
-Surely, Christmas will go on without you.
-
-The tropical island has its own currency and is entirely cash-only.
-The gold coins used there have a little picture of a starfish;
-the locals just call them stars. None of the currency exchanges
-seem to have heard of them, but somehow, you'll need to find
-fifty of these coins by the time you arrive so you can pay
-the deposit on your room.
-
-To save your vacation, you need to get all fifty stars
-by December 25th.
-
-Collect stars by solving puzzles. Two puzzles will be made available
-on each day in the Advent calendar; the second puzzle is unlocked
-when you complete the first. Each puzzle grants one star. Good luck!
-
-Before you leave, the Elves in accounting just need you
-to fix your expense report (your puzzle input); apparently,
-something isn't quite adding up.
-
-Specifically, they need you to find the two entries that sum
-to 2020 and then multiply those two numbers together.
-
-For example, suppose your expense report contained the following:
-#+begin_src text
-1721
+#+begin_export html
+<p>After saving Christmas <a href="/events">five years in a row</a>, you've decided to take a vacation at a nice resort on a tropical island. <span title="WHAT COULD GO WRONG">Surely</span>, Christmas will go on without you.</p>
+<p>The tropical island has its own currency and is entirely cash-only.  The gold coins used there have a little picture of a starfish; the locals just call them <em class="star">stars</em>. None of the currency exchanges seem to have heard of them, but somehow, you'll need to find fifty of these coins by the time you arrive so you can pay the deposit on your room.</p>
+<p>To save your vacation, you need to get all <em class="star">fifty stars</em> by December 25th.</p>
+<p>Collect stars by solving puzzles.  Two puzzles will be made available on each day in the Advent calendar; the second puzzle is unlocked when you complete the first.  Each puzzle grants <em class="star">one star</em>. Good luck!</p>
+<p>Before you leave, the Elves in accounting just need you to fix your <em>expense report</em> (your puzzle input); apparently, something isn't quite adding up.</p>
+<p>Specifically, they need you to <em>find the two entries that sum to <code>2020</code></em> and then multiply those two numbers together.</p>
+<p>For example, suppose your expense report contained the following:</p>
+<pre><code>1721
 979
 366
 299
 675
 1456
+</code></pre>
+<p>In this list, the two entries that sum to <code>2020</code> are <code>1721</code> and <code>299</code>. Multiplying them together produces <code>1721 * 299 = 514579</code>, so the correct answer is <code><em>514579</em></code>.</p>
+<p>Of course, your expense report is much larger. <em>Find the two entries that sum to <code>2020</code>; what do you get if you multiply them together?</em></p>
+#+end_export
+
+** The part 1 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
+
+The intuitive solution is to perform a a double walkthrough
+of the list; walk through and, at each element ~e~,
+perform another walkthrough and at each element ~e'~,
+check if the sum of ~e~ and ~e'~ is the specified constant ~2020~.
+
+Rather than perform the second walkthrough manually, we make use of
+the ~collectFirst~ method for sequences;
+see the sequence [[https://www.scala-lang.org/api/2.12.0/scala/collection/Seq.html][documentation]].
+#+name: summingPair
+#+begin_src amm
+/**
+  * Find a pair of elements in `xs` which sum to `sum`,
+  * if such elements exist.
+  * If multiple such pairs exist, returns the pair
+  * whose first element has the lowest index and
+  * whose second element has the lowest index amongst
+  * candidates to pair with that first element.
+  */
+def summingPair(xs : Seq[Int], sum: Int): Option[Tuple2[Int,Int]] = xs match {
+  case Nil => None
+  case fst :: rest =>
+    rest.collectFirst({case snd if fst + snd == sum => (fst,snd)}) match {
+      case Some(pair) => Some(pair)
+      case None => summingPair(rest, sum)
+    }
+}
 #+end_src
-In this list, the two entries that sum to 2020 are 1721 and 299.
-Multiplying them together produces 1721 * 299 = 514579, so
-the correct answer is 514579.
 
-Of course, your expense report is much larger. Find the two entries
-that sum to 2020; what do you get if you multiply them together?
+#+RESULTS: summingPair
+: defined function summingPair
 
-*** The input
+*** The answer
 :PROPERTIES:
-:CUSTOM_ID: The-input
+:CUSTOM_ID: The-answer
 :END:
 
-**** Raw
+Now we apply that method to the provided input,
+then match on it to produce the product of the pair.
+#+begin_src amm :noweb yes
+<<day1-input-scala>>
+<<summingPair>>
+
+summingPair(input,2020) match {
+  case Some((fst,snd)) => println(s"The product of the summing pair is ${fst * snd}.")
+  case None => println("Summing pair not found.")
+}
+#+end_src
+
+** The part 2 narrative
 :PROPERTIES:
-:CUSTOM_ID: Raw
+:CUSTOM_ID: The-narrative
 :END:
 
-#+name: day1-input-raw
-#+begin_src text
+#+begin_export html
+<p>The Elves in accounting are thankful for your help; one of them even offers you a starfish coin they had left over from a past vacation. They offer you a second one if you can find <em>three</em> numbers in your expense report that meet the same criteria.</p>
+<p>Using the above example again, the three entries that sum to <code>2020</code> are <code>979</code>, <code>366</code>, and <code>675</code>. Multiplying them together produces the answer, <code><em>241861950</em></code>.</p>
+<p>In your expense report, <em>what is the product of the three entries that sum to <code>2020</code>?</em></p>
+#+end_export
+
+** The part 2 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorse
+:PROPERTIES:
+:CUSTOM_ID: The-workhorse
+:END:
+
+This generalisation of the problem requires that we move away
+from the use of a tuple; of course we could move to a triple instead,
+but we may as well generalise to returning a sequence of a given length.
+
+This time we will need to recurse on the new argument ~n~ when
+for the inner “loop”.
+#+name: summingSeq
+#+begin_src amm
+/**
+ ,* Find a sequence of elements of length `n`
+ ,* in `xs` which sum to `sum`,
+ ,* if such elements exist.
+ ,* If multiple such sequences exist, returns the sequence
+ ,* whose first element has the lowest index and
+ ,* whose second element has the lowest index amongst
+ ,* candidates to pair with that first element, etc.
+ ,*/
+def summingSeq(xs : Seq[Int], sum: Int, n:Int): Either[String,List[Int]] = n match {
+  case 0 if sum == 0 => Right(Nil)
+  case 0             => Left("Ran out of return space with some leftover amount.")
+  case n if n > 0 => xs match {
+    case Nil => Left("Ran out of elements with some leftover amount.")
+    case fst :: rest if sum >= fst =>
+      summingSeq(rest, sum-fst, n-1) match {
+        case Right(ys) => Right(fst :: ys)
+        case Left(_) => summingSeq(rest,sum,n)
+      }
+    case _ :: rest => summingSeq(rest,sum,n)
+  }
+  case n if n < 0 => Left("Cannot sum many negative elements")
+}
+#+end_src
+
+#+RESULTS: summingSeq
+: defined function summingSeq
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+Now we apply that method to the provided input,
+then match on it to extract the list and take its product.
+#+begin_src amm :noweb yes :results output
+<<day1-input-scala>>
+<<summingSeq>>
+
+summingSeq(input,2020,3) match {
+  case Right(l) => println(s"The product of the summing triple is ${l.product}.")
+  case Left(s) => println(s"Summing triple not found; error ${s}.")
+}
+#+end_src
+
+* Day  2 – Password Philosophy
+:PROPERTIES:
+:CUSTOM_ID: Day--2-–-Password-Philosophy
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>Your flight departs in a few days from the coastal airport; the easiest way down to the coast from here is via <a href="https://en.wikipedia.org/wiki/Toboggan" target="_blank">toboggan</a>.</p>
+<p>The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. "Something's wrong with our computers; we can't log in!" You ask if you can take a look.</p>
+<p>Their password database seems to be a little corrupted: some of the passwords wouldn't have been allowed by the <span title="To ensure your safety, your password must be the following string...">Official Toboggan Corporate Policy</span> that was in effect when they were chosen.</p>
+<p>To try to debug the problem, they have created a list (your puzzle input) of <em>passwords</em> (according to the corrupted database) and <em>the corporate policy when that password was set</em>.</p>
+<p>For example, suppose you have the following list:</p>
+<pre><code>1-3 a: abcde
+1-3 b: cdefg
+2-9 c: ccccccccc
+</code></pre>
+<p>Each line gives the password policy and then the password. The password policy indicates the lowest and highest number of times a given letter must appear for the password to be valid. For example, <code>1-3 a</code> means that the password must contain <code>a</code> at least <code>1</code> time and at most <code>3</code> times.</p>
+<p>In the above example, <code><em>2</em></code> passwords are valid. The middle password, <code>cdefg</code>, is not; it contains no instances of <code>b</code>, but needs at least <code>1</code>. The first and third passwords are valid: they contain one <code>a</code> or nine <code>c</code>, both within the limits of their respective policies.</p>
+<p><em>How many passwords are valid</em> according to their policies?</p>
+#+end_export
+
+** The part 1 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
+
+We require a parser for each line of the input.
+This takes the string giving the password policy and the password,
+and returns ~true~ or ~false~ based on whether the password
+satisfies that policy.
+
+This requires the use of regular expressions to break the string
+into its parts, and a character counting method.
+#+name: policy-handlers
+#+begin_src amm
+def parsePolicy(s: String): Tuple4[Int,Int,Char,String] = {
+  val pattern = "([0-9]+)-([0-9]+) ([A-Za-z]): ([A-Za-z]+)".r
+  val pattern(low, high, c, pass) = s
+  return (low.toInt,high.toInt,c.head,pass)
+}
+
+def satisfiesPolicy(s : String): Boolean = {
+  val (low,high,c,pass) = parsePolicy(s)
+  val occurrences = pass.count(_ == c)
+  return low <= occurrences && occurrences <= high
+}
+#+end_src
+
+#+RESULTS:
+: defined function parsePolicy
+: defined function satisfiesPolicy
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+For this problem, we just directly use a ~fold~.
+#+begin_src amm :noweb yes
+<<policy-handlers>>
+<<day2-input-scala>>
+
+input.foldLeft(0){
+  (accum, i) => if (satisfiesPolicy(i)) accum + 1 else accum
+}
+#+end_src
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.</p>
+<p>The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.</p>
+<p>Each policy actually describes two <em>positions in the password</em>, where <code>1</code> means the first character, <code>2</code> means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) <em>Exactly one of these positions</em> must contain the given letter. Other occurrences of the letter are irrelevant for the purposes of policy enforcement.</p>
+<p>Given the same example list from above:</p>
+<ul>
+<li><code>1-3 a: <em>a</em>b<em>c</em>de</code> is <em>valid</em>: position <code>1</code> contains <code>a</code> and position <code>3</code> does not.</li>
+<li><code>1-3 b: <em>c</em>d<em>e</em>fg</code> is <em>invalid</em>: neither position <code>1</code> nor position <code>3</code> contains <code>b</code>.</li>
+<li><code>2-9 c: c<em>c</em>cccccc<em>c</em></code> is <em>invalid</em>: both position <code>2</code> and position <code>9</code> contain <code>c</code>.</li>
+</ul>
+<p><em>How many passwords are valid</em> according to the new interpretation of the policies?</em></p>
+#+end_export
+
+** The part 2 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+We can this time directly reuse half of our workhorse
+from the first part, and in fact won't bother to
+adjust the second half.
+
+The generalisation here is in what the policy tells us to do
+with the pieces returned by ~parsePolicy~.
+After seeing this, I'm a little displeased I defined
+the ~satisfiesPolicy~ method last time.
+It “took the initiative” and called ~parsePolicy~ itself,
+but properly it should have taken the pieces returned
+by ~parsePolicy~ as arguments and just performed the check.
+But then, there's not much point to writing it down as a method,
+because the check is so simple (and it is again this time.)
+
+So we just repeat the fold,
+with the necessary adjustments to call ~parsePolicy~ here
+and then perform the new check.
+#+begin_src amm :noweb yes
+<<policy-handlers>>
+<<day2-input-scala>>
+
+input.foldLeft(0){
+  (accum, i) => {
+    val (m,n,c,pass) = parsePolicy(i)
+    val m_is_c = pass(m-1) == c
+    val n_is_c = pass(n-1) == c
+    // XOR is "not equal"
+    if (m_is_c != n_is_c)
+      accum + 1
+    else
+      accum
+  }
+}
+#+end_src
+
+* Day  3 – Toboggan Trajectory
+:PROPERTIES:
+:CUSTOM_ID: Day--3-–-Toboggan-Trajectory
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>With the toboggan login problems resolved, you set off toward the airport. While travel by toboggan might be easy, it's certainly not safe: there's <span title="It looks like the toboggan steering system even runs on Intcode! Good thing you don't have to modify it.">very minimal steering</span> and the area is covered in trees. You'll need to see which angles will take you near the fewest trees.</p>
+<p>Due to the local geology, trees in this area only grow on exact integer coordinates in a grid. You make a map (your puzzle input) of the open squares (<code>.</code>) and trees (<code>#</code>) you can see. For example:</p>
+<pre><code>..##.......
+#...#...#..
+.#....#..#.
+..#.#...#.#
+.#...##..#.
+..#.##.....
+.#.#.#....#
+.#........#
+#.##...#...
+#...##....#
+.#..#...#.#
+</code></pre>
+<p>These aren't the only trees, though; due to something you read about once involving arboreal genetics and biome stability, the same pattern repeats to the right many times:</p>
+<pre><code><em>..##.......</em>..##.........##.........##.........##.........##.......  ---&gt;
+<em>#...#...#..</em>#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
+<em>.#....#..#.</em>.#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
+<em>..#.#...#.#</em>..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
+<em>.#...##..#.</em>.#...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
+<em>..#.##.....</em>..#.##.......#.##.......#.##.......#.##.......#.##.....  ---&gt;
+<em>.#.#.#....#</em>.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
+<em>.#........#</em>.#........#.#........#.#........#.#........#.#........#
+<em>#.##...#...</em>#.##...#...#.##...#...#.##...#...#.##...#...#.##...#...
+<em>#...##....#</em>#...##....##...##....##...##....##...##....##...##....#
+<em>.#..#...#.#</em>.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#  ---&gt;
+</code></pre>
+<p>You start on the open square (<code>.</code>) in the top-left corner and need to reach the bottom (below the bottom-most row on your map).</p>
+<p>The toboggan can only follow a few specific slopes (you opted for a cheaper model that prefers rational numbers); start by <em>counting all the trees</em> you would encounter for the slope <em>right 3, down 1</em>:</p>
+<p>From your starting position at the top-left, check the position that is right 3 and down 1. Then, check the position that is right 3 and down 1 from there, and so on until you go past the bottom of the map.</p>
+<p>The locations you'd check in the above example are marked here with <code><em>O</em></code> where there was an open square and <code><em>X</em></code> where there was a tree:</p>
+<pre><code>..##.........##.........##.........##.........##.........##.......  ---&gt;
+#..<em>O</em>#...#..#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
+.#....<em>X</em>..#..#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
+..#.#...#<em>O</em>#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
+.#...##..#..<em>X</em>...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
+..#.##.......#.<em>X</em>#.......#.##.......#.##.......#.##.......#.##.....  ---&gt;
+.#.#.#....#.#.#.#.<em>O</em>..#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
+.#........#.#........<em>X</em>.#........#.#........#.#........#.#........#
+#.##...#...#.##...#...#.<em>X</em>#...#...#.##...#...#.##...#...#.##...#...
+#...##....##...##....##...#<em>X</em>....##...##....##...##....##...##....#
+.#..#...#.#.#..#...#.#.#..#...<em>X</em>.#.#..#...#.#.#..#...#.#.#..#...#.#  ---&gt;
+</code></pre>
+<p>In this example, traversing the map using this slope would cause you to encounter <code><em>7</em></code> trees.</p>
+<p>Starting at the top-left corner of your map and following a slope of right 3 and down 1, <em>how many trees would you encounter?</em></p>
+#+end_export
+
+** The part 1 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
+
+This is a fairly particular problem. I don't see an obvious
+generalisation, so I'll proceed with a fairly particular solution.
+
+I think of this operation as counting the number of encounters
+along a fixed line of a given map, where the map is represented as
+a list of strings.
+
+My method will take as an argument the ~map~, along with
+the definition of an ~entity~ which would cause an encounter
+as a predicate on characters.
+
+We then also take a current ~x_position~, and the velocity
+through the map as a pair, specifying the ~x~ and the ~y~ velocity.
+
+Aside from the generalisation of considering any kind of entity,
+not just the character ~'#'~ from the problem,
+my solution will not require that the strings making up the map
+all have the same length.
+
+We proceed roughly as follows:
+- If our ~y~ velocity would take us beyond the end of the map
+  (that is, the ~y~ velocity is greater than the length of the map),
+  we cannot have any encounters; return ~0~.
+- Otherwise,
+  - find the next ~x~ position,
+  - drop the first “~y~ velocity” elements of the map
+    (these are the lines we are passing by)
+  - check if we have an encounter at our new position
+    (which is the new ~x~ position at the top of the new map.)
+    Here we must take the next ~x~ position modulo the width
+    of the first line of the new map, since we may have gone wide.
+    Thankfully each line repeats!
+  - Finally, recursively check for more encounters,
+    and add this encounter (or lack of encounter) to the tally.
+#+name: encounters
+#+begin_src amm
+def encounters(map: List[String],
+               entity: Char => Boolean,
+               x_position: Int,
+               velocity: Tuple2[Int,Int]): Int = {
+  val (x_velocity,y_velocity) = velocity
+  map.length match {
+    case n if n <= y_velocity => 0
+    case n =>
+      val next_x = (x_position + x_velocity)
+      val remaining_map = map.drop(y_velocity)
+      val map_width = remaining_map(0).length
+      val encounter = if (entity(remaining_map(0)(next_x % map_width))) 1 else 0
+      encounters(remaining_map, entity, next_x, velocity) + encounter
+  }
+}
+#+end_src
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+#+begin_src amm :noweb yes
+<<day3-input-scala>>
+<<encounters>>
+
+encounters(input, {_ == '#'}, 0, (3,1))
+#+end_src
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>Time to check the rest of the slopes - you need to minimize the probability of a sudden arboreal stop, after all.</p>
+<p>Determine the number of trees you would encounter if, for each of the following slopes, you start at the top-left corner and traverse the map all the way to the bottom:</p>
+<ul>
+<li>Right 1, down 1.</li>
+<li>Right 3, down 1. (This is the slope you already checked.)</li>
+<li>Right 5, down 1.</li>
+<li>Right 7, down 1.</li>
+<li>Right 1, down 2.</li>
+</ul>
+<p>In the above example, these slopes would find <code>2</code>, <code>7</code>, <code>3</code>, <code>4</code>, and <code>2</code> tree(s) respectively; multiplied together, these produce the answer <code><em>336</em></code>.</p>
+<p><em>What do you get if you multiply together the number of trees encountered on each of the listed slopes?</em></p>
+#+end_export
+
+** The part 2 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorse
+:PROPERTIES:
+:CUSTOM_ID: The-workhorse
+:END:
+
+This second problem does not actually require
+a different solution; only a change to my ~velocity~ argument
+for each check.
+
+However, because I will be calling this method numerous times,
+and each call is relatively costly,
+I choose to optimise slightly
+by making the method tail recursive.
+
+Note that the ~entity~ and the ~velocity~ arguments never change,
+so they are not necessary arguments for the helper.
+#+name: encounters-tailrec
+#+begin_src amm
+def encounters(map: List[String],
+               entity: Char => Boolean,
+               x_position: Int,
+               velocity: Tuple2[Int,Int]): Int = {
+  def encounters_helper(map: List[String],
+                        x_position: Int,
+                        count: Int): Int = {
+    val (x_velocity,y_velocity) = velocity
+    map.length match {
+      case n if n <= y_velocity => count
+      case n =>
+        val next_x = (x_position + x_velocity)
+        val remaining_map = map.drop(y_velocity)
+        val map_width = remaining_map(0).length
+        val encounter = if (entity(remaining_map(0)(next_x % map_width))) 1 else 0
+        encounters_helper(remaining_map, next_x, count+encounter)
+    }
+  }
+  encounters_helper(map,x_position,0)
+}
+#+end_src
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+Just multiply together the results.
+#+begin_src amm :noweb yes
+<<day3-input-scala>>
+<<encounters-tailrec>>
+
+val e11 = encounters(input, {_ == '#'}, 0, (1,1))
+val e31 = encounters(input, {_ == '#'}, 0, (3,1))
+val e51 = encounters(input, {_ == '#'}, 0, (5,1))
+val e71 = encounters(input, {_ == '#'}, 0, (7,1))
+val e12 = encounters(input, {_ == '#'}, 0, (1,2))
+
+e11 * e31 * e51 * e71 * e12
+#+end_src
+
+* Day  4 – Passport Processing
+:PROPERTIES:
+:CUSTOM_ID: Day--4-–-Passport-Processing
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>You arrive at the airport only to realize that you grabbed your North Pole Credentials instead of your passport. While these documents are extremely similar, North Pole Credentials aren't issued by a country and therefore aren't actually valid documentation for travel in most of the world.</p>
+<p>It seems like you're not the only one having problems, though; a very long line has formed for the automatic passport scanners, and the delay could upset your travel itinerary.</p>
+<p>Due to some questionable network security, you realize you might be able to solve both of these problems at the same time.</p>
+<p>The automatic passport scanners are slow because they're having trouble <em>detecting which passports have all required fields</em>. The expected fields are as follows:</p>
+<ul>
+<li><code>byr</code> (Birth Year)</li>
+<li><code>iyr</code> (Issue Year)</li>
+<li><code>eyr</code> (Expiration Year)</li>
+<li><code>hgt</code> (Height)</li>
+<li><code>hcl</code> (Hair Color)</li>
+<li><code>ecl</code> (Eye Color)</li>
+<li><code>pid</code> (Passport ID)</li>
+<li><code>cid</code> (Country ID)</li>
+</ul>
+<p>Passport data is validated in batch files (your puzzle input). Each passport is represented as a sequence of <code>key:value</code> pairs separated by spaces or newlines. Passports are separated by blank lines.</p>
+<p>Here is an example batch file containing four passports:</p>
+<pre><code>ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
+byr:1937 iyr:2017 cid:147 hgt:183cm
+
+iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884
+hcl:#cfa07d byr:1929
+
+hcl:#ae17e1 iyr:2013
+eyr:2024
+ecl:brn pid:760753108 byr:1931
+hgt:179cm
+
+hcl:#cfa07d eyr:2025 pid:166559648
+iyr:2011 ecl:brn hgt:59in
+</code></pre>
+<p>The first passport is <em>valid</em> - all eight fields are present. The second passport is <em>invalid</em> - it is missing <code>hgt</code> (the Height field).</p>
+<p>The third passport is interesting; the <em>only missing field</em> is <code>cid</code>, so it looks like data from North Pole Credentials, not a passport at all! Surely, nobody would mind if you made the system temporarily ignore missing <code>cid</code> fields.  Treat this "passport" as <em>valid</em>.</p>
+<p>The fourth passport is missing two fields, <code>cid</code> and <code>byr</code>. Missing <code>cid</code> is fine, but missing any other field is not, so this passport is <em>invalid</em>.</p>
+<p>According to the above rules, your improved system would report <code><em>2</em></code> valid passports.</p>
+<p>Count the number of <em>valid</em> passports - those that have all required fields. Treat <code>cid</code> as optional. <em>In your batch file, how many passports are valid?</em></p>
+#+end_export
+
+** The part 1 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorse
+:PROPERTIES:
+:CUSTOM_ID: The-workhorse
+:END:
+
+Another string parsing problem. This time, we take the whole input
+as a single string, and break off lines as we work
+(always at double line breaks.)
+
+The ~String~ method ~indexOf~ lets us find double line breaks,
+and then ~splitAt~ lets us break the string there.
+I use a tail recursive helper method to build up the result.
+
+I believe we do need to be a little careful
+in case there is extra whitespace between some entries;
+regular uses of the ~trim~ method on the remaining entries
+helps avoid any issues.
+(In the worst case, I believe we would include newlines in an entry
+or have a “phantom” entry which was only newlines.)
+
+To be nice and general, we don't just count the number
+of valid entries;
+instead, we return a ~Vector~ of the entries,
+each tagged as ~Either~ a ~Right~ (correct) string,
+or a ~Left~ (incorrect) string.
+When we make use of this method, we can just count
+the number of ~Right~'s.
+#+name: validateParagraphs
+#+begin_src amm
+def validateParagraphs(text: String,
+                       validator: String => Boolean):
+    Vector[Either[String,String]] = {
+
+  def validateParagraphsHelper(text: String,
+                               results: Vector[Either[String,String]]):
+      Vector[Either[String,String]] = {
+    
+    // Break off the portion up to the next double empty string.
+    val parbreak = text.indexOf("\n\n")
+    val (prepar, prerest) = text.splitAt(parbreak)
+    // Then trim whitespace on the ends of the paragraph and the rest.
+    val (par, rest) = (prepar.trim, prerest.trim)
+    if (par.nonEmpty) {
+      val par_validated = if (validator(par)) Right(par) else Left(par)
+      validateParagraphsHelper(rest, results :+ par_validated)
+    } else {
+      // Finally, check what's left over.
+      val rest_validated = if (validator(rest)) Right(rest) else Left(rest)
+      results :+ rest_validated
+    }
+  }
+
+  // Trim whitespace from the ends of the text before we begin.
+  validateParagraphsHelper(text.trim, Vector())
+}
+#+end_src
+
+#+name: passport-validator
+#+begin_src amm
+def validator(paragraph: String): Boolean = {
+  val fields = List("byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:")
+  fields forall {paragraph contains _}
+}
+#+end_src
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+We now just count the number of ~Right~ elements we get back
+from the paragraph validator.
+#+name: validateParagraphs
+#+begin_src amm :noweb yes
+<<day4-input-scala>>
+<<validateParagraphs>>
+<<passport-validator>>
+
+validateParagraphs(input,validator).count(_.isRight)
+#+end_src
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>The line is moving more quickly now, but you overhear airport security talking about how passports with invalid data are getting through. Better add some data validation, quick!</p>
+<p>You can continue to ignore the <code>cid</code> field, but each other field has <span title="GLORY TO ARSTOTZKA">strict rules</span> about what values are valid for automatic validation:</p>
+<ul>
+<li><code>byr</code> (Birth Year) - four digits; at least <code>1920</code> and at most <code>2002</code>.</li>
+<li><code>iyr</code> (Issue Year) - four digits; at least <code>2010</code> and at most <code>2020</code>.</li>
+<li><code>eyr</code> (Expiration Year) - four digits; at least <code>2020</code> and at most <code>2030</code>.</li>
+<li><code>hgt</code> (Height) - a number followed by either <code>cm</code> or <code>in</code>:
+  <ul>
+  <li>If <code>cm</code>, the number must be at least <code>150</code> and at most <code>193</code>.</li>
+  <li>If <code>in</code>, the number must be at least <code>59</code> and at most <code>76</code>.</li>
+  </ul>
+</li>
+<li><code>hcl</code> (Hair Color) - a <code>#</code> followed by exactly six characters <code>0</code>-<code>9</code> or <code>a</code>-<code>f</code>.</li>
+<li><code>ecl</code> (Eye Color) - exactly one of: <code>amb</code> <code>blu</code> <code>brn</code> <code>gry</code> <code>grn</code> <code>hzl</code> <code>oth</code>.</li>
+<li><code>pid</code> (Passport ID) - a nine-digit number, including leading zeroes.</li>
+<li><code>cid</code> (Country ID) - ignored, missing or not.</li>
+</ul>
+<p>Your job is to count the passports where all required fields are both <em>present</em> and <em>valid</em> according to the above rules. Here are some example values:</p>
+<pre><code>byr valid:   2002
+byr invalid: 2003
+
+hgt valid:   60in
+hgt valid:   190cm
+hgt invalid: 190in
+hgt invalid: 190
+
+hcl valid:   #123abc
+hcl invalid: #123abz
+hcl invalid: 123abc
+
+ecl valid:   brn
+ecl invalid: wat
+
+pid valid:   000000001
+pid invalid: 0123456789
+</code></pre>
+<p>Here are some invalid passports:</p>
+<pre><code>eyr:1972 cid:100
+hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
+
+iyr:2019
+hcl:#602927 eyr:1967 hgt:170cm
+ecl:grn pid:012533040 byr:1946
+
+hcl:dab227 iyr:2012
+ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
+
+hgt:59cm ecl:zzz
+eyr:2038 hcl:74454a iyr:2023
+pid:3556412378 byr:2007
+</code></pre>
+<p>Here are some valid passports:</p>
+<pre><code>pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
+hcl:#623a2f
+
+eyr:2029 ecl:blu cid:129 byr:1989
+iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm
+
+hcl:#888785
+hgt:164cm byr:2001 iyr:2015 cid:88
+pid:545766238 ecl:hzl
+eyr:2022
+
+iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
+</code></pre>
+<p>Count the number of <em>valid</em> passports - those that have all required fields <em>and valid values</em>. Continue to treat <code>cid</code> as optional. <em>In your batch file, how many passports are valid?</em></p>
+#+end_export
+
+** The part 2 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
+
+The ~validateParagraphs~ method from earlier still fits this problem.
+But we now require a much more involved ~validator~ method
+to give to it; specifically, we have a lot of regular expression
+matching to do to extract fields and check them.
+#+name: passport-validator-improved
+#+begin_src amm
+import scala.util.matching._
+
+def validator(paragraph: String): Boolean = {
+  // Many of the fields we need to validate are numbers
+  // needing to fall within a certain range.
+  // This helper handles the extraction of the match and the range check.
+  def numValidator(pattern: Regex, group: Int, low: Int, high: Int) = {
+    val the_match = pattern.unanchored.findFirstMatchIn(paragraph)
+    the_match match {
+      case Some(m) => val n = m.group(group).toInt; low <= n && n <= high
+      case None => false
+    }
+  }
+
+  // Fields which require numerical validation.
+  val has_birth_year = numValidator("""(^|\s)byr:(\d\d\d\d)($|\s)""".r, 2, 1920, 2002)
+  val has_issue_year = numValidator("""(^|\s)iyr:(\d\d\d\d)($|\s)""".r, 2, 2010, 2020)
+  val has_expir_year = numValidator("""(^|\s)eyr:(\d\d\d\d)($|\s)""".r, 2, 2020, 2030)
+  // (Note: only one of these heights be present.)
+  val has_height_in = numValidator("""(^|\s)hgt:(\d\d)in($|\s)""".r, 2, 59, 76)
+  val has_height_cm = numValidator("""(^|\s)hgt:(\d\d\d)cm($|\s)""".r, 2, 150, 193)
+  
+  // Fields which do not require additional validation.
+  val has_hair_colour = """(^|\s)hcl:#[0-9a-f]{6}($|\s)""".r.unanchored.matches(paragraph)
+  val has_eye_colour = """(^|\s)ecl:(amb|blu|brn|gry|grn|hzl|oth)($|\s)""".r.unanchored.matches(paragraph)
+  val has_passport_id = """(^|\s)pid:\d{9}($|\s)""".r.unanchored.matches(paragraph)
+
+  (has_birth_year && has_issue_year && has_expir_year
+    && (has_height_in || has_height_cm)
+    && has_hair_colour && has_eye_colour && has_passport_id)
+}
+#+end_src
+
+I got stuck for a short while with too many passports being validated
+(exactly one too many, it turned out).
+I suspect the problem was one “passport ID” field had too many digits;
+I had forgotten to require whitespace or the end of the string
+after the 9 required digits. That is why all these expressions
+now check for the beginning of the string or whitespace beforehand,
+and the end of the string or whitespace afterwards.
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+The answer is easily calculated once the validator is correct.
+#+name: validateParagraphs
+#+begin_src amm :noweb yes
+<<day4-input-scala>>
+<<validateParagraphs>>
+<<passport-validator-improved>>
+
+validateParagraphs(input,validator).count(_.isRight)
+#+end_src
+
+* Day  5 – Binary Boarding
+:PROPERTIES:
+:CUSTOM_ID: Day--5-–-Binary-Boarding
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>You board your plane only to discover a new problem: you dropped your boarding pass! You aren't sure which seat is yours, and all of the flight attendants are busy with the flood of people that suddenly made it through passport control.</p>
+<p>You write a <span title="No problem!">quick program</span> to use your phone's camera to scan all of the nearby boarding passes (your puzzle input); perhaps you can find your seat through process of elimination.</p>
+<p>Instead of <a target="_blank" href="https://www.youtube.com/watch?v=oAHbLRjF0vo">zones or groups</a>, this airline uses <em>binary space partitioning</em> to seat people. A seat might be specified like <code>FBFBBFFRLR</code>, where <code>F</code> means "front", <code>B</code> means "back", <code>L</code> means "left", and <code>R</code> means "right".</p>
+<p>The first 7 characters will either be <code>F</code> or <code>B</code>; these specify exactly one of the <em>128 rows</em> on the plane (numbered <code>0</code> through <code>127</code>). Each letter tells you which half of a region the given seat is in. Start with the whole list of rows; the first letter indicates whether the seat is in the <em>front</em> (<code>0</code> through <code>63</code>) or the <em>back</em> (<code>64</code> through <code>127</code>). The next letter indicates which half of that region the seat is in, and so on until you're left with exactly one row.</p>
+<p>For example, consider just the first seven characters of <code>FBFBBFFRLR</code>:</p>
+<ul>
+<li>Start by considering the whole range, rows <code>0</code> through <code>127</code>.</li>
+<li><code>F</code> means to take the <em>lower half</em>, keeping rows <code>0</code> through <code>63</code>.</li>
+<li><code>B</code> means to take the <em>upper half</em>, keeping rows <code>32</code> through <code>63</code>.</li>
+<li><code>F</code> means to take the <em>lower half</em>, keeping rows <code>32</code> through <code>47</code>.</li>
+<li><code>B</code> means to take the <em>upper half</em>, keeping rows <code>40</code> through <code>47</code>.</li>
+<li><code>B</code> keeps rows <code>44</code> through <code>47</code>.</li>
+<li><code>F</code> keeps rows <code>44</code> through <code>45</code>.</li>
+<li>The final <code>F</code> keeps the lower of the two, <em>row <code>44</code></em>.</li>
+</ul>
+<p>The last three characters will be either <code>L</code> or <code>R</code>; these specify exactly one of the <em>8 columns</em> of seats on the plane (numbered <code>0</code> through <code>7</code>). The same process as above proceeds again, this time with only three steps.  <code>L</code> means to keep the <em>lower half</em>, while <code>R</code> means to keep the <em>upper half</em>.</p>
+<p>For example, consider just the last 3 characters of <code>FBFBBFFRLR</code>:</p>
+<ul>
+<li>Start by considering the whole range, columns <code>0</code> through <code>7</code>.</li>
+<li><code>R</code> means to take the <em>upper half</em>, keeping columns <code>4</code> through <code>7</code>.</li>
+<li><code>L</code> means to take the <em>lower half</em>, keeping columns <code>4</code> through <code>5</code>.</li>
+<li>The final <code>R</code> keeps the upper of the two, <em>column <code>5</code></em>.</li>
+</ul>
+<p>So, decoding <code>FBFBBFFRLR</code> reveals that it is the seat at <em>row <code>44</code>, column <code>5</code></em>.</p>
+<p>Every seat also has a unique <em>seat ID</em>: multiply the row by 8, then add the column. In this example, the seat has ID <code>44 * 8 + 5 = <em>357</em></code>.</p>
+<p>Here are some other boarding passes:</p>
+<ul>
+<li><code>BFFFBBFRRR</code>: row <code>70</code>, column <code>7</code>, seat ID <code>567</code>.</li>
+<li><code>FFFBBBFRRR</code>: row <code>14</code>, column <code>7</code>, seat ID <code>119</code>.</li>
+<li><code>BBFFBBFRLL</code>: row <code>102</code>, column <code>4</code>, seat ID <code>820</code>.</li>
+</ul>
+<p>As a sanity check, look through your list of boarding passes. <em>What is the highest seat ID on a boarding pass?</em></p>
+#+end_export
+
+** The part 1 code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
+
+*** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
+
+We begin with a general method to shrink “binary spaces”.
+Given a range, and a list of “increase lower/decrease upper”
+commands, we return a new range resulting from
+applying the commands.
+#+name: shrinkBinSpace
+#+begin_src amm
+sealed trait BinSpaceModifier
+case object IncreaseLower extends BinSpaceModifier
+case object DecreaseUpper extends BinSpaceModifier
+
+def shrinkBinSpace(space: Tuple2[Int,Int],
+                   c: List[BinSpaceModifier]):
+    Tuple2[Int,Int] = c match {
+  case Nil => space
+  case IncreaseLower :: rest => {
+    val lower = space._1
+    val upper = space._2
+    val increased = ((upper + lower).toFloat / 2).ceil.toInt
+    shrinkBinSpace(Tuple2(increased,upper), rest)
+  }
+  case DecreaseUpper :: rest => {
+    val lower = space._1
+    val upper = space._2
+    val decreased = ((upper + lower).toFloat / 2).floor.toInt
+    shrinkBinSpace(Tuple2(lower,decreased), rest)
+  }
+}
+#+end_src
+
+#+RESULTS: shrinkBinSpace
+: defined trait BinSpaceModifier
+: defined object IncreaseLower
+: defined object DecreaseUpper
+: defined function shrinkBinSpace
+
+Now, we need only convert the strings into two lists
+of such commands.
+Since we know the exact form of the input strings,
+this method is quite exact; not generally useful.
+#+name: parseSeatCode
+#+begin_src amm
+def parseSeatCode(code: String):
+    Tuple2[List[BinSpaceModifier],List[BinSpaceModifier]] = {
+  val (rowLetters, columnLetters) = code.splitAt(7)
+  val rowCommands = rowLetters.map(l => l match {
+    case 'F' => DecreaseUpper
+    case 'B' => IncreaseLower}).toList
+  val columnCommands = columnLetters.map(l => l match {
+    case 'L' => DecreaseUpper
+    case 'R' => IncreaseLower}).toList
+
+  Tuple2(rowCommands,columnCommands)
+}
+#+end_src
+
+#+RESULTS: parseSeatCode
+: defined function parseSeatCode
+
+*** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+#+begin_src amm :noweb yes
+<<day5-input-scala>>
+<<parseSeatCode>>
+
+val highest_id = input.map(code => {
+  val (rowCommands, columnCommands) = parseSeatCode(code)
+  val row = shrinkBinSpace(Tuple2(0,127),rowCommands)._1
+  val column = shrinkBinSpace(Tuple2(0,7),columnCommands)._1
+
+  row * 8 + column
+}).max
+
+println("The highest ID for a seat is ${highest_id}.")
+#+end_src
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p><em>Ding!</em> The "fasten seat belt" signs have turned on. Time to find your seat.</p>
+<p>It's a completely full flight, so your seat should be the only missing boarding pass in your list.  However, there's a catch: some of the seats at the very front and back of the plane don't exist on this aircraft, so they'll be missing from your list as well.</p>
+<p>Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.</p>
+<p><em>What is the ID of your seat?</em></p>
+#+end_export
+
+** The part 2 answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
+
+A simple enough search using ~find~ on the list of IDs we
+created earlier. Search for the ID which is not in the list,
+but whose successor and predecessor are.
+#+begin_src amm :noweb yes
+<<day5-input-scala>>
+<<parseSeatCode>>
+
+val seat_ids = input.map(code => {
+  val (rowCommands, columnCommands) = parseSeatCode(code)
+  val row = shrinkBinSpace(Tuple2(0,127),rowCommands)._1
+  val column = shrinkBinSpace(Tuple2(0,7),columnCommands)._1
+
+  row * 8 + column
+})
+
+val our_id = (0 to 1023).find(id =>
+  seat_ids.contains(id-1) && !seat_ids.contains(id) && seat_ids.contains(id+1))
+
+println("Our seat is ${our_id}.")
+#+end_src
+
+* Day  6 – Custom Customs
+:PROPERTIES:
+:CUSTOM_ID: Day--6-–-Custom-Customs
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>As your flight approaches the regional airport where you'll switch to a much larger plane, <a href="https://en.wikipedia.org/wiki/Customs_declaration" target="_blank">customs declaration forms</a> are distributed to the passengers.</p>
+<p>The form asks a series of 26 yes-or-no questions marked <code>a</code> through <code>z</code>. All you need to do is identify the questions for which <em>anyone in your group</em> answers "yes". Since your group is just you, this doesn't take very long.</p>
+<p>However, the person sitting next to you seems to be experiencing a language barrier and asks if you can help. For each of the people in their group, you write down the questions for which they answer "yes", one per line.  For example:</p>
+<pre><code>abcx
+abcy
+abcz
+</code></pre>
+<p>In this group, there are <em><code>6</code></em> questions to which anyone answered "yes": <code>a</code>, <code>b</code>, <code>c</code>, <code>x</code>, <code>y</code>, and <code>z</code>. (Duplicate answers to the same question don't count extra; each question counts at most once.)</p>
+<p>Another group asks for your help, then another, and eventually you've collected answers from every group on the plane (your puzzle input). Each group's answers are separated by a blank line, and within each group, each person's answers are on a single line. For example:</p>
+<pre><code>abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b
+</code></pre>
+<p>This list represents answers from five groups:</p>
+<ul>
+<li>The first group contains one person who answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>The second group contains three people; combined, they answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>The third group contains two people; combined, they answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>The fourth group contains four people; combined, they answered "yes" to only <em><code>1</code></em> question, <code>a</code>.</li>
+<li>The last group contains one person who answered "yes" to only <em><code>1</code></em> question, <code>b</code>.</li>
+</ul>
+<p>In this example, the sum of these counts is <code>3 + 3 + 3 + 1 + 1</code> = <em><code>11</code></em>.</p>
+<p>For each group, count the number of questions to which anyone answered "yes". <em>What is the sum of those counts?</em></p>
+#+end_export
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+import $file.resources, resources._
+import scala.io.Source
+#+end_src
+
+Parse the inputs as list of strings, then split the list on empty strings.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+val source = Source.fromFile("../../input/advent-of-code-2020/day6.txt")
+val raw_input = source.getLines().toList
+source.close()
+
+val groups = spans(raw_input, ((x: String) => x != ""))
+             .filter((x: List[String]) => x != List(""))
+#+end_src
+
+We need to count the number of characters
+which occur at least once in each group.
+Our method will operate on lists of strings;
+to be a bit more general, it returns a list of the characters
+which occur at least once in each group.
+Then we can just check the list size afterward.
+
+We obtain the list by
+filtering down from the collection of lowercase characters.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+def groupAnswers(group: List[String]): List[Char] =
+  ('a' to 'z').filter((c: Char) => group.exists(g => g.contains(c))).toList
+#+end_src
+
+Now fold over the list of groups, summing up the size of the lists
+returned by ~groupAnswers~.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+val answer: Int = groups.foldLeft(0) {
+  (accum, g: List[String]) => accum + groupAnswers(g).length
+}
+
+println(s"The solution to part 1 is $answer")
+#+end_src
+
+For my input, the answer was 6532.
+
+** The part 2 narrative
+
+#+begin_export html
+<p>As you finish the last group's customs declaration, you notice that <span title="Don't worry, nobody ever misreads just one word in real life.">you misread one word</span> in the instructions:</p>
+<p>You don't need to identify the questions to which <em>anyone</em> answered "yes"; you need to identify the questions to which <em>everyone</em> answered "yes"!</p>
+<p>Using the same  example as above:</p>
+<pre><code>abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b
+</code></pre>
+<p>This list represents answers from five groups:</p>
+<ul>
+<li>In the first group, everyone (all 1 person) answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>In the second group, there is <em>no</em> question to which everyone answered "yes".</li>
+<li>In the third group, everyone answered yes to only <em><code>1</code></em> question, <code>a</code>. Since some people did not answer "yes" to <code>b</code> or <code>c</code>, they don't count.</li>
+<li>In the fourth group, everyone answered yes to only <em><code>1</code></em> question, <code>a</code>.</li>
+<li>In the fifth group, everyone (all 1 person) answered "yes" to <em><code>1</code></em> question, <code>b</code>.</li>
+</ul>
+<p>In this example, the sum of these counts is <code>3 + 0 + 1 + 1 + 1</code> = <em><code>6</code></em>.</p>
+<p>For each group, count the number of questions to which <em>everyone</em> answered "yes". <em>What is the sum of those counts?</em></p>
+</article>
+#+end_export
+
+** The part 2 solution
+
+A simple solution tweak gives us this solution;
+unfortunately we do need another method,
+as the ~exists~ used in ~groupAnswers~ must be replaced by a ~forall~.
+We call the new method that results from this change
+“~groupConsensus~”.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+def groupConsensus(group: List[String]): List[Char] =
+  ('a' to 'z').filter((c: Char) => group.forall(g => g.contains(c))).toList
+#+end_src
+
+Now fold over the list of groups, summing up the size of the lists
+returned by ~groupConsensus~.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+val answer2: Int = groups.foldLeft(0) {
+  (accum, g: List[String]) => accum + groupConsensus(g).length
+}
+
+println(s"The solution to part 2 is $answer2")
+#+end_src
+
+For my input, the answer was 3427.
+
+* Day  7 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day--7-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day  8 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day--8-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day  9 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day--9-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 10 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-10-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 11 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-11-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 12 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-12-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 13 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-13-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 14 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-14-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 15 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-15-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 16 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-16-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 17 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-17-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 18 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-18-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 19 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-19-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 20 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-20-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 21 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-21-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 22 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-22-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 23 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-23-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 24 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-24-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Day 25 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-25-–-???
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-narrative
+:END:
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+** The part 2 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-narrative
+:END:
+
+** The part 2 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-2-solution
+:END:
+
+* Inputs
+:PROPERTIES:
+:CUSTOM_ID: Inputs
+:END:
+
+The input sets for each day are collected here
+and then tangled into files in [[./input/advent-of-code-2020]].
+
+** Day 1
+:PROPERTIES:
+:CUSTOM_ID: Day-1
+:END:
+
+#+begin_src text :tangle ./input/advent-of-code-2020/day1.txt
 1567
 1223
 1758
@@ -309,434 +1876,12 @@ that sum to 2020; what do you get if you multiply them together?
 1974
 #+end_src
 
-**** As a Scala list
+** Day 2
 :PROPERTIES:
-:CUSTOM_ID: As-a-Scala-list
+:CUSTOM_ID: Day-2
 :END:
 
-For the moment, I “cheat” slightly by modifying the input list
-into an actual Scala list.
-Properly, I should instead have a parser to do this;
-perhaps later on.
-
-#+name: day1-input-scala
-#+begin_src amm
-val input = List(
-  1567,
-  1223,
-  1758,
-  1842,
-  1933,
-  1898,
-  1409,
-  1058,
-  1533,
-  1417,
-  1032,
-  1634,
-  1477,
-  1394,
-  1888,
-  1972,
-  1237,
-  1390,
-  1677,
-  1546,
-  1302,
-  1070,
-  1369,
-  1455,
-  1065,
-  1924,
-  1593,
-  1131,
-  1064,
-  1346,
-  1914,
-  1129,
-  1830,
-  1450,
-  1278,
-  1740,
-  1809,
-  1176,
-  1734,
-  1102,
-  1807,
-  1982,
-  1603,
-  1736,
-  2008,
-  1980,
-  1905,
-  1633,
-  1732,
-  1350,
-  1865,
-  1988,
-  1805,
-  1998,
-  1152,
-  1046,
-  1870,
-  1557,
-  1789,
-  1766,
-  1945,
-  1359,
-  1002,
-  1126,
-  1719,
-  1497,
-  1296,
-  1560,
-  1936,
-  1929,
-  1464,
-  2005,
-  1281,
-  618 ,
-  1257,
-  1107,
-  1632,
-  1688,
-  1964,
-  1803,
-  1360,
-  1384,
-  1889,
-  1411,
-  1328,
-  1452,
-  1868,
-  1515,
-  1586,
-  1631,
-  1618,
-  1087,
-  1710,
-  1094,
-  1774,
-  1295,
-  1700,
-  1636,
-  1230,
-  1421,
-  1910,
-  1522,
-  1366,
-  1144,
-  1757,
-  1493,
-  1316,
-  1103,
-  687 ,
-  1371,
-  1720,
-  1155,
-  1559,
-  1900,
-  989 ,
-  1367,
-  1999,
-  1066,
-  1773,
-  1787,
-  1402,
-  1047,
-  1806,
-  1956,
-  1219,
-  1555,
-  1307,
-  1419,
-  1706,
-  1884,
-  1109,
-  1181,
-  2010,
-  1298,
-  1730,
-  1078,
-  1848,
-  1398,
-  1687,
-  2007,
-  1550,
-  1664,
-  1225,
-  1079,
-  1698,
-  350 ,
-  1222,
-  1377,
-  1977,
-  1510,
-  1571,
-  1630,
-  1029,
-  1379,
-  1942,
-  1949,
-  1249,
-  1829,
-  1297,
-  1530,
-  1607,
-  1324,
-  1069,
-  1476,
-  928 ,
-  1039,
-  1855,
-  1644,
-  1454,
-  1310,
-  1172,
-  547 ,
-  1034,
-  1878,
-  1479,
-  1457,
-  1319,
-  1810,
-  1759,
-  1439,
-  1851,
-  545 ,
-  1470,
-  2003,
-  1908,
-  1564,
-  1491,
-  1174,
-  1301,
-  1689,
-  1276,
-  1781,
-  1392,
-  1499,
-  1962,
-  1653,
-  1823,
-  1381,
-  1827,
-  1974)
-#+end_src
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
-
-The intuitive solution is to perform a a double walkthrough
-of the list; walk through and, at each element ~e~,
-perform another walkthrough and at each element ~e'~,
-check if the sum of ~e~ and ~e'~ is the specified constant ~2020~.
-
-Rather than perform the second walkthrough manually, we make use of
-the ~collectFirst~ method for sequences;
-see the sequence [[https://www.scala-lang.org/api/2.12.0/scala/collection/Seq.html][documentation]].
-#+name: summingPair
-#+begin_src amm
-/**
-  * Find a pair of elements in `xs` which sum to `sum`,
-  * if such elements exist.
-  * If multiple such pairs exist, returns the pair
-  * whose first element has the lowest index and
-  * whose second element has the lowest index amongst
-  * candidates to pair with that first element.
-  */
-def summingPair(xs : Seq[Int], sum: Int): Option[Tuple2[Int,Int]] = xs match {
-  case Nil => None
-  case fst :: rest =>
-    rest.collectFirst({case snd if fst + snd == sum => (fst,snd)}) match {
-      case Some(pair) => Some(pair)
-      case None => summingPair(rest, sum)
-    }
-}
-#+end_src
-
-#+RESULTS: summingPair
-: defined function summingPair
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-Now we apply that method to the provided input,
-then match on it to produce the product of the pair.
-#+begin_src amm :noweb yes
-<<day1-input-scala>>
-<<summingPair>>
-
-summingPair(input,2020) match {
-  case Some((fst,snd)) => println(s"The product of the summing pair is ${fst * snd}.")
-  case None => println("Summing pair not found.")
-}
-#+end_src
-
-** Part 2
-:PROPERTIES:
-:CUSTOM_ID: Part-2
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-The Elves in accounting are thankful for your help; one of them
-even offers you a starfish coin they had left over from a past vacation.
-They offer you a second one if you can find three numbers
-in your expense report that meet the same criteria.
-
-Using the above example again, the three entries that
-sum to 2020 are 979, 366, and 675. Multiplying them together
-produces the answer, 241861950.
-
-In your expense report, what is the product of the three
-entries that sum to 2020?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-…is the same as above.
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorse
-:PROPERTIES:
-:CUSTOM_ID: The-workhorse
-:END:
-
-This generalisation of the problem requires that we move away
-from the use of a tuple; of course we could move to a triple instead,
-but we may as well generalise to returning a sequence of a given length.
-
-This time we will need to recurse on the new argument ~n~ when
-for the inner “loop”.
-#+name: summingSeq
-#+begin_src amm
-/**
- ,* Find a sequence of elements of length `n`
- ,* in `xs` which sum to `sum`,
- ,* if such elements exist.
- ,* If multiple such sequences exist, returns the sequence
- ,* whose first element has the lowest index and
- ,* whose second element has the lowest index amongst
- ,* candidates to pair with that first element, etc.
- ,*/
-def summingSeq(xs : Seq[Int], sum: Int, n:Int): Either[String,List[Int]] = n match {
-  case 0 if sum == 0 => Right(Nil)
-  case 0             => Left("Ran out of return space with some leftover amount.")
-  case n if n > 0 => xs match {
-    case Nil => Left("Ran out of elements with some leftover amount.")
-    case fst :: rest if sum >= fst =>
-      summingSeq(rest, sum-fst, n-1) match {
-        case Right(ys) => Right(fst :: ys)
-        case Left(_) => summingSeq(rest,sum,n)
-      }
-    case _ :: rest => summingSeq(rest,sum,n)
-  }
-  case n if n < 0 => Left("Cannot sum many negative elements")
-}
-#+end_src
-
-#+RESULTS: summingSeq
-: defined function summingSeq
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-Now we apply that method to the provided input,
-then match on it to extract the list and take its product.
-#+begin_src amm :noweb yes :results output
-<<day1-input-scala>>
-<<summingSeq>>
-
-summingSeq(input,2020,3) match {
-  case Right(l) => println(s"The product of the summing triple is ${l.product}.")
-  case Left(s) => println(s"Summing triple not found; error ${s}.")
-}
-#+end_src
-
-* Day  2 – Password Philosophy
-:PROPERTIES:
-:CUSTOM_ID: Day--2-–-Password-Philosophy
-:END:
-
-** Part 1
-:PROPERTIES:
-:CUSTOM_ID: Part-1
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-Your flight departs in a few days from the coastal airport;
-the easiest way down to the coast from here is via toboggan.
-
-The shopkeeper at the North Pole Toboggan Rental Shop
-is having a bad day. “Something's wrong with our computers;
-we can't log in!” You ask if you can take a look.
-
-Their password database seems to be a little corrupted:
-some of the passwords wouldn't have been allowed
-by the Official Toboggan Corporate Policy that was in effect
-when they were chosen.
-
-To try to debug the problem, they have created a list
-(your puzzle input) of passwords (according to the corrupted database)
-and the corporate policy when that password was set.
-
-For example, suppose you have the following list:
-#+begin_src text
-1-3 a: abcde
-1-3 b: cdefg
-2-9 c: ccccccccc
-#+end_src
-Each line gives the password policy and then the password.
-The password policy indicates the lowest and highest number of times
-a given letter must appear for the password to be valid.
-For example, ~1-3 a~ means that the password
-must contain ~a~ at least ~1~ time and at most ~3~ times.
-
-In the above example, 2 passwords are valid.
-The middle password, ~cdefg~, is not; it contains no instances of ~b~,
-but needs at least ~1~. The first and third passwords are valid:
-they contain one ~a~ or nine ~c~, both within the limits
-of their respective policies.
-
-How many passwords are valid according to their policies?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-**** Raw
-:PROPERTIES:
-:CUSTOM_ID: Raw
-:END:
-
-#+name: day2-input-raw
-#+begin_src text
+#+begin_src text :tangle ./input/advent-of-code-2020/day2.txt
 1-5 k: kkkkhkkkkkkkkkk
 5-7 k: blkqhtxfgktdkxzkksk
 15-16 x: xxxxxxxxxxxxxxlf
@@ -1739,1250 +2884,12 @@ How many passwords are valid according to their policies?
 9-13 n: nglxnhnnrktnnfznn
 #+end_src
 
-**** As a list of Scala strings
+** Day 3
 :PROPERTIES:
-:CUSTOM_ID: As-a-list-of-Scala-strings
+:CUSTOM_ID: Day-3
 :END:
 
-For today, I again “cheat” slightly
-by modifying the input into a list of Scala strings.
-
-I have decided to at least parse each string though,
-rather than modify the input directly into a usable shape.
-
-#+name: day2-input-scala
-#+begin_src amm
-val input = List(
-  "1-5 k: kkkkhkkkkkkkkkk",
-  "5-7 k: blkqhtxfgktdkxzkksk",
-  "15-16 x: xxxxxxxxxxxxxxlf",
-  "3-5 j: fjpvj",
-  "17-20 x: zsxjrxkgxxxxxxxmxgxf",
-  "5-6 m: swjzmmmlx",
-  "2-4 v: vqdn",
-  "8-12 t: thllsbqtgdsf",
-  "10-17 h: vpbrjcbhnwqhhphxjk",
-  "8-9 p: zpwpppkqbpkpppp",
-  "5-6 t: wtxxts",
-  "3-8 v: vfsvhgvvhh",
-  "1-3 v: kvvvm",
-  "8-16 w: bwkqpdgwrbwjxrtqlwbw",
-  "3-8 s: sssssssbs",
-  "6-9 w: wwwwwcwwww",
-  "5-10 r: rvwrrlxbrjhp",
-  "1-4 r: rbnlkkrjphnnxpw",
-  "7-9 r: zxhrpmsrrxrlr",
-  "2-3 w: dwcvwb",
-  "2-4 v: vlvvvv",
-  "3-12 h: hbvdhhhhhqhhlzhs",
-  "8-10 t: tbgfvwbtvbnghfbhxz",
-  "4-8 m: dmvgkltn",
-  "4-6 x: xfxxxdcxxqr",
-  "1-2 p: pkcpmh",
-  "2-7 f: fkfffflf",
-  "9-11 m: mmmmbmkmmmmm",
-  "9-10 b: bbbbbbbbbz",
-  "6-7 z: zzzzzcp",
-  "4-7 c: cqccltd",
-  "3-4 w: wbvwcwllww",
-  "4-10 k: kkkmkkdkkkxkfh",
-  "5-6 x: xqftxz",
-  "9-13 r: rrbrrrrrxrrqrjrr",
-  "5-10 t: hjcxthjtvdd",
-  "8-17 c: bckccxqcmccxrckcl",
-  "16-18 b: jwxpkkmnbqftknzjkbr",
-  "5-6 r: rrrmrr",
-  "1-2 k: lkbhbkstth",
-  "17-18 j: jjjjjjjjjjzjjjjjxsj",
-  "4-12 t: tttkttttttttttttj",
-  "7-9 k: kkkkkkwkk",
-  "3-5 q: pjlql",
-  "9-14 t: tptjdnnzkvjqbthm",
-  "2-8 q: qwqqqqqqq",
-  "5-8 p: ppwwrphp",
-  "6-7 h: hhhhhtr",
-  "2-3 w: wvtfwwh",
-  "6-13 d: ddddjdmddcdkjd",
-  "2-4 k: xkhf",
-  "4-6 s: fdksdsq",
-  "2-3 x: xxjsx",
-  "1-11 b: ksbjfhgqbbbbvpcbg",
-  "5-12 f: fgfffffffffwfjsfzfs",
-  "5-7 p: ppppppq",
-  "10-14 z: zzjzfzzzzfzzzj",
-  "5-9 p: qxxmkfpspnpk",
-  "6-7 s: shqgnsq",
-  "10-15 v: vvvvvvvvvnvvvvvv",
-  "1-3 g: gxchngg",
-  "5-8 v: vvvvvvvcvv",
-  "9-14 s: sssflshssssssssssfs",
-  "4-7 v: kvlvdkvfn",
-  "9-10 x: xxxxxxxxxdxx",
-  "3-4 n: nnnnn",
-  "3-7 z: zzzzzznz",
-  "2-5 v: hnkgvxqqfq",
-  "3-9 m: vmbmbqrmks",
-  "5-8 g: ghggggjfggfd",
-  "13-15 m: tvhsdwphwtpkmlm",
-  "14-15 h: hhhghhhhshhhhch",
-  "15-18 s: bssssssvssssjszsss",
-  "6-7 h: hhfrhhmhhh",
-  "5-10 x: xxgxxxdxmmxrx",
-  "2-5 c: cztcgcwct",
-  "2-4 l: lllw",
-  "12-13 x: xxxxxxxxxxxgx",
-  "4-5 k: kckgkk",
-  "1-3 p: gqppndp",
-  "4-6 c: cdcnfr",
-  "6-7 v: vvmvvvfv",
-  "2-4 c: cdzc",
-  "7-8 x: xxxxxxxxxxwxx",
-  "2-5 z: zzzznns",
-  "6-7 k: kkkkkkk",
-  "13-15 t: ttttttftntttttxttttt",
-  "4-5 k: mckkmkxthk",
-  "3-6 h: hhchlhh",
-  "10-14 x: xxxxxxxxxsxxxxxx",
-  "1-2 n: nknnnz",
-  "1-14 r: prrrrrrrrrrrrrr",
-  "1-3 p: gpppp",
-  "1-15 x: xxxxdxxwxxxxxcxr",
-  "9-10 f: fffffffffk",
-  "4-5 m: mmmwmm",
-  "10-14 q: dtbtqwkspvxbtq",
-  "4-7 w: wzsxmpqgxjwsw",
-  "9-16 z: qftzzzfztnczwzzzjzzp",
-  "6-11 r: grrqvcjkhrrdrsrrrqr",
-  "8-11 g: gjbmwgggbgnggltgz",
-  "5-7 c: cccctcdcc",
-  "11-13 j: jjtzdlfrvjcjsjj",
-  "3-11 p: wmmrmblfbcppjvvfp",
-  "2-3 m: zgzrsf",
-  "9-13 t: tttttttttsttttt",
-  "2-4 m: skmm",
-  "3-4 l: nllx",
-  "5-6 h: hhhhhx",
-  "7-9 l: mlflqllgl",
-  "6-7 r: rrqcrnrlrrcr",
-  "1-4 x: xbxbbcxx",
-  "11-19 f: ddfzffnfffqffffffff",
-  "2-7 w: wtwwwthw",
-  "10-14 z: zzlzhzzzzkzzzzkzzzr",
-  "10-12 p: pplvpppwpnqpprspspp",
-  "12-14 g: gxghmjgggggjgggggg",
-  "4-5 w: whlmwx",
-  "1-10 g: cggzggbsgzr",
-  "2-5 p: ppppzjp",
-  "4-6 b: bbbfbbbbxbbbbbbbbbb",
-  "12-14 r: rrrrrrrrrrrhrr",
-  "9-10 f: fvdkjxfgpf",
-  "4-7 v: vvvnpqv",
-  "4-14 r: rrrwcrxrqmrrrrrrrrr",
-  "10-15 z: zszjzjzzmzzzzzd",
-  "8-11 v: vvvvvvvvvvv",
-  "10-11 v: vvvvlvvvlrvv",
-  "4-7 j: fbbbhjjj",
-  "1-5 d: ldddd",
-  "2-5 p: flkszkmgp",
-  "4-11 h: gclqbxbphsj",
-  "2-4 h: jthhhh",
-  "8-9 f: fqfffgfqfffffff",
-  "2-9 v: znfvsxrdw",
-  "12-14 c: cccccccrccmhccc",
-  "2-5 k: tkwkk",
-  "3-4 f: ffqffff",
-  "3-5 j: jkjjm",
-  "7-10 t: kvggzgqjttrg",
-  "8-17 h: whhhhhhhhgvhkhhhs",
-  "2-16 s: spsssgssssssszsssvhp",
-  "6-7 s: jssssbk",
-  "7-8 f: fhfffqfn",
-  "6-12 q: pmfgxqdcwsnqvfpbxqt",
-  "2-3 x: khqxfx",
-  "4-11 z: rzzzzzvzzzz",
-  "2-4 x: xrsx",
-  "3-13 g: ggggqmggggggglg",
-  "2-4 c: vccs",
-  "3-4 s: szvsfs",
-  "11-17 x: csxxxzxxrkzqxxzxxxbx",
-  "13-16 h: zhjhhhhbhhhfshhhqhh",
-  "16-20 s: zjljhcpwdzgbkdsssgrs",
-  "6-7 t: ttqtttbxtt",
-  "3-4 w: wlswk",
-  "8-9 l: lllllglrllll",
-  "8-9 d: ddddddqdnd",
-  "8-10 c: cccccccccbcc",
-  "2-6 n: fnxlng",
-  "6-10 g: gggggggggt",
-  "4-13 p: pmptpjpppkpppvpp",
-  "12-13 b: hbwpjmnxcwvfl",
-  "7-10 c: tccccclcccc",
-  "16-17 n: mnnjnmrnjnnnnnnnn",
-  "3-4 r: wxrr",
-  "9-16 x: xxxxxxxxxxxxxxxnx",
-  "1-5 v: vxvgm",
-  "7-11 l: lllnlhllnlljcll",
-  "4-9 s: sdhtjsdfsstl",
-  "9-11 n: nnbszpzwkmf",
-  "15-16 k: kpvfgsrkptkkbdkj",
-  "3-5 j: nfrjffxjh",
-  "6-9 j: dxrrhnwwjm",
-  "9-10 x: xxxxxxxxpxx",
-  "3-4 n: nndnnnnlnnsnnnnn",
-  "2-4 n: mgnc",
-  "16-18 g: gggggggggggggggggsg",
-  "8-19 p: lbmcxkxfhwltkbjzppp",
-  "6-8 l: lllllllbnllflz",
-  "1-2 g: zggggg",
-  "10-12 n: vxddjhnnvnrr",
-  "1-3 f: sftff",
-  "12-13 q: qqqqxqqqqqqqcq",
-  "1-3 r: trqrrrrrr",
-  "5-15 g: ggggfgggggggggdggg",
-  "5-6 l: zpzcklk",
-  "3-8 j: jjcjjjjjj",
-  "11-15 k: kkmkkkkkkkljkkk",
-  "3-4 x: hxdb",
-  "8-13 g: vggggfgdpggghmg",
-  "6-9 q: qqqqqcqqqqqqqqq",
-  "5-6 z: zzszbz",
-  "8-15 k: knfkxkzjvbqqdkvc",
-  "13-16 n: xbngntvnqdnfnnfd",
-  "1-9 s: sshstsssv",
-  "5-7 s: szsslsss",
-  "5-7 n: nnxhdfnnr",
-  "2-5 m: mfbdm",
-  "10-13 l: qnzhxkkwflllrllz",
-  "4-8 h: mnhtnbhxw",
-  "4-5 b: wbwbp",
-  "4-13 s: jttsbbszhssvt",
-  "8-12 r: rrrrrrrhrrrrr",
-  "3-6 w: sxvnksbvdwlg",
-  "11-14 x: xxrxxxnxbxxxkx",
-  "16-17 s: szssssssssssssssc",
-  "5-8 l: hlllclllllllllllll",
-  "3-4 l: lllhl",
-  "3-12 s: ntsmzknclldtlsq",
-  "5-10 m: mmmmmmmmmlmmmm",
-  "7-10 x: jxkhxkxbbvlmn",
-  "4-6 t: tttttwt",
-  "18-19 l: nlbllqqvqqlmpllxldc",
-  "1-2 m: mpmmmgqm",
-  "3-7 t: ttfttqgtttttt",
-  "3-6 r: brrrrfrt",
-  "9-14 d: sddddddxdnxddzdd",
-  "5-6 c: szcxsc",
-  "3-9 m: cprvpmmmm",
-  "12-16 p: ppppppppppptpppp",
-  "3-7 q: qqsqqqbq",
-  "2-11 g: bgndtnltsgg",
-  "5-6 c: kctccckcxcc",
-  "8-9 q: qfzbfnbjzljzcvhpswgt",
-  "17-18 j: jjjjjjnjjpdjxwjqwjfb",
-  "2-5 g: dhkldg",
-  "4-6 s: rwssbs",
-  "11-12 g: ggmggcgpgmgn",
-  "1-2 f: flcnv",
-  "10-11 c: ccccccccccrc",
-  "14-19 h: hhhhhhhnhhhhhbhhhhhh",
-  "9-10 v: bnvvzctvvw",
-  "3-7 v: gdhvpqv",
-  "6-8 c: ccnccfcc",
-  "6-9 j: zjdjlfnjjjjnfj",
-  "8-9 q: qqqqqqqfq",
-  "12-14 t: ptgsttgttttttkttst",
-  "9-12 p: ppzppppkjpppqppd",
-  "3-4 g: gggfggng",
-  "4-9 z: zzzqqdzrrzzz",
-  "5-7 f: bjbftff",
-  "12-13 w: wvwwwwwwwwwmwzfwww",
-  "1-4 h: htnd",
-  "5-10 m: nlbtmgfmpqzfv",
-  "11-14 j: jcjjgjjjfjjjjzjfj",
-  "9-10 n: nnnnnnnnnznq",
-  "3-5 t: ttttmt",
-  "7-9 n: nnntnnbnnnn",
-  "7-14 l: btlsjhlgglhrlkllgrb",
-  "4-5 g: hctgg",
-  "4-6 b: ksbbjbljnfsd",
-  "2-3 h: hhsx",
-  "4-10 h: pgmhbbhmpsvxnhdtsh",
-  "5-11 q: pqrsdqqqqqqqq",
-  "1-4 s: sssq",
-  "6-7 r: shpvlsr",
-  "1-2 f: fsff",
-  "8-14 z: zgzhbwkzdjtglgxzh",
-  "10-14 j: djjjjgrgjjjjjkj",
-  "2-12 g: ggxtdhcjpfdg",
-  "1-2 f: frfffffmffft",
-  "18-20 d: ddpkddbzdkdkxzddhrdx",
-  "4-7 b: bwdbrbkq",
-  "8-10 d: dhddddddmt",
-  "7-9 z: znzzzzzzt",
-  "4-11 r: jtcrcsfjrkrfnttm",
-  "4-5 k: hkkkkk",
-  "3-19 m: vtxnccshqhlvfkwrxtnw",
-  "8-9 h: hcvhghzfhrhh",
-  "5-6 r: bqdcjrkrrwqvrr",
-  "6-12 r: rprmrnrfkbrrwm",
-  "19-20 f: fffffffffffffffffgff",
-  "6-8 d: dmdddhddd",
-  "4-11 w: mwwwwdwkwwfwww",
-  "9-10 r: rrrqhvfrrhrftrprr",
-  "9-11 p: ppppdpsghpp",
-  "2-5 m: mmnmmtttwvk",
-  "6-10 q: qlfqkqdbqb",
-  "8-9 r: rrrrfrrrprrrrrrfr",
-  "4-6 l: nwnklltxl",
-  "3-7 b: fzvpjtbjb",
-  "3-7 r: rrsrxzrbrrrqx",
-  "2-4 n: cnbg",
-  "6-8 t: ttqtttfjhtxtgdrtn",
-  "4-5 g: gghgggg",
-  "7-10 s: rgdqsqstvwl",
-  "4-11 w: wwwsjwwwbwjwwww",
-  "3-6 q: qkpqhfqq",
-  "3-5 l: xbhmlrlllvq",
-  "6-7 v: gltvcvkn",
-  "3-4 t: ttthttt",
-  "11-13 n: nnnrdndnngffnnnnnn",
-  "1-4 t: nttvt",
-  "4-6 h: hhhhhl",
-  "4-6 l: rlgmlqmtlptdf",
-  "9-16 x: bqkxsfdhxlhwmzrqn",
-  "9-10 m: mmmsmmmmmvmcm",
-  "4-6 b: bbbbbd",
-  "11-15 g: ggggggggggggggng",
-  "1-2 v: bvvssfblvnxqp",
-  "5-6 v: pvtjvpvvv",
-  "1-4 c: cccnccccccccccccc",
-  "8-11 s: sssssssjsxxsss",
-  "5-8 d: ddddgddd",
-  "6-13 z: jxzxzzhzznzqw",
-  "6-12 r: drzdgkrctcnd",
-  "11-12 k: kkkkkckrkkkwbtbkvkk",
-  "16-18 t: swtvgprhjnzlgsjjst",
-  "5-11 k: kkkkkkkkkkpkkkk",
-  "4-7 j: jjjjjjjjjjj",
-  "6-8 d: kdddkdtt",
-  "1-5 c: cccsk",
-  "10-17 n: nnnnnnnnnrnnnnnnfn",
-  "5-9 z: zpzznzzzzzvzzzzz",
-  "5-20 t: tltttztnttttttvtttct",
-  "2-14 l: lrlllllllllllll",
-  "1-12 h: hhhhwhhhhkhshh",
-  "2-4 p: spbpppkppnjfx",
-  "11-15 d: ddddzdcdddddshdw",
-  "9-10 h: qhcwgthzsh",
-  "2-4 t: bhdtttbfwjpthntmrq",
-  "3-4 z: jzdz",
-  "7-16 k: hkvxwzkqrkbsltgcx",
-  "3-4 v: vcqv",
-  "2-7 x: xdtgjjxfh",
-  "15-17 c: ccnzdlcpzrccbcccf",
-  "3-7 g: zsgrmgrh",
-  "3-7 z: zqjzzlzcvzzzls",
-  "6-9 f: cnzdlfnqvzkq",
-  "2-5 m: jmfhgwmmc",
-  "7-9 r: rrrrrrrws",
-  "4-9 g: gdsgggbkdgg",
-  "11-13 l: ztrzlltljglzcr",
-  "10-13 g: ggggdjgtgggzrgg",
-  "12-16 k: zpfdzxwbzfkptwqkn",
-  "15-16 p: ppppmpppppppppwpp",
-  "8-14 b: bmhgtpdbbsrkbgvwd",
-  "10-12 k: ktkkkkkkrnkjkksk",
-  "2-10 d: dhdwdffhdqngs",
-  "4-7 g: ggglggggggggggg",
-  "1-10 f: xfffffffffff",
-  "6-11 m: mxmnvsmwmmmww",
-  "15-16 k: qskxqzknqkfhtlbkhx",
-  "4-5 b: hbbbt",
-  "11-14 k: kvkkdkkvkdskrkk",
-  "1-6 b: bjvbqs",
-  "2-3 r: dxzsvqtqvxrbv",
-  "6-8 c: cscrxrcklcscvkmbccc",
-  "4-8 d: dddjddddmd",
-  "4-13 x: dprmsnhxzxnxmv",
-  "5-6 j: jhkjjz",
-  "5-8 z: mzzjzhzbwdzl",
-  "9-11 x: xxxxxxxxlxx",
-  "4-5 d: dxdvndddpddddddddvnl",
-  "2-5 v: vvvvlv",
-  "5-11 m: cmmgmmmmmmmmmtc",
-  "13-14 r: rrrrrrrrrrrwjrrr",
-  "4-14 w: rlvwwwglzlxggwhkhk",
-  "17-18 d: dddddddddvddddhddldm",
-  "3-6 r: gmrprm",
-  "5-6 m: fpmjlmmzjb",
-  "12-14 j: jjjjjjjjjjcjjq",
-  "12-14 f: ffffwfffffbdfq",
-  "9-10 j: jjjjjjjjbjjj",
-  "1-3 z: dzzzkz",
-  "1-2 w: swtcxgdqgnlj",
-  "1-2 v: wvvv",
-  "1-3 h: rhrr",
-  "2-6 x: wxxmtbmcsr",
-  "6-7 d: ddndtfdd",
-  "8-13 j: cjqjjwwhjcswbthcj",
-  "3-4 x: xhxxppxnwmwkhdx",
-  "7-9 j: ggrjjbjjjnjvjjj",
-  "3-9 g: tzghddllprgs",
-  "11-13 r: jhdvbchsrzlxrwjrz",
-  "12-13 g: gwgggggggggglg",
-  "2-14 m: kmmcwwhprtskhwwvg",
-  "1-4 r: rzrssthbbhjdmnx",
-  "5-12 f: ffffgffffffff",
-  "19-20 j: jjjtjjjjjjjjjjjjjjjj",
-  "5-6 n: gnfnnnn",
-  "4-10 b: bbbmbbbbbbbbb",
-  "1-2 x: xsxs",
-  "17-18 r: rjrrrrrrrrrrrrrrzr",
-  "12-16 b: bgpvgbkbkhbqwbvbtbvg",
-  "1-11 q: qqqqqqqqqqxq",
-  "8-11 l: lllllfllllgll",
-  "3-4 h: hrtc",
-  "9-10 l: llvllnllkbwlslldllm",
-  "6-8 j: jjjjzsjj",
-  "3-6 n: mnxqjn",
-  "2-3 g: ghgg",
-  "2-16 q: qkqqqqrqqqqqqqqqqqqq",
-  "2-6 n: nnngrbfqshlmnnskdwpw",
-  "4-13 f: fffffffffffffff",
-  "4-5 s: nvcstplm",
-  "7-14 n: nzcnntnsdnbnngnnnpnk",
-  "16-18 v: vmvvvvvvvvvvvvvcvv",
-  "5-6 l: llllhq",
-  "5-10 d: ddddddbddqd",
-  "12-14 h: hhhhhhhhhhhzhhhh",
-  "11-12 b: bbbbqblbbwbnbbblbt",
-  "3-4 n: nwnqbtn",
-  "6-10 v: vgvvpvvdvbzq",
-  "10-11 m: mmmmmmmmmmmmm",
-  "6-8 b: bbbvjpvb",
-  "5-7 c: rcccccs",
-  "5-7 n: nqjksznntnzgnznmjj",
-  "7-8 r: rrrrrrrfrrrrrr",
-  "7-10 c: ccmccszccsmcbccggclc",
-  "1-8 s: sssssssxs",
-  "3-8 j: jxjjjxjj",
-  "7-10 z: zzzzzzczzzzzz",
-  "1-4 g: gdzgg",
-  "8-9 b: sqbbbbvhb",
-  "16-17 s: clssssssssflvssss",
-  "10-11 h: vhjhhhwhhpsh",
-  "3-5 z: jczzmzz",
-  "1-8 p: cztfpjcpp",
-  "4-7 w: twwprwwcww",
-  "2-3 x: xsxx",
-  "4-11 m: mswmmdkmmmqmwmfnqmt",
-  "8-11 b: lpbbbbbbbgb",
-  "4-14 n: nnnnnnnnnnnnnwnn",
-  "5-7 m: mrxsvmnwbmq",
-  "3-4 w: wwtjw",
-  "4-5 x: xxxxsxx",
-  "7-10 v: jkxhvtvfcvcsfvrbczkv",
-  "6-8 v: vvvvvtdvfjpc",
-  "11-12 h: hxqhhhhhmhnh",
-  "1-3 h: chhh",
-  "4-9 n: nnncnnnnnn",
-  "14-20 z: zrzzhwzmtzfktvrwqzxq",
-  "11-13 j: jkjjdgjjvpjjmkj",
-  "3-4 n: rcrfknnn",
-  "3-8 c: ccsccrccc",
-  "10-16 n: nnnnnnnnntnnnnnnn",
-  "8-13 p: tpvzplvlppphpzppjp",
-  "3-5 r: srrrsrhr",
-  "18-19 g: gggggdnfggqgwgggsgpg",
-  "13-18 m: mcjmmhmsvswcrmkmmmm",
-  "3-9 p: bjpgzprcplf",
-  "6-9 g: ggkgsgggj",
-  "1-7 v: vvvvvvmzv",
-  "6-16 h: hhhhrhhhthhhhhhq",
-  "2-3 v: tfvq",
-  "1-9 v: svvbwcvvvvl",
-  "10-11 d: dfdddddddhdddd",
-  "7-9 v: sscbdsvvr",
-  "3-6 q: wvrrvqrqczg",
-  "7-9 v: gmqzvpvbvd",
-  "2-20 v: tbmpjzvhqbklqtsllcfv",
-  "7-11 v: vvvvvvvvvvv",
-  "11-13 s: kknsbrcpsjblhrsbkh",
-  "2-7 n: fnnnmpstcklhwzmwx",
-  "6-14 d: kdmdhlddddddmv",
-  "17-18 z: zzzzzzzzzzzzzzzzrr",
-  "2-4 k: hmkfkklq",
-  "11-14 n: nnnnnnnnnnznnn",
-  "6-10 k: hnvpcckbxkpks",
-  "1-5 d: dmdpvjgdcglnssx",
-  "6-9 k: xzhqkpxvkkdtskkkwk",
-  "7-9 p: ppppcpppppp",
-  "4-5 r: qnvrrhvshwrsrxc",
-  "8-9 l: lllllllzk",
-  "9-10 s: sssssssssks",
-  "8-9 d: ddqzdddsd",
-  "4-16 k: kkkkkkksfwkkfkkhkk",
-  "10-11 n: rtpdqfmrnknr",
-  "5-6 z: zfzzztzxzzv",
-  "8-19 f: hvtkcwpfdgqwwqfwwvvb",
-  "5-7 v: vtmvtvwd",
-  "1-2 s: hpsp",
-  "10-12 d: jddddddddddc",
-  "8-10 s: tvsxfdgjts",
-  "6-7 x: xdbkbjxd",
-  "3-16 m: plmmxkwpcjgqgbrm",
-  "2-7 c: bqrdnscbkc",
-  "2-3 m: mnpmshpnqwz",
-  "4-7 g: kngcjgg",
-  "1-5 l: llllcl",
-  "4-11 k: kkkrkkkmkkkkkt",
-  "8-9 t: tttstvttsttt",
-  "11-12 c: cxzcjcccclnt",
-  "1-3 w: wwpss",
-  "2-7 p: zpsmqpx",
-  "4-9 x: whdsxdmncxwplxbh",
-  "17-19 p: qpqpppjppppfppppppp",
-  "1-2 b: bwbwxrbgb",
-  "5-6 n: nnpnbhpn",
-  "5-12 m: pmmmsmvmmmmmmm",
-  "5-9 q: vqpqqqqqbqqqfs",
-  "12-15 m: mmmmfmmmbmrwmmqmm",
-  "1-5 w: wtnflwwr",
-  "5-6 j: zdhhnrqpbcjkj",
-  "9-16 r: fmrzrrrrrrrrrsrfr",
-  "2-3 s: dmsq",
-  "1-18 w: wwwwwwwwwwwwwlwwws",
-  "2-9 c: cswcrbrccccqj",
-  "15-17 m: mmmmmmjzmmmmmmmmhm",
-  "1-9 n: nnnpnfkxnnlrpssnxbv",
-  "7-9 x: kvgqdhxhxvbm",
-  "5-8 l: ljllmclllftjzqk",
-  "9-12 j: jjjjjjjjjjjkj",
-  "12-13 h: hhhhhhhhhhhrh",
-  "11-13 f: ffffvfrfffmfff",
-  "3-13 n: dhnnndnnmwndrnnnhnnj",
-  "1-4 w: qswww",
-  "11-12 r: rjrcrrrcrrpkrr",
-  "1-5 k: kkkkjbs",
-  "3-4 r: vzrr",
-  "2-3 k: kmkkkkkkkk",
-  "3-4 v: vkdg",
-  "2-5 j: vtjpv",
-  "7-10 t: ttttmttjntqttz",
-  "2-3 x: xkzxxt",
-  "4-7 w: qhwzvswkhw",
-  "1-2 l: wqwnl",
-  "6-12 r: fzrrhrgrrzfxr",
-  "3-4 d: dddtdfbddd",
-  "12-16 g: gggggggggggcgggg",
-  "11-14 h: hhhkfhcshhchhhxhhhh",
-  "1-2 f: zfff",
-  "6-7 z: zzzzjgzz",
-  "12-19 k: tkgkkkkfkgkxgkqgkkn",
-  "12-13 c: ccccccccccczcc",
-  "16-17 z: zzzzzzzzzzzzzzzzn",
-  "4-5 b: bbbpbbzbbb",
-  "17-18 c: nvfkfcwxxjlrrslwcpc",
-  "7-10 v: kwcfvvvxvx",
-  "9-13 q: qqqqqqqqqqqqwq",
-  "1-4 g: pjgdhgnmzggd",
-  "7-11 d: ddddddzdbdd",
-  "17-20 j: npdnjjjjjjjjkzcfjslf",
-  "5-10 q: zkthrrkzqg",
-  "6-14 j: jjjjjjjjjjjjjkj",
-  "5-10 t: tbtttfbmztq",
-  "3-4 s: sssv",
-  "6-8 w: wwwlzwwwwwdk",
-  "1-11 l: vffmrflltflkwxldl",
-  "8-10 j: jjpjvjjjjb",
-  "6-7 p: hpqhvpzpphdkpp",
-  "3-4 m: mmtv",
-  "9-15 l: lllllgllllmllll",
-  "10-12 m: mmmmvhmmmmgtvg",
-  "2-6 w: wwwwwgwbt",
-  "7-13 m: mmmmmmmmmmmmm",
-  "1-5 r: gjcskhrz",
-  "5-12 s: bvggstbnhjfdfwz",
-  "7-8 c: ctxcfppcccc",
-  "12-14 j: jjjjjjjjjjjhjp",
-  "14-17 t: ttxttttptttttttttttt",
-  "1-8 l: lllllltf",
-  "7-8 r: qrrrrrrsvrhm",
-  "1-13 q: qqqqqrqqqqqqgqqqsq",
-  "4-9 n: qpnmnzpnnnnmxtr",
-  "6-11 z: qczxzzkzbkznzrvnvkz",
-  "7-13 b: bbbbbbkbbbbbsbb",
-  "6-9 c: ccfqncjszc",
-  "1-5 l: lrlsl",
-  "2-8 f: pfbtbvpjmzwpccsbm",
-  "2-4 d: wnjd",
-  "10-11 n: nnnnnnnnnxndnnnn",
-  "3-4 c: cccc",
-  "8-9 r: rflrrrvrh",
-  "3-4 b: thbs",
-  "3-9 q: zcqqbdrws",
-  "1-6 d: dlmncvgd",
-  "2-3 n: bmnfknkt",
-  "9-13 n: nzbpvpmfnwdnn",
-  "7-14 f: wpntqfsttpvflf",
-  "13-15 w: cwwwzspwwwswwlxp",
-  "4-7 j: jjjmjjj",
-  "10-14 m: bnrnlmhdfwnhfmdc",
-  "2-4 z: kzntlwtbzx",
-  "11-13 w: wwwwwwwrbwwww",
-  "6-7 g: pwggggv",
-  "5-9 h: sbdxfjffznxghlwtc",
-  "10-11 c: ccccccccccpccc",
-  "2-4 h: hnhbc",
-  "4-5 z: fjblqlpdwbl",
-  "1-5 d: dddddd",
-  "6-7 n: nnnfjnlvnxvnnn",
-  "4-5 m: mmzvmm",
-  "13-18 w: nxxwkwbwwpzgwwkwwfww",
-  "8-9 g: ggghkwbgc",
-  "9-10 v: vvhpjzvvvvfcnlvvgvq",
-  "1-15 k: kpprkqmkthtkwvd",
-  "16-17 b: rrhdbfwpntvjphvbb",
-  "16-19 k: kkkkkkqknkkkvkkfwkkk",
-  "5-9 d: dwddddddddzd",
-  "10-14 g: gggggdgggrgkpzgk",
-  "9-12 x: bffxxdjwsxcx",
-  "3-10 b: nbgbzbbbbbbbbbbdb",
-  "15-17 x: xxxxxzxxxxxxxxxxt",
-  "1-5 h: xhthhdq",
-  "5-16 j: spfjjmjjjjjjjjjjjjjj",
-  "3-6 b: hzbbbbmbkdrb",
-  "11-13 m: mwmmmmrmmmmmmmmmm",
-  "16-17 v: vvvvvvvvvvvvvbvvv",
-  "17-19 g: ggggggggggggggggggg",
-  "2-3 h: gfhvhjwh",
-  "4-6 f: fjgzwf",
-  "1-5 x: kjwhxntxhxfcxlfgb",
-  "6-7 s: snssplq",
-  "7-13 x: kxgxxxxxmxglhxx",
-  "3-5 j: ljjvdhp",
-  "13-14 c: gjtrlcblfbqvcw",
-  "13-15 k: kkkkkkkkkkkkkkk",
-  "5-8 t: vtfvttttmszk",
-  "9-11 q: qjtsqqqqfbq",
-  "3-8 f: fftfrvfcfqfff",
-  "6-8 f: fffffffdf",
-  "3-8 l: lhllwvlltzlw",
-  "7-14 p: hpxrnnbpqrcjtpvjpgq",
-  "1-12 z: lzzzzpzgzzgz",
-  "4-5 c: ccgqcnc",
-  "10-11 x: tpmddsxqjdx",
-  "8-10 p: pnpfppppqpcpf",
-  "1-6 q: qqzkqh",
-  "1-4 g: wggc",
-  "16-17 f: fffhfxqffftfffffhf",
-  "7-8 c: dcvckvbc",
-  "7-12 z: zzkzzzhzzjvz",
-  "2-12 z: dkghplwzdnpzq",
-  "3-4 r: gdkvhr",
-  "3-4 t: ttbx",
-  "8-13 s: sqzsssstsgssslsss",
-  "1-4 s: csssss",
-  "5-7 j: jfzjjvjjkjzwjrjtjw",
-  "2-12 s: sgcssssszfqsssn",
-  "8-13 p: pzlhpxpsphppz",
-  "2-12 m: mllzwvmzkgbmns",
-  "17-20 k: kkzkkkknkkkkkkkkkkkh",
-  "11-13 j: jxhqjjpwjljjj",
-  "17-18 z: zzzzzzzrzzzzzzzzzl",
-  "2-7 c: vhrqfckjrh",
-  "7-11 p: pppppnpppppj",
-  "9-11 x: xxnxxvxbxxxxgrxmxxw",
-  "12-13 h: psltjhhhvmthh",
-  "1-2 q: hsxqqlqxwqm",
-  "6-14 b: bzdnbblbbsbbnbb",
-  "3-17 z: wlwfbbxnztpvfgdzzl",
-  "5-6 z: zzszzrmkplrzz",
-  "12-14 z: zzzzzzzzkzzzvvmzzz",
-  "16-17 x: xpxxbxxxxxxxxhckxn",
-  "6-11 w: wkwhmgwwwwwwwww",
-  "9-14 f: ffffffffzffffff",
-  "3-4 q: qqjqsq",
-  "13-14 z: zzzclzzzzrzzzzzzzz",
-  "1-3 x: xxxxxxxx",
-  "9-11 w: wvwrwwwdfpwwxwdw",
-  "2-10 s: zssqsxqqtm",
-  "3-10 b: bbbbbbbbbxb",
-  "4-7 l: llllllb",
-  "10-11 j: jjjjjjgcjqjjj",
-  "12-13 t: tttsptxtttttvbktmt",
-  "5-6 z: zzzzpzzzz",
-  "10-11 q: qqqqqqqqqhq",
-  "6-12 w: drkfkwwwnvccmxdfwx",
-  "3-4 h: rsht",
-  "10-12 m: mmjmlmhmmmmnm",
-  "4-6 s: sssssss",
-  "2-3 z: mwccbpff",
-  "2-16 t: tzttttttttttttttt",
-  "1-2 j: sjjjjjjjjj",
-  "10-11 b: wbbbbbbbbbdbwq",
-  "6-9 r: rngrdrlrvmrbrr",
-  "8-9 t: hplttzttt",
-  "18-19 v: vvvvvvvvvvvvvvvvvck",
-  "11-16 p: pxnnsvpmfpxvbpnpppc",
-  "9-11 b: bbhsbbnbwbbbbwvbb",
-  "6-11 r: rmngrbbmrwrprjwrr",
-  "5-7 p: kpjlppjp",
-  "2-9 m: mtmmmmmmhm",
-  "1-3 l: llknl",
-  "5-6 s: sssssvs",
-  "1-3 v: vvbvvvvvvvvvmvvvv",
-  "3-4 f: ffffff",
-  "10-12 w: gjnwbwwwhdww",
-  "10-13 w: wwwwwwwwwkwwww",
-  "3-4 r: rrrrrw",
-  "4-5 n: nlnnm",
-  "1-15 b: bbbbbqbbbbbtlbbbb",
-  "3-4 l: glgl",
-  "4-5 k: bkkkkkk",
-  "2-8 j: dwtxvrdj",
-  "6-10 x: mwrznjhznxxx",
-  "14-15 d: dldddddddddddddd",
-  "4-14 s: rsssszsnzscdhrgp",
-  "1-8 m: kmmmmmmxmmmmmt",
-  "4-9 m: svkmmdmxm",
-  "2-7 f: fpffffffff",
-  "8-10 h: scpsvhkhjcp",
-  "7-11 x: xmzxxxxxxxtxxxx",
-  "13-14 p: dswdpggstpqjpc",
-  "8-14 j: jdjjjjfjsbjjxwjjbjj",
-  "3-6 m: mmlmmqkwmmmmmm",
-  "4-5 k: kkkpkk",
-  "2-7 t: tbttzxtm",
-  "3-5 n: jtnrlnbjnkztvknwnj",
-  "2-4 r: rrrwfghwrxpg",
-  "7-9 f: cffffffff",
-  "4-6 l: cmdsllz",
-  "2-4 z: rzzr",
-  "2-3 r: rzrrk",
-  "2-4 d: rddb",
-  "5-6 d: pvdddwdgkgdx",
-  "2-3 j: sjvfpftdkjkfg",
-  "5-6 s: vzdmgsk",
-  "13-14 d: wdddddddddddxbd",
-  "6-9 l: llllldcllll",
-  "3-4 r: rrjrn",
-  "7-11 f: ffffffffkfj",
-  "5-8 p: pxnmcppspxp",
-  "8-10 l: vplxllngbdl",
-  "7-18 w: wwwwwwwnwmwwwwwwwmww",
-  "2-4 x: mxxx",
-  "4-13 g: nnbxkmcrgpskgqg",
-  "3-7 l: llllllz",
-  "5-10 h: mgksbvscjbcfrmhgplw",
-  "2-13 g: mbgphwnkdndsg",
-  "15-18 x: xxzxxxxxxxxxxxxxxxx",
-  "1-3 x: xxrxxx",
-  "10-11 l: llslllllllp",
-  "1-5 n: nnrnpnnn",
-  "4-5 h: rhhlv",
-  "4-6 p: fvkrppswpdpp",
-  "5-12 d: dlrkxwdxgdjdwj",
-  "11-13 j: jjjjjjjjjjjjj",
-  "9-10 w: wwkwwwwwwvw",
-  "3-4 p: xzpjwvzmkppsppjz",
-  "3-11 r: vtrhfmdhpsqrrbwrlmc",
-  "8-15 d: hdcddddqdwfdddtdddd",
-  "2-4 d: mdkt",
-  "11-18 k: kjbtldlkfndkcbjsrk",
-  "3-14 h: hbhjlhlhhhvhhqh",
-  "4-6 x: zlkxxfrxmsl",
-  "7-8 g: gmmgtqgknbqzg",
-  "10-12 v: vvvvvvvfvxvvvv",
-  "7-11 n: nnnnnnnnnnc",
-  "2-5 t: btqcb",
-  "3-4 j: kgjsjvj",
-  "4-6 h: skhnbt",
-  "1-6 x: snxxxxxx",
-  "3-15 c: hccccjkbnctnxcc",
-  "12-17 s: ltsssshssqstssxsk",
-  "12-19 r: rkrbrrrrrxqcrrrggrsr",
-  "6-8 p: ppppprpjp",
-  "4-5 v: vvvvvxsrv",
-  "3-4 k: gskskzwmwfltkkgzxllz",
-  "3-10 h: qmvhhdqthhhshthhd",
-  "4-6 q: qfjklq",
-  "11-13 f: fmfffffffffhh",
-  "8-14 s: vlqlskgsjvgmfhgvzfft",
-  "5-8 d: dbrdwdkdddddd",
-  "4-5 b: bbwmr",
-  "18-19 d: cddsddvrddndwdpddgdd",
-  "4-5 l: llsls",
-  "4-6 h: mhszhh",
-  "15-16 g: gggggggggggggzggg",
-  "2-4 x: bxcxwflqrnrrrb",
-  "3-17 s: xhgvmzncgctsqdpks",
-  "4-18 p: rprpfcxprrmncmmwqj",
-  "1-2 v: vzvwvvvvbv",
-  "8-9 m: mmfmmhvbq",
-  "10-11 z: vzqjzzlzkzv",
-  "1-4 r: rrrsrn",
-  "3-12 k: kctvqmgbbxskbww",
-  "1-6 s: fsssgmsqss",
-  "5-6 k: kkkkkv",
-  "1-7 m: mvmmqmq",
-  "3-8 b: skbfbwhbbgwfcgnmjsk",
-  "7-9 s: sssssslsn",
-  "4-6 n: nnnnzbnn",
-  "2-4 x: kxnnqrvxtgch",
-  "13-17 w: xshwjqwgsnwrwwcww",
-  "12-13 l: lllljlwllllllll",
-  "2-3 k: kkkk",
-  "16-19 s: sssssssssssssssmssss",
-  "5-12 c: cfccpccpccchccc",
-  "9-13 j: vjjjjgjljhjjbjjfj",
-  "10-14 r: jrrrrrrrrkrrrrrvrr",
-  "6-10 b: bxbbkbbbbn",
-  "17-18 f: tvxfdgwgfgjdsqcppqkq",
-  "11-17 m: mmzmmrmhmmpmmmmmmm",
-  "8-9 v: vvrvvvkvkvv",
-  "3-8 g: wgcgpgghgpgdggfx",
-  "5-10 r: rrrrgrrrrk",
-  "7-15 l: sllnpklfqllglld",
-  "1-2 z: wzzwg",
-  "9-10 v: vvqvvvvkvbv",
-  "2-8 s: sljssddnsscsns",
-  "4-5 g: snzgpngj",
-  "1-6 c: ccccgtclgqchvcx",
-  "12-14 n: nnnnhnnnqpnpnnnn",
-  "11-13 p: wpdmppdpppfpp",
-  "3-11 b: bjbbndmbbbnbbbbbbb",
-  "9-13 x: qxxxxxxxkxxxxxlxxm",
-  "4-6 p: pqpnmp",
-  "1-5 j: jjckjjpmjbcmc",
-  "4-6 q: qqsdqqkkqdqg",
-  "7-11 l: qslplhlvqxqm",
-  "14-15 g: vggggvggpggggprggg",
-  "6-7 t: ttthtttttttt",
-  "2-3 g: qglgg",
-  "11-14 t: kdjwqgbtnzcdltt",
-  "10-11 c: cccclccccck",
-  "15-16 r: rrrrrrrrrrrrrrrh",
-  "5-7 m: vjbfbcxxdwxcgrfzmzhd",
-  "6-7 t: tttzftmt",
-  "14-16 n: nnnnnnnnnnnnnpnn",
-  "4-12 s: rgmktzvjlwssx",
-  "8-12 v: vvvvvvvvvvvsvvvbvvvv",
-  "2-3 w: kvwqmw",
-  "12-13 s: dlqsssssmvfskss",
-  "7-8 k: lpkfkkklbkkk",
-  "3-5 f: nvftfntf",
-  "5-7 t: qtfkhtxttqctmttvc",
-  "11-13 b: blbbbbbbzhvbb",
-  "4-5 w: wwwwxs",
-  "11-12 n: nnnnnnnnnnpnnn",
-  "11-16 t: ttttttttvtkttttnt",
-  "12-16 j: wjjjdwjjmjjjjjjd",
-  "5-6 q: bqqqvq",
-  "1-2 s: kssx",
-  "1-3 j: qmcj",
-  "5-10 v: ckjtsqsdvvvhctvfvhkv",
-  "5-8 l: kllhlrlzljll",
-  "9-10 j: lgvgjbccjrn",
-  "4-5 j: jbhhvjbcjggjhwx",
-  "5-6 m: mmmmqms",
-  "3-7 v: hvpvmmt",
-  "5-9 z: zzzlbzzjzrvxvkhxhzdj",
-  "3-5 f: fkfmknbzmwbcmh",
-  "8-10 n: nvjnklncnnp",
-  "4-10 p: ppptpfpppgppp",
-  "14-17 z: zzzczzzrzzzzzzzzncz",
-  "1-5 w: wwwwlwh",
-  "19-20 q: wzrqqqdmqqqzqqqvqqqq",
-  "2-4 f: tflf",
-  "4-5 t: tjqtltrtf",
-  "17-18 t: ttttttttttttttttdtjt",
-  "6-12 s: mhfslsfndcsvkr",
-  "7-16 r: rdprghmtcrrmrrlv",
-  "12-13 h: hhhhhhhhhhhph",
-  "12-15 k: kkkkkkkkkfkkdkbnk",
-  "16-17 h: hhscfhvhxvklqshhhmh",
-  "1-7 w: whwwdwwdz",
-  "2-3 b: bbpbb",
-  "8-9 n: frnnnnncmn",
-  "2-4 b: hbpbpsnj",
-  "11-19 f: qhggmffvmfjptmksfvf",
-  "8-10 b: rbbldmcbbxb",
-  "1-3 t: tjxfsmmttw",
-  "3-5 v: vvvvdvvvn",
-  "5-8 m: jmhmmvmjkx",
-  "7-9 x: xxkbxxxvxx",
-  "10-12 f: ffrffcfxnffrnfvffff",
-  "6-8 t: sttghztn",
-  "2-5 l: cmrllltb",
-  "8-9 f: sskbzzxgfhvc",
-  "4-7 k: kpkljpqfkkhkfkk",
-  "19-20 r: rfrrrhmrrrnrrtvrsrrr",
-  "3-4 x: sxxzn",
-  "5-7 k: zlkgpwk",
-  "3-12 k: drqkqbzgkhqkqb",
-  "3-4 g: qgfg",
-  "3-4 z: bkfx",
-  "6-12 f: bffxfnkfffgf",
-  "3-12 n: xhrlptrqvzfnmptvtjcb",
-  "4-6 z: kzhzrp",
-  "1-2 n: ngnnnknjnnn",
-  "7-9 n: nnnnnnvnnnnnnnn",
-  "10-12 s: sgssssmssssss",
-  "2-11 l: lmlllslthwlldn",
-  "13-16 b: bbbbbqmbbzbbbbbhb",
-  "4-6 p: pppbpp",
-  "2-6 n: nnxnpnnn",
-  "9-13 b: bbbbbbbbbbbblbbb",
-  "11-13 h: hhkghxdhfhhdkchjr",
-  "6-10 w: wwwwwhwwwwwrpww",
-  "6-7 w: mgpwwsw",
-  "10-11 n: njnnnntsnfntcqnnn",
-  "7-9 f: ffffffrfng",
-  "2-6 x: xxjgxnqxxkqf",
-  "6-11 n: nwnfvzndsdnn",
-  "16-18 c: cgccccccccccccxcct",
-  "11-17 t: wtktgqtcpttqkqfgznt",
-  "4-5 w: wwwwc",
-  "2-5 k: gqkck",
-  "15-16 k: kzkkkkkkmkkkdkkpkvkg",
-  "3-4 s: cslss",
-  "1-8 w: hwgwwwwwzsbwfwwwg",
-  "7-14 m: hrkqfmpfzmjqqmmgrdcm",
-  "2-8 r: sqrrrrrr",
-  "11-15 l: cphdwnphlkcbvllvw",
-  "4-7 f: vsxgfnf",
-  "8-10 q: qqqqqqqtqq",
-  "6-8 l: llllzqlll",
-  "9-14 j: kjjjjjjjvmjvjz",
-  "4-6 x: pxxxbx",
-  "10-16 h: hkhjhghhsghhhhhhhhhn",
-  "8-10 x: xchbxtgxqrrxvmzw",
-  "18-19 n: nnnnnnnnnnnnnnnnnnn",
-  "1-12 n: nnnnnnnnnnnnn",
-  "5-12 l: xmklnkmpqlfllwhrm",
-  "6-7 b: kfhbpbvbfbpbbtsxk",
-  "8-18 n: nnnnnnzznnnnnnnnnznn",
-  "10-16 h: hhhhhhhhhhhhjhhchh",
-  "12-13 l: lnlllllgklllx",
-  "5-7 x: xxxxlxxxxxx",
-  "3-4 g: gggn",
-  "3-14 g: gjgxgcggvdggggqgngqg",
-  "9-10 g: gggggggggt",
-  "3-6 r: rrntrrrrbrs",
-  "3-10 g: ggkbdgggkgg",
-  "3-4 k: twjqtkt",
-  "12-13 m: mzvnqmmpcbvmk",
-  "3-8 p: wxflqbvppqq",
-  "3-6 w: ljdlfwkzwmgkwxghbqv",
-  "11-15 p: nplwjprspcppvsvpfppp",
-  "5-16 v: vqvcmvjvnvvprvnqvnpc",
-  "10-11 g: ggggggggggng",
-  "13-16 b: sbbbbxqdbdblrbbbb",
-  "1-4 k: czlk",
-  "6-7 f: rffffsff",
-  "8-9 w: wdrnwtqmwqdpx",
-  "2-3 r: rxrr",
-  "3-4 r: hrrmrvj",
-  "10-15 v: cvffvvsvvpvvvnvvgjvv",
-  "12-19 b: bbbbbbbbbbbrbbbbbbbb",
-  "3-5 n: nvnhz",
-  "2-4 d: hddl",
-  "2-3 v: fvclhvp",
-  "3-15 h: xwhsnhndxgcqjfqtvm",
-  "1-3 h: rhhhh",
-  "15-18 f: ffffffmfffthfftfjf",
-  "1-4 h: hrxw",
-  "1-4 v: kvvv",
-  "6-12 r: crxrrzrnprrr",
-  "7-8 q: qqqfqqwqqqqq",
-  "3-4 l: lljllll",
-  "1-3 h: hhshh",
-  "2-3 q: qvqb",
-  "13-20 p: plpqtpppsgpppppppppz",
-  "9-15 w: wwwwwnwbbfwwwwwsw",
-  "11-12 k: kkkxqkksdlkg",
-  "8-14 k: kkkgkkkkgdjkxnktxd",
-  "17-18 s: sbsmssnssssstnsssq",
-  "4-10 s: sssbhfcssssxx",
-  "3-4 l: drbl",
-  "8-13 j: tjjtjjhljjjnjd",
-  "11-12 q: nrsqrqcmzqql",
-  "7-11 x: wxxlxxgwvxx",
-  "13-16 n: nnnnnnnnnknnjnnn",
-  "15-16 l: dwvlwglrhvqllllvvl",
-  "3-7 b: bbbbbbm",
-  "11-12 v: vvqlvvvvbvvktvvw",
-  "1-8 n: nwnnmpvx",
-  "7-8 f: zskgxljq",
-  "7-14 b: qxbpwbgvbgqdlbtfjdbq",
-  "3-9 v: vbxvrvhqvq",
-  "2-3 c: czfc",
-  "7-10 t: mtttnzvcttttjtt",
-  "6-14 l: lllllklllhlglll",
-  "3-4 b: wgzbpwpbj",
-  "1-6 z: mzzzbrzz",
-  "5-10 t: tttjtftttdttttttlt",
-  "9-10 z: hzzzvzzzmzz",
-  "14-19 n: lppspwbnhtzxcnrkgpn",
-  "5-7 n: bnnnnnt",
-  "11-12 v: hkkhvgvtvvvvqvjxv",
-  "2-11 w: wwjpfvqwnhwcmg",
-  "9-15 b: zbqndbbbbbbbbsk",
-  "11-13 d: dddddddddblddmddk",
-  "1-11 n: ngnnfnvnbkjpn",
-  "1-5 l: llllkllvl",
-  "17-19 g: gtggggcggfggzvgqgzn",
-  "9-10 g: ggggsslgxg",
-  "7-12 r: qrdrnrgdrrrrrrlr",
-  "1-3 h: hmkgg",
-  "4-9 t: jngjtmkms",
-  "2-5 p: qqfrpmnnppgpvpmwdfpp",
-  "10-11 m: mmmlsmmmmbqm",
-  "2-7 c: cpbdvfccxdzczsptncnn",
-  "6-7 d: mtdqrdd",
-  "10-12 v: vvvvvvvvvsvvvvvvv",
-  "13-14 q: gqqqqqqqqqqqqz",
-  "1-4 m: fmmmmm",
-  "4-10 b: bklbbzmdsnq",
-  "3-5 w: tjwwhkbbpwtt",
-  "4-5 l: llldv",
-  "3-4 t: ttttt",
-  "8-16 t: xlqhtttlhssjhxtt",
-  "12-14 m: mmmmmmtmmmmmmzm",
-  "1-2 c: cccc",
-  "1-4 x: mxkxcndbsfvfnxjwxh",
-  "9-13 n: nglxnhnnrktnnfznn")
-#+end_src
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
-
-We require a parser for each line of the input.
-This takes the string giving the password policy and the password,
-and returns ~true~ or ~false~ based on whether the password
-satisfies that policy.
-
-This requires the use of regular expressions to break the string
-into its parts, and a character counting method.
-#+name: policy-handlers
-#+begin_src amm
-def parsePolicy(s: String): Tuple4[Int,Int,Char,String] = {
-  val pattern = "([0-9]+)-([0-9]+) ([A-Za-z]): ([A-Za-z]+)".r
-  val pattern(low, high, c, pass) = s
-  return (low.toInt,high.toInt,c.head,pass)
-}
-
-def satisfiesPolicy(s : String): Boolean = {
-  val (low,high,c,pass) = parsePolicy(s)
-  val occurrences = pass.count(_ == c)
-  return low <= occurrences && occurrences <= high
-}
-#+end_src
-
-#+RESULTS:
-: defined function parsePolicy
-: defined function satisfiesPolicy
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-For this problem, we just directly use a ~fold~.
-#+begin_src amm :noweb yes
-<<policy-handlers>>
-<<day2-input-scala>>
-
-input.foldLeft(0){
-  (accum, i) => if (satisfiesPolicy(i)) accum + 1 else accum
-}
-#+end_src
-
-** Part 2
-:PROPERTIES:
-:CUSTOM_ID: Part-2
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-While it appears you validated the passwords correctly,
-they don't seem to be what the
-Official Toboggan Corporate Authentication System is expecting.
-
-The shopkeeper suddenly realizes that he just accidentally explained
-the password policy rules from his old job at the sled rental place
-down the street! The Official Toboggan Corporate Policy
-actually works a little differently.
-
-Each policy actually describes two positions in the password,
-where ~1~ means the first character, ~2~ means the second character,
-and so on. (Be careful; Toboggan Corporate Policies
-have no concept of "index zero"!) Exactly one of these positions
-must contain the given letter. Other occurrences of the letter
-are irrelevant for the purposes of policy enforcement.
-
-Given the same example list from above:
-- ~1-3 a: abcde~ is valid: position ~1~ contains ~a~ and position ~3~ does not.
-- ~1-3 b: cdefg~ is invalid: neither position ~1~ nor position ~3~ contains ~b~.
-- ~2-9 c: ccccccccc~ is invalid: both position ~2~ and position ~9~ contain ~c~.
-How many passwords are valid according to the new interpretation of the policies?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-…is the same as that above.
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-We can this time directly reuse half of our workhorse
-from the first part, and in fact won't bother to
-adjust the second half.
-
-The generalisation here is in what the policy tells us to do
-with the pieces returned by ~parsePolicy~.
-After seeing this, I'm a little displeased I defined
-the ~satisfiesPolicy~ method last time.
-It “took the initiative” and called ~parsePolicy~ itself,
-but properly it should have taken the pieces returned
-by ~parsePolicy~ as arguments and just performed the check.
-But then, there's not much point to writing it down as a method,
-because the check is so simple (and it is again this time.)
-
-So we just repeat the fold,
-with the necessary adjustments to call ~parsePolicy~ here
-and then perform the new check.
-#+begin_src amm :noweb yes
-<<policy-handlers>>
-<<day2-input-scala>>
-
-input.foldLeft(0){
-  (accum, i) => {
-    val (m,n,c,pass) = parsePolicy(i)
-    val m_is_c = pass(m-1) == c
-    val n_is_c = pass(n-1) == c
-    // XOR is "not equal"
-    if (m_is_c != n_is_c)
-      accum + 1
-    else
-      accum
-  }
-}
-#+end_src
-
-* Day  3 – Toboggan Trajectory
-:PROPERTIES:
-:CUSTOM_ID: Day--3-–-Toboggan-Trajectory
-:END:
-
-** Part 1
-:PROPERTIES:
-:CUSTOM_ID: Part-1
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-With the toboggan login problems resolved, you set off toward the airport.
-While travel by toboggan might be easy, it's certainly not safe:
-there's very minimal steering and the area is covered in trees.
-You'll need to see which angles will take you near the fewest trees.
-
-Due to the local geology, trees in this area only grow
-on exact integer coordinates in a grid. You make a map
-(your puzzle input) of the open squares (.) and trees (#) you can see.
-For example:
-#+begin_src text
-..##.......
-#...#...#..
-.#....#..#.
-..#.#...#.#
-.#...##..#.
-..#.##.....
-.#.#.#....#
-.#........#
-#.##...#...
-#...##....#
-.#..#...#.#
-#+end_src
-These aren't the only trees, though; due to something
-you read about once involving arboreal genetics and biome stability,
-the same pattern repeats to the right many times:
-#+begin_src text
-..##.........##.........##.........##.........##.........##.......  --->
-#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
-.#....#..#..#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
-..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
-.#...##..#..#...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
-..#.##.......#.##.......#.##.......#.##.......#.##.......#.##.....  --->
-.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
-.#........#.#........#.#........#.#........#.#........#.#........#
-#.##...#...#.##...#...#.##...#...#.##...#...#.##...#...#.##...#...
-#...##....##...##....##...##....##...##....##...##....##...##....#
-.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#  --->
-#+end_src
-You start on the open square (.) in the top-left corner
-and need to reach the bottom (below the bottom-most row on your map).
-
-The toboggan can only follow a few specific slopes
-(you opted for a cheaper model that prefers rational numbers);
-start by counting all the trees you would encounter
-for the slope right 3, down 1:
-
-From your starting position at the top-left, check the position
-that is right 3 and down 1. Then, check the position that
-is right 3 and down 1 from there, and so on until
-you go past the bottom of the map.
-
-The locations you'd check in the above example are marked here
-with O where there was an open square and X where there was a tree:
-#+begin_src text
-..##.........##.........##.........##.........##.........##.......  --->
-#..O#...#..#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
-.#....X..#..#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
-..#.#...#O#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
-.#...##..#..X...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
-..#.##.......#.X#.......#.##.......#.##.......#.##.......#.##.....  --->
-.#.#.#....#.#.#.#.O..#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
-.#........#.#........X.#........#.#........#.#........#.#........#
-#.##...#...#.##...#...#.X#...#...#.##...#...#.##...#...#.##...#...
-#...##....##...##....##...#X....##...##....##...##....##...##....#
-.#..#...#.#.#..#...#.#.#..#...X.#.#..#...#.#.#..#...#.#.#..#...#.#  --->
-#+end_src
-In this example, traversing the map using this slope
-would cause you to encounter 7 trees.
-
-Starting at the top-left corner of your map and following
-a slope of right 3 and down 1, how many trees would you encounter?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-**** Raw
-:PROPERTIES:
-:CUSTOM_ID: Raw
-:END:
-
-#+begin_src text
+#+begin_src text :tangle ./input/advent-of-code-2020/day3.txt
 .#.#....##.......#..........#..
 ...#...........##...#..#.......
 #.####......##.#...#......#.#..
@@ -3308,606 +3215,12 @@ a slope of right 3 and down 1, how many trees would you encounter?
 ..#..##...#..........#.#....#.#
 #+end_src
 
-**** List of Scala strings
+** Day 4
 :PROPERTIES:
-:CUSTOM_ID: List-of-Scala-strings
+:CUSTOM_ID: Day-4
 :END:
 
-#+name: day3-input-scala
-#+begin_src amm
-val input = List(
-  ".#.#....##.......#..........#..",
-  "...#...........##...#..#.......",
-  "#.####......##.#...#......#.#..",
-  "##.....#.#.#..#.#............#.",
-  "##.....#....#.........#...##...",
-  "###..#.....#....#..............",
-  "..........#..#.#..#.#....#.....",
-  "##.....#....#.#...#.##.........",
-  "#...#......#....##....#..#.#...",
-  ".##.##...#....##..#.#.....#...#",
-  ".....#.#..........##.#........#",
-  ".##..................#..#..##.#",
-  "#.#..........##....#.####......",
-  ".#......#.#......#.........#...",
-  "#....#..##.##..##........#.#...",
-  "##..#.##..#...#..####.#..#.....",
-  "###....#.###.##...........##..#",
-  ".....#.##.....##.#..#####....##",
-  "....#.###....#..##....##...#...",
-  "..###.#...##.....#.##..#..#.#..",
-  "#...#..#..#.........#..#.......",
-  "##..#.#.....#.#.#.......#...#.#",
-  "...#...##.#........#...#.......",
-  "..#..#.#..#...#...#...........#",
-  "........#.....#......#...##....",
-  "#........##.##.#.#...#...#.....",
-  "####.......#.##.###.#....#.....",
-  "...#...........#...#......#...#",
-  "##...#...#............#.......#",
-  "....#...........##.......#.....",
-  "###......#.....#....#...#.#...#",
-  ".....##..........#.......#.#...",
-  "##.##.##...#......#....#.......",
-  "##..#.#..#......#...#..#.......",
-  "....#....##.##............####.",
-  "..#.###..#.##.###..#.##.......#",
-  "#.##..#.#.....#..#.....##......",
-  "..##..#.....##.#.##........#...",
-  ".#..#.#......#..#............#.",
-  ".....#..#.#...#....#.##.#......",
-  ".#...##.#..#.#...##...##..##...",
-  "###............#.#..#..#...#...",
-  "..#..##.####.#.....#.....##.###",
-  "#....#.##..##....#..#...#.##.#.",
-  ".....#.##.........##...##......",
-  ".........####.#....#.#......#.#",
-  ".........#.#..#...#.#..#.#....#",
-  ".#.....#..##.##..##....#.......",
-  "..........##......#.##.###....#",
-  ".##...###..##.#...#........##..",
-  "..............#.#....#.#.###.##",
-  "..##.##.......#.#......##...#..",
-  ".#.....#..##..#.###...#..#.##.#",
-  "#.....#.#..#...#........#...#..",
-  ".#......#....#.#.....###...#..#",
-  "..##.#....#..##......#.....#...",
-  "..#.#.##..#.....#.####..###....",
-  ".........#......#..#...........",
-  "..#........#.##.#.....##.##..#.",
-  ".......#.........#....#...#.#..",
-  ".##.....#.#....#.#.......#.....",
-  "..........#.##........##...##..",
-  "###..###.#.#..#..#####.##.#.##.",
-  "..##..##.#.#...#..#.#.#......#.",
-  "#..#..#..#..##..#.....#......#.",
-  "..#....#.##..#......##.........",
-  "..#.##......#...##.#......#....",
-  ".......#..#.##.#.....#.........",
-  ".......#.#.#.###...##......#...",
-  ".....#.#..........#..#...#.....",
-  "....##..........#..........##..",
-  "..#......#.....#.##.#..#...#.#.",
-  "....#.....#..#...#..#.#.##..###",
-  ".####....#........#...#........",
-  "...##.#.##.#..#...##...#.##....",
-  "....#...#...#.#.#.#...#..#.....",
-  ".....#...#.#.....#.#........##.",
-  "..#.#.......###.#.....##.......",
-  "......#.........##....#....#..#",
-  ".............##.....##.........",
-  ".........##...##.......#.....#.",
-  "##.........#..........#.###..##",
-  "...#.....#......#....#..##.....",
-  "##..#...#...##.#.....#.#......#",
-  "..#...##.#.......#.#......#.##.",
-  "......#.......#.#...........#..",
-  "..........#.....##............#",
-  "#........#...#..#.......###.##.",
-  ".##...........#.#........#.#.#.",
-  "...#..##...#.#....#####.#......",
-  ".....##...###...#..#.##...####.",
-  "...#....#.....#..#.......#.....",
-  "#....#....#...#..#..#.######..#",
-  "#.###...........#......#...#..#",
-  ".#.#.#.#..#....#....#...##.#...",
-  ".#..#.........#.#....###...#...",
-  "......#..##.##..........#....##",
-  ".....#......##....##.....#...#.",
-  ".#...#.#.#....##....#..#....#.#",
-  "..................#..###.#..##.",
-  "..#.........#......#....#..###.",
-  "#.#.....#..#..#....###..###....",
-  "..##..##.#..##........##...##..",
-  "##..#........##..###..#.....#.#",
-  "..#..###..#......#....#...#...#",
-  "#..#.#..............##.#..#.#..",
-  ".....####....#...####.....#.#..",
-  ".....#....##.#......###........",
-  "##.##...#.#.#.#.......#....##..",
-  ".#......#...#.#....#..##.#.##.#",
-  "#.#.##.#.#......#..##........##",
-  "...##.....#.....#...#..###...#.",
-  "........###.....#.....#...##..#",
-  ".....#.##.##......#.#....#...#.",
-  ".#....##.......#..#.####.......",
-  ".#..#....#..........#......#.#.",
-  ".#.##.##.....###.#.#...........",
-  ".........#......#..##..........",
-  "....#...##.#.#.#..#.#.........#",
-  "..#.....#.##...#..#..#.###....#",
-  "...#.##......#.....##....#.....",
-  "###............#.#....#...#....",
-  ".......#.....#..#.#.#....#..#.#",
-  "...#......#.#..##..#....#...#.#",
-  "............##........##..##...",
-  "..#..#.##..#......###..#.......",
-  "........#.........#............",
-  "..#...#.#########.#...##..###..",
-  "#....#......#.......#.#.....#..",
-  "#.#..#....###.###....#...#.#...",
-  "#...###.#.#.......#.##......#..",
-  ".................#...#.#.#.....",
-  "##....#...#........#....#.#..#.",
-  "......#.....#...#..........#.#.",
-  "##..........#...#..........#.##",
-  "..#.#.##.#....#.#......#...##..",
-  ".....#.......#..#.....#........",
-  "#.##.#..##..#.......##.........",
-  "....#......#..#..#.#...#.......",
-  "...#....#................###...",
-  ".##.....#.#....#.#..........##.",
-  "...#..#....#.##.##......#......",
-  "..#.#....#.......#.#..##.......",
-  "....#.....#..........##.#.#####",
-  "#.....................##..#..#.",
-  ".###..#.##.......##.#...#..#...",
-  "...###.......#..#...#......#..#",
-  "#..#...#.#..#.#..#..#.##.......",
-  "#...##.......#..#..#.##..###...",
-  "......#....#.#.#........#.##..#",
-  "..##..#....#....#..#.#..#......",
-  "..##.#...#.#######..#...#.....#",
-  "..#....#..#.........#..##......",
-  "...#....#.#......#..#..#.#.....",
-  "#..#....#........#.#..##....###",
-  "#....#..##......##.##.....#.###",
-  "...#.#..........#..#.#.#.#.##..",
-  "......##..#.#..#.#....#....#...",
-  "##....#....#..#..#.##......#...",
-  "....#.#..##.#.#...###....##.#..",
-  "...#.......##..#.......#...#...",
-  "......##.......#..##.....#...#.",
-  "...#.#...#...........#...#.....",
-  ".#....#...#......##.##..###..#.",
-  ".#..........#...#...#...##.##..",
-  ".....###..#.....#..##....#.####",
-  "..#.###..#..##..##.....#.#.....",
-  ".............#.###...##.#.....#",
-  "....###.......###.#.....#..#.#.",
-  "........##.#.........#.....###.",
-  ".....###.#..#.....#...#..#.....",
-  ".#....#..##.#..#.#....#.......#",
-  "........#......#.#..#.#..#...##",
-  "...#.##.##......#..............",
-  ".#.....##.#.....#..#......##...",
-  "#..#..#.....#.....#.....###....",
-  ".##...........#..#.##.....#....",
-  "..#.#......#.#...#.##.#..#...##",
-  "...#..........#.....#..........",
-  "#.#.#.#.#...#....#...#.....##..",
-  "#......##...#...#..........#.#.",
-  "....##........#.#..............",
-  "#..#.#.#..#........##......#.##",
-  "........####...##.#.....#......",
-  "....#........#.#..#..##..#.#...",
-  ".#.....#..###...#..#.....#..#..",
-  "#......###.#..#....#..#.#......",
-  "....#.....##.##..#...#.#..##.#.",
-  "..##..#...#.#......#....#...#.#",
-  "#..##...##..#...###...#..#.....",
-  ".......#.....#...........##....",
-  "#..##....#........#....##..#.#.",
-  ".#........#..##...###.#..#.....",
-  ".#.#....#..##...#...##.#..###..",
-  "#.........#.......#.....#.#....",
-  "#..#.....#.#.###.#..#......#...",
-  "....#..#.#....#..##..###....###",
-  "###.##.#.#..#...........#.#.#..",
-  "..##.#.......#......#..##....#.",
-  ".....#.#.#.......##.......#...#",
-  "...........#.##....##.##....#.#",
-  "...#.......#..#.##..#......#..#",
-  "#.#.#...#......##.#...........#",
-  "##........#...........###.#..#.",
-  "..........#.#.#....#.#..##.#.#.",
-  "...#.#.#....#..........#..#....",
-  "#.#....###.#.#..#.......###...#",
-  ".#....#......#.#.#..#..#.......",
-  "......##.............#....#.#.#",
-  ".#..........#.........#.##.....",
-  "##....#....##....#..#.......#..",
-  "#.##.##.#..#..#.....#..#.##.#..",
-  ".#..#.......##..#.....##.##....",
-  ".......#..........#.#.##..#.##.",
-  "....#.....#.#...##....##.......",
-  ".......#.........#...##....##.#",
-  "#.....#......#..........#...#..",
-  "...#.#.......#.#..#....###..#..",
-  ".....#.#.#.........#...........",
-  ".#..###.#.#........#.#.........",
-  ".........#..#......##...##....#",
-  "...###..#.....##.....#.###....#",
-  ".##...#...#........###.#..#....",
-  ".##........#..#.###.######.##.#",
-  "##.#...#.#....#..##.#....##....",
-  ".......##.....##.#..###.#......",
-  "..##...##........#.......#....#",
-  "#..##...#.####...###......#...#",
-  ".##.....#.##.#.#.....###.#..##.",
-  "..###....#.#.###.#....#........",
-  "....#..###..#...#....#..#..#.#.",
-  "#.#.##....##...##.......#......",
-  ".........#...#....#..#.........",
-  ".............#...#..##.#.......",
-  "...#.##.......#...#.#..##.##...",
-  ".####.#.##..#.#......#.##...#.#",
-  ".#..#.#.....#.................#",
-  "..#.##..###....#...#......####.",
-  "..##..##...........#....#...#..",
-  "....#...#...#...#.......#....#.",
-  "#.#...###...#...#.#...#....##.#",
-  "......#...#.#.......#.....#...#",
-  "....##...#.#.#....#....#.#....#",
-  ".....#.....#...##..#...#....##.",
-  "#.....#....#......##.##....#...",
-  "...#.#....#...#....#.#....##..#",
-  "...#.#..#...##....###..#.......",
-  "...##......###...###.#...#..#..",
-  "##.......#.......###.......#..#",
-  "..##.##..###.#............#...#",
-  "#.....##..#..##....##..#.......",
-  "......#.#...#......#.....#.....",
-  "#...........#....#..##.##.#....",
-  ".......#..#......#...#....#...#",
-  ".#...##...........#......#...#.",
-  "#........#....##...###.#....#..",
-  ".....#.......##.........#.##...",
-  ".#.###..#....#..##.#..#.#..#...",
-  "#.......#.##.#.#....#.#..#....#",
-  "###.....#.#.......#..#......#.#",
-  "#..#.#.......#.#..##..##.#.#...",
-  "#..#.#.#.###........#.....#...#",
-  "#.#.#..#..##.....#...........#.",
-  "..#.#..#.....#...#...#...##....",
-  "...#.##......#...##.#...#.#.#.#",
-  "#..#.#.#.#.......####..........",
-  "..#......#.#......##.###.....##",
-  "..#...##..#.........##....#.##.",
-  "##.##.##.#.#.....#..........##.",
-  ".#.....###.#..#....#..#.###...#",
-  "#...##.......###....#.#..#.....",
-  "..#....##.........##.........##",
-  "......#....#.##.......#........",
-  "..#.#.#..#...#...#...##.#...#..",
-  "......#..##.#.#.#...##...#.#.##",
-  "#..#...##.#.....#...#.##.......",
-  "..#..#.........##.#...#.##...##",
-  "##.##.#....#.......#.##..#.....",
-  ".....##...##.##...##.........##",
-  "#......#...#.......#...#...#...",
-  "...##...........#...#..#.......",
-  ".#.##.#..#........#....#.......",
-  "#.#...#..#......##...#.#.##....",
-  "##........####..#.#...#.#.##.##",
-  "#..#.#.##......##.#.#..#.......",
-  ".....#.........#..#.####....#..",
-  "......##..#....#...#.#....#....",
-  "#...##........#.........#.....#",
-  ".#.#...#.#.#..#............##.#",
-  ".#..#....#....#.....#...#.....#",
-  "..###...#..#.....#.##.###...#.#",
-  ".#.###..#..#...#.#...#.#......#",
-  "#...#####......###........##...",
-  ".....#.....#..#.#....#..##.....",
-  "....##...#.#.##.#####...#....#.",
-  ".#.#.........##.#.......#..##..",
-  ".#...#.#...#...#....#.#...##.#.",
-  ".##...#..#.#..#......#.#.#..##.",
-  "..#.....#..#.....##.....#......",
-  "..#........#..##...#.......###.",
-  ".#....#.......#....#....#..#...",
-  "....#......#.#.#.........#.....",
-  "..##...#.#.#...#.#........#....",
-  ".#.....####...##.#..#...##.....",
-  "...#.....#...#...#....#....#...",
-  ".........#..#.#.....#..#.#..#..",
-  ".........##...........#.......#",
-  "......#..#.....##...#.##.#.....",
-  ".#......##........##...#.#.##..",
-  ".....#.#..##...........#..#..#.",
-  "...#.......#...#.#..#.##..#.##.",
-  "...#.......#.....#.#...#.##.#..",
-  "#.....#.............##.#..####.",
-  ".#...#......#...##.#....#.#....",
-  ".##..##.##....#.#.....#.......#",
-  "...#...#....#....##.#..#....##.",
-  "..............##....#.......#.#",
-  ".#.#.#...##..#..#...###.#..#...",
-  ".#.#...#.#..#.#..#...######..#.",
-  "........#......#.#..#.#....#...",
-  "..###.....###.#.##....#...##...",
-  ".##.#.....#.......##.......#...",
-  "..#..##...#..........#.#....#.#")
-#+end_src
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
-
-This is a fairly particular problem. I don't see an obvious
-generalisation, so I'll proceed with a fairly particular solution.
-
-I think of this operation as counting the number of encounters
-along a fixed line of a given map, where the map is represented as
-a list of strings.
-
-My method will take as an argument the ~map~, along with
-the definition of an ~entity~ which would cause an encounter
-as a predicate on characters.
-
-We then also take a current ~x_position~, and the velocity
-through the map as a pair, specifying the ~x~ and the ~y~ velocity.
-
-Aside from the generalisation of considering any kind of entity,
-not just the character ~'#'~ from the problem,
-my solution will not require that the strings making up the map
-all have the same length.
-
-We proceed roughly as follows:
-- If our ~y~ velocity would take us beyond the end of the map
-  (that is, the ~y~ velocity is greater than the length of the map),
-  we cannot have any encounters; return ~0~.
-- Otherwise,
-  - find the next ~x~ position,
-  - drop the first “~y~ velocity” elements of the map
-    (these are the lines we are passing by)
-  - check if we have an encounter at our new position
-    (which is the new ~x~ position at the top of the new map.)
-    Here we must take the next ~x~ position modulo the width
-    of the first line of the new map, since we may have gone wide.
-    Thankfully each line repeats!
-  - Finally, recursively check for more encounters,
-    and add this encounter (or lack of encounter) to the tally.
-#+name: encounters
-#+begin_src amm
-def encounters(map: List[String],
-               entity: Char => Boolean,
-               x_position: Int,
-               velocity: Tuple2[Int,Int]): Int = {
-  val (x_velocity,y_velocity) = velocity
-  map.length match {
-    case n if n <= y_velocity => 0
-    case n =>
-      val next_x = (x_position + x_velocity)
-      val remaining_map = map.drop(y_velocity)
-      val map_width = remaining_map(0).length
-      val encounter = if (entity(remaining_map(0)(next_x % map_width))) 1 else 0
-      encounters(remaining_map, entity, next_x, velocity) + encounter
-  }
-}
-#+end_src
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-#+begin_src amm :noweb yes
-<<day3-input-scala>>
-<<encounters>>
-
-encounters(input, {_ == '#'}, 0, (3,1))
-#+end_src
-
-** Part 2
-:PROPERTIES:
-:CUSTOM_ID: Part-2
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-Time to check the rest of the slopes - you need to minimize
-the probability of a sudden arboreal stop, after all.
-
-Determine the number of trees you would encounter if,
-for each of the following slopes, you start at the top-left corner
-and traverse the map all the way to the bottom:
-
-- Right 1, down 1.
-- Right 3, down 1. (This is the slope you already checked.)
-- Right 5, down 1.
-- Right 7, down 1.
-- Right 1, down 2.
-In the above example, these slopes would find ~2~, ~7~, ~3~, ~4~,
-and ~2~ tree(s) respectively; multiplied together,
-these produce the answer ~336~.
-
-What do you get if you multiply together the number of trees
-encountered on each of the listed slopes?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-Is the same as for the previous part.
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorse
-:PROPERTIES:
-:CUSTOM_ID: The-workhorse
-:END:
-
-This second problem does not actually require
-a different solution; only a change to my ~velocity~ argument
-for each check.
-
-However, because I will be calling this method numerous times,
-and each call is relatively costly,
-I choose to optimise slightly
-by making the method tail recursive.
-
-Note that the ~entity~ and the ~velocity~ arguments never change,
-so they are not necessary arguments for the helper.
-#+name: encounters-tailrec
-#+begin_src amm
-def encounters(map: List[String],
-               entity: Char => Boolean,
-               x_position: Int,
-               velocity: Tuple2[Int,Int]): Int = {
-  def encounters_helper(map: List[String],
-                        x_position: Int,
-                        count: Int): Int = {
-    val (x_velocity,y_velocity) = velocity
-    map.length match {
-      case n if n <= y_velocity => count
-      case n =>
-        val next_x = (x_position + x_velocity)
-        val remaining_map = map.drop(y_velocity)
-        val map_width = remaining_map(0).length
-        val encounter = if (entity(remaining_map(0)(next_x % map_width))) 1 else 0
-        encounters_helper(remaining_map, next_x, count+encounter)
-    }
-  }
-  encounters_helper(map,x_position,0)
-}
-#+end_src
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-Just multiply together the results.
-#+begin_src amm :noweb yes
-<<day3-input-scala>>
-<<encounters-tailrec>>
-
-val e11 = encounters(input, {_ == '#'}, 0, (1,1))
-val e31 = encounters(input, {_ == '#'}, 0, (3,1))
-val e51 = encounters(input, {_ == '#'}, 0, (5,1))
-val e71 = encounters(input, {_ == '#'}, 0, (7,1))
-val e12 = encounters(input, {_ == '#'}, 0, (1,2))
-
-e11 * e31 * e51 * e71 * e12
-#+end_src
-
-* Day  4 – Passport Processing
-:PROPERTIES:
-:CUSTOM_ID: Day--4-–-Passport-Processing
-:END:
-
-** Part 1
-:PROPERTIES:
-:CUSTOM_ID: Part-1
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-You arrive at the airport only to realize that you grabbed
-your North Pole Credentials instead of your passport.
-While these documents are extremely similar,
-North Pole Credentials aren't issued by a country
-and therefore aren't actually valid documentation
-for travel in most of the world.
-
-It seems like you're not the only one having problems, though;
-a very long line has formed for the automatic passport scanners,
-and the delay could upset your travel itinerary.
-
-Due to some questionable network security, you realize
-you might be able to solve both of these problems at the same time.
-
-The automatic passport scanners are slow because
-they're having trouble detecting which passports have
-all required fields. The expected fields are as follows:
-- ~byr~ (Birth Year)
-- ~iyr~ (Issue Year)
-- ~eyr~ (Expiration Year)
-- ~hgt~ (Height)
-- ~hcl~ (Hair Color)
-- ~ecl~ (Eye Color)
-- ~pid~ (Passport ID)
-- ~cid~ (Country ID)
-Passport data is validated in batch files (your puzzle input).
-Each passport is represented as a sequence of key:value pairs
-separated by spaces or newlines.
-Passports are separated by blank lines.
-
-Here is an example batch file containing four passports:
-#+begin_src text
-ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
-byr:1937 iyr:2017 cid:147 hgt:183cm
-
-iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884
-hcl:#cfa07d byr:1929
-
-hcl:#ae17e1 iyr:2013
-eyr:2024
-ecl:brn pid:760753108 byr:1931
-hgt:179cm
-
-hcl:#cfa07d eyr:2025 pid:166559648
-iyr:2011 ecl:brn hgt:59in
-#+end_src
-The first passport is valid - all eight fields are present.
-The second passport is invalid - it is missing hgt (the Height field).
-
-The third passport is interesting; the only missing field is ~cid~,
-so it looks like data from North Pole Credentials,
-not a passport at all! Surely, nobody would mind if
-you made the system temporarily ignore missing ~cid~ fields.
-Treat this "passport" as valid.
-
-The fourth passport is missing two fields, ~cid~ and ~byr~.
-Missing ~cid~ is fine, but missing any other field is not,
-so this passport is invalid.
-
-According to the above rules, your improved system
-would report ~2~ valid passports.
-
-Count the number of valid passports - those that have
-all required fields. Treat ~cid~ as optional.
-In your batch file, how many passports are valid?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-**** Raw text
-:PROPERTIES:
-:CUSTOM_ID: Raw-text
-:END:
-
-#+begin_src text
+#+begin_src text :tangle ./input/advent-of-code-2020/day4.txt
 eyr:2029 byr:1931 hcl:z cid:128
 ecl:amb hgt:150cm iyr:2015 pid:148714704
 
@@ -5039,1482 +4352,12 @@ ecl:gry
 cid:209 hcl:#efcc98 byr:2001
 #+end_src
 
-**** As a Scala string
+** Day 5
 :PROPERTIES:
-:CUSTOM_ID: As-a-Scala-string
+:CUSTOM_ID: Day-5
 :END:
 
-#+name: day4-input-scala
-#+begin_src scala
-val input = """eyr:2029 byr:1931 hcl:z cid:128
-ecl:amb hgt:150cm iyr:2015 pid:148714704
-
-byr:2013 hgt:70cm pid:76982670 ecl:#4f9a1c
-hcl:9e724b eyr:1981 iyr:2027
-
-pid:261384974 iyr:2015
-hgt:172cm eyr:2020
-byr:2001 hcl:#59c2d9 ecl:amb cid:163
-
-eyr:2024 hcl:#b6652a
-cid:340
-byr:1929 ecl:oth iyr:2014 pid:186640193
-hgt:193in
-
-iyr:2015 eyr:2024 hgt:184cm
-ecl:blu hcl:#a97842 byr:1959 pid:932817398
-
-iyr:1933 hcl:7c63aa cid:72 eyr:2028
-ecl:hzl
-byr:2009 hgt:164cm pid:104496116
-
-byr:1980
-hgt:181cm pid:192793676 hcl:8f6ae6 iyr:2021 eyr:1978
-
-pid:#63f479 hgt:75cm
-hcl:z iyr:1956
-byr:2024 ecl:#051344
-
-byr:2014 pid:159cm
-hgt:161cm
-ecl:#b4eef2
-iyr:2027 eyr:1933 hcl:743b1a
-
-cid:79 hgt:172cm byr:1932 eyr:2020 pid:127319843 hcl:#6b5442 iyr:2017 ecl:brn
-
-ecl:gry eyr:2020 byr:1976
-pid:093137171 iyr:2012 hgt:178cm hcl:#733820
-
-byr:1933 hcl:#733820 hgt:165cm eyr:2027 iyr:2018 ecl:oth pid:0952910465
-
-iyr:2014
-byr:1965 pid:304542033
-eyr:2032
-ecl:brn hgt:153in cid:259 hcl:z
-
-byr:2004 ecl:amb iyr:2013
-hcl:#a97842
-hgt:68in
-pid:248926471 eyr:1930
-
-pid:048596900 iyr:2021 byr:2021 eyr:2021 cid:104
-hcl:c3c9e0 ecl:hzl
-hgt:75cm
-
-pid:590195280 cid:159 byr:1951 hcl:#ceb3a1 ecl:brn iyr:2012 hgt:189cm eyr:2024
-
-iyr:2015 pid:639647361 hcl:#b6652a
-hgt:151cm byr:1957 cid:284
-ecl:gry
-eyr:2026
-
-ecl:blu hgt:175cm pid:462959720 hcl:#602927 iyr:2014 byr:1972
-eyr:2023
-
-ecl:blu eyr:2023 hgt:175cm
-pid:090406335 hcl:#b6652a iyr:2012 byr:1921
-
-eyr:2025 hcl:#733820
-pid:775468504 ecl:hzl byr:1934 hgt:187cm iyr:2019
-
-ecl:#b35d5b hgt:121 hcl:z iyr:2002 eyr:2034
-byr:2014
-
-ecl:hzl byr:2026 hgt:77 iyr:1952
-hcl:#a97842 pid:#1461ed
-eyr:1921
-
-iyr:2019
-hgt:171in eyr:2040 pid:788162609 ecl:grn byr:2023
-
-hcl:#efcc98 eyr:2039 hgt:158cm byr:2026 pid:216112069
-
-ecl:blu hcl:#fffffd eyr:2020 pid:496018604
-byr:1982 hgt:168cm
-cid:70 iyr:2016
-
-eyr:2031 iyr:1958
-hcl:#c0946f hgt:181in ecl:#f88f2c pid:7896132641
-
-byr:1933 cid:118 eyr:2037 hcl:#cfa07d iyr:2030
-ecl:#686f76 hgt:170
-
-iyr:2010
-hgt:161cm ecl:grn byr:1958 hcl:#7d3b0c
-pid:523557068
-
-hcl:ba3af2 pid:157cm eyr:2037 cid:135 ecl:zzz hgt:153 byr:2030
-
-ecl:grn byr:1967 cid:191
-iyr:2012 hcl:#866857
-pid:822899368 hgt:152cm eyr:2024
-
-iyr:2015
-cid:343 hcl:#6b5442 pid:119981062 hgt:67in eyr:2027
-ecl:gry
-byr:2001
-
-pid:#c68245 ecl:blu hgt:107 hcl:74f3fb eyr:1996 iyr:1955 byr:2025
-
-hgt:63cm eyr:1925
-iyr:2019 byr:2013 pid:#3ab227 ecl:#e33d1d hcl:#efcc98
-
-byr:1941 eyr:2029 iyr:2011 hgt:159cm
-hcl:#602927
-ecl:brn cid:245 pid:977877701
-
-pid:575539099
-eyr:2031 byr:1987 ecl:oth hcl:#cfa07d
-iyr:2017
-hgt:69cm
-
-pid:563180951 hgt:153cm ecl:amb iyr:2016
-byr:1951 hcl:#341e13 eyr:2029
-cid:277
-
-hcl:#623a2f iyr:2011 hgt:171cm byr:1929 ecl:oth
-eyr:2024 pid:959212059
-
-byr:1943 ecl:#3925f3 hgt:68cm pid:155cm cid:127 eyr:2011
-hcl:2a53fd
-iyr:2030
-
-hgt:160in byr:2014 pid:7846412647
-hcl:2d18c8
-ecl:#8655df eyr:2034 iyr:2023
-
-byr:1932 hgt:170cm cid:331 eyr:2020 pid:52551410 ecl:gry
-iyr:2013
-hcl:#c6944c
-
-hcl:#888785 pid:177cm ecl:oth
-hgt:160cm eyr:2021 byr:1957
-iyr:2013
-
-iyr:2020 pid:6245137 eyr:2027 cid:111 hgt:181cm
-byr:2024 ecl:gmt hcl:fe8828
-
-pid:648300488 cid:230 hcl:#efcc98
-byr:1989 hgt:159cm
-ecl:gry iyr:2015
-eyr:2030
-
-iyr:1929 cid:144 hgt:168in pid:185cm
-byr:2017 hcl:z eyr:1960 ecl:#d406d2
-
-hcl:3a4933
-hgt:155cm
-pid:337576945 byr:1925 iyr:2014 ecl:brn eyr:2026
-
-pid:170cm cid:291 eyr:2017 iyr:2017 hgt:177cm hcl:z ecl:gmt
-
-pid:271148544 hgt:163cm
-byr:1926 hcl:#fffffd iyr:2013
-eyr:2022
-
-hgt:64in iyr:2030 ecl:#15c6b5 eyr:2028 byr:2025
-pid:3426144
-
-eyr:1923 byr:1943 hcl:#64d609 iyr:2017 pid:154cm hgt:160cm ecl:brn
-
-hcl:#602927 hgt:170cm ecl:utc iyr:1954 pid:370180054
-byr:1925 cid:162
-eyr:1983
-
-hcl:#888785 byr:1932 hgt:163cm
-eyr:2026
-ecl:grn pid:799844918
-
-eyr:2029
-ecl:blu cid:231 hgt:157cm
-pid:609233861
-hcl:#462640
-byr:1940 iyr:2012
-
-iyr:2025
-byr:2004 pid:#e92a77
-eyr:2014 cid:78
-ecl:zzz hgt:187in hcl:76be6e
-
-eyr:2027 iyr:2012 ecl:brn byr:1955 pid:128923308
-cid:313 hgt:156cm hcl:#623a2f
-
-hcl:#ceb3a1
-hgt:178cm byr:1984
-pid:121442385 eyr:2036 iyr:2014 ecl:hzl
-
-eyr:2038 ecl:#c6149f iyr:1983
-cid:304 hgt:193 byr:2019
-hcl:z pid:5871630079
-
-iyr:2028 eyr:2002
-hgt:146
-hcl:#623a2f
-pid:390145814
-byr:1937
-
-pid:923652966 ecl:amb
-eyr:2027 hgt:174cm byr:1932 iyr:2014
-hcl:#fffffd
-
-iyr:2026 cid:202 byr:1995 hcl:69c01a
-hgt:164cm eyr:2020 ecl:hzl
-
-hgt:156cm
-byr:2004
-pid:537532371
-hcl:z iyr:1988
-eyr:2024
-ecl:utc
-
-iyr:2018 byr:1924 hcl:#602927 cid:132 pid:947815343 eyr:2030 ecl:grn
-
-byr:1978 hcl:#c0946f iyr:2012 hgt:67cm
-eyr:2032 pid:929470763 ecl:amb
-
-eyr:2028
-pid:545502229 ecl:gry
-hcl:#866857 hgt:182cm
-byr:1964 iyr:2016
-
-hcl:z cid:82 hgt:108 byr:2010 pid:#1650b3 eyr:2020 iyr:2017 ecl:hzl
-
-iyr:2018
-hgt:61cm
-ecl:lzr byr:1980 hcl:1d4bc2 cid:306
-pid:763925614 eyr:2006
-
-byr:2021 eyr:2029
-pid:610596568
-ecl:oth
-hcl:#7d3b0c
-iyr:2010 cid:83 hgt:156cm
-
-cid:181 ecl:hzl
-hcl:#8d79d2
-hgt:192cm
-byr:1958 iyr:2014 eyr:2026 pid:118367138
-
-byr:1978
-eyr:2020
-iyr:2025 hgt:176cm
-ecl:grn hcl:faedc2
-
-hgt:156cm eyr:1989 pid:#7acc45 cid:235 hcl:1332ba
-ecl:#2b7525 iyr:1950 byr:1943
-
-pid:147647267 hcl:#341e13
-ecl:hzl
-iyr:2019
-byr:1975
-hgt:153cm eyr:2020
-
-iyr:2026 hgt:170cm ecl:oth
-byr:2017 pid:047129729
-eyr:2024 hcl:#733820
-
-hcl:#fffffd byr:1960 ecl:gry eyr:2023
-iyr:2013 hgt:186cm pid:145757697
-
-hgt:64in
-ecl:amb
-byr:1930 pid:808797855 iyr:2019
-hcl:#b6652a eyr:2022
-
-eyr:2030
-hcl:z iyr:2013 hgt:165cm ecl:#5ba775
-pid:168306092 byr:1988
-
-eyr:2026 ecl:gry iyr:2020 hcl:#b6652a hgt:177cm
-byr:1991 pid:780666689
-
-iyr:2020
-pid:#d08e64 eyr:2010 hcl:411b04 cid:140 hgt:76cm ecl:grn byr:2005
-
-iyr:1945
-pid:973836167 ecl:zzz
-hcl:z hgt:181in byr:2008 eyr:1993
-
-cid:58 eyr:2024 hgt:159cm byr:1977 ecl:hzl pid:402427328
-hcl:#888785
-iyr:2012
-
-pid:533381616 byr:2027
-eyr:2040 hgt:60cm iyr:2023 hcl:z
-ecl:gmt
-
-pid:229044973 cid:149 hgt:178in eyr:2029
-byr:2006 ecl:dne iyr:2012
-hcl:bf4bc2
-
-hgt:161cm byr:1973 ecl:oth iyr:2015 hcl:#341e13 pid:658452720
-eyr:2024
-
-hcl:#efcc98 hgt:156cm
-byr:1931 iyr:1997 pid:0548175409 ecl:utc
-
-pid:575623915 iyr:2017 eyr:2023 hcl:#733820 byr:1938
-ecl:blu
-hgt:185cm
-
-hcl:#55ebaa
-hgt:157cm ecl:blu byr:1945
-pid:946614649
-eyr:2020 iyr:2012
-
-hgt:158cm hcl:#b80425 iyr:2017 eyr:2025 ecl:gry
-byr:1944 pid:838975683
-
-hcl:#41731c iyr:2020 byr:1971 ecl:oth
-hgt:186cm
-eyr:2030 pid:495358045
-
-pid:3884291521
-eyr:2037 hgt:74cm byr:2003 ecl:hzl iyr:2022 hcl:#888785 cid:124
-
-hgt:175cm cid:340 byr:1921
-pid:183491348
-iyr:2017 ecl:brn hcl:#602927 eyr:2028
-
-hcl:#cfa07d
-hgt:161cm byr:2006
-eyr:2024
-pid:109854634
-ecl:xry iyr:2024
-
-ecl:#ec6311 hcl:z iyr:2015
-pid:#783693
-eyr:1932
-cid:271
-hgt:82
-
-ecl:grn
-hgt:164cm hcl:#efcc98 eyr:2020 pid:824236769
-byr:1952 iyr:2014
-
-eyr:1964 pid:85558869 byr:2017 hcl:c81d94
-iyr:2028
-hgt:63cm
-ecl:#c00640 cid:115
-
-byr:2010
-pid:431600716
-hcl:z hgt:112 ecl:#3057e9 eyr:2027 iyr:2017 cid:91
-
-byr:2026
-eyr:2037
-pid:3800489571 ecl:grn
-cid:91 hcl:94b4d1 hgt:59cm
-
-cid:199 byr:2030
-iyr:2021
-hcl:c55653
-hgt:168cm
-pid:160cm
-
-hgt:68cm
-byr:2025 iyr:2023 eyr:1983
-hcl:0004d4 ecl:#19fca6 pid:89901951
-
-hgt:170cm byr:2012
-eyr:1981 hcl:c95b58
-pid:#d28b3f cid:302 iyr:1953 ecl:#151ea4
-
-hcl:#6b5442 eyr:2024 hgt:161cm
-cid:210 ecl:#793ac0
-pid:480283173
-iyr:2019 byr:1967
-
-cid:82 ecl:amb iyr:2017 eyr:2023 byr:1980 hgt:59in hcl:#888785 pid:323524654
-
-hcl:#341e13 hgt:154cm
-iyr:2015 eyr:2023
-byr:1953 ecl:blu pid:872964523
-
-iyr:2019
-byr:1945 hcl:#efcc98
-hgt:155in
-ecl:#1608c7 eyr:2030 pid:406045604
-
-ecl:lzr byr:2015 iyr:1938
-eyr:2026 hcl:z
-pid:542894703 hgt:185
-
-eyr:2021 hcl:#cfa07d ecl:hzl hgt:82
-iyr:2018 byr:1932
-pid:661993261
-
-ecl:brn hcl:#602927
-hgt:193cm pid:572216250
-byr:1929 eyr:2020 iyr:2010 cid:206
-
-ecl:amb
-eyr:2025
-pid:932260335 byr:1978 iyr:2012
-hcl:#cfa07d
-cid:260 hgt:67in
-
-pid:635410614
-byr:1948 hgt:156cm hcl:#071bc0 eyr:2026
-ecl:grn
-cid:275
-iyr:2014
-
-hcl:#8a4888 byr:1986
-iyr:2010 ecl:amb cid:113
-pid:974757414 hgt:174cm
-eyr:2024
-
-byr:1934 ecl:amb iyr:2016
-pid:280206549 hgt:176cm
-eyr:2020 hcl:#fffffd
-
-pid:544634927
-eyr:2021 hgt:188cm byr:1947 iyr:2020
-hcl:#008716 ecl:oth
-cid:97
-
-eyr:2026 pid:863010622
-byr:1978 hcl:#b6652a hgt:157cm cid:323 iyr:2020 ecl:blu
-
-cid:105
-byr:1926
-hcl:#6b5442 pid:049198636 eyr:2026 hgt:75in
-iyr:2018 ecl:blu
-
-eyr:2038 hgt:76cm byr:2020 pid:9036865757 iyr:2025
-ecl:#a2c975
-hcl:z
-cid:340
-
-pid:425619875 cid:263 byr:1935
-eyr:2028 hgt:192cm iyr:2010 hcl:#a6ddfc ecl:hzl
-
-cid:107 hgt:189cm
-hcl:#733820 ecl:blu
-eyr:2028 iyr:2020 pid:814895947
-
-cid:96 hgt:74in
-hcl:z
-pid:170cm ecl:#0240fd byr:2004 iyr:2013 eyr:1936
-
-ecl:blu
-eyr:2027 hcl:#341e13
-iyr:2020
-cid:94
-hgt:174cm
-
-iyr:2013 ecl:amb
-eyr:2030 hcl:#b6652a
-byr:1964
-pid:329942894
-
-byr:1995 ecl:hzl eyr:2030
-hgt:177cm hcl:#341e13
-cid:64
-
-eyr:2027 pid:708191313
-ecl:#390609 byr:2022 iyr:2010 cid:292 hgt:129
-hcl:#733820
-
-hcl:#733820 ecl:hzl eyr:2030
-iyr:2011
-hgt:156cm
-byr:2002 pid:932464949
-
-iyr:1941
-byr:2027 ecl:xry eyr:1949 pid:82479270
-hgt:175 hcl:z
-cid:157
-
-byr:1927 pid:708954312 eyr:2028 ecl:oth hgt:167cm hcl:#602927 iyr:2011
-
-cid:125 eyr:2034 iyr:2030
-hgt:116 byr:2030
-hcl:f773ce pid:#d24ed1 ecl:lzr
-
-hcl:#efcc98 byr:1947 pid:423105162 ecl:brn iyr:2019 hgt:154cm
-eyr:2026
-cid:174
-
-iyr:2017
-ecl:gry
-hcl:#341e13
-pid:314487906 eyr:2038 hgt:171cm byr:2014
-
-pid:630479640 ecl:brn hgt:163cm
-iyr:2013 eyr:2028 byr:1998 hcl:#866857
-
-iyr:2013 hcl:z byr:2016
-ecl:#43d879 pid:996281170
-cid:200 hgt:153 eyr:2030
-
-byr:2023
-pid:081908248 iyr:2020
-eyr:2035
-hgt:175in ecl:grt hcl:30ab42
-
-iyr:2018 byr:1995 eyr:2029 ecl:grn pid:882123182 hgt:62cm hcl:#fffffd
-
-byr:1978 hcl:z
-iyr:1923 ecl:blu eyr:2037 pid:#1f3467 hgt:186cm
-
-cid:264 ecl:#ab07c5 iyr:1927 hcl:2d6f9c
-hgt:74cm byr:2008 pid:874594495 eyr:2035
-
-ecl:lzr hgt:69cm
-hcl:76854c cid:336 pid:7830555583
-iyr:1920
-byr:2021 eyr:2038
-
-hgt:160cm byr:2029 ecl:#7f9d1b hcl:z iyr:1975
-pid:652466273
-eyr:2031
-
-ecl:oth
-eyr:2027 iyr:2019 pid:544347482
-byr:1988 hgt:182cm hcl:#cfa07d
-
-hgt:176cm iyr:2016 hcl:ec1dc3
-pid:521230755 byr:2030 ecl:amb eyr:2025
-
-pid:005216805 byr:1951
-ecl:hzl hcl:#efcc98 eyr:2022
-iyr:2016
-hgt:154cm
-
-byr:1943 hcl:#866857
-eyr:1984 hgt:64cm
-pid:3105984 iyr:1997
-ecl:lzr
-
-eyr:2024
-byr:1931 pid:929699878 hgt:169cm cid:81 hcl:#efcc98
-
-iyr:2011 pid:558972589
-hgt:163cm cid:155 eyr:2025 byr:1952 ecl:oth
-hcl:#c0946f
-
-pid:787560595 eyr:2036
-hcl:#888785 byr:1999 iyr:1971 ecl:blu
-
-hgt:165in pid:032310066
-eyr:1926 byr:1954 ecl:brn hcl:41964f iyr:2023
-
-hcl:#733820
-pid:563740385
-hgt:184cm
-iyr:1959
-ecl:gmt cid:242 byr:1999
-
-pid:4949046383 byr:2011 hcl:fcf63b
-ecl:hzl
-hgt:174in
-iyr:2023 eyr:1939
-
-cid:331
-ecl:grt hcl:z eyr:2003 hgt:172in byr:2012 iyr:1954 pid:#9f4663
-
-cid:223 byr:1939 eyr:2025
-ecl:oth hgt:161cm iyr:2015 pid:214576789 hcl:#866857
-
-ecl:oth pid:912009529 byr:1968 hgt:161cm
-hcl:#ceb3a1 eyr:2023 iyr:2017
-
-pid:858541281 hgt:150cm eyr:2021
-iyr:2013 ecl:gry
-hcl:#fffffd byr:1959
-
-ecl:#0024e0 byr:2006 cid:107
-iyr:2015 hcl:684416 hgt:94 pid:152cm eyr:2031
-
-byr:1987 hcl:z
-ecl:gry pid:#246fe1 hgt:65cm eyr:1992 iyr:2020
-
-pid:426999585
-ecl:hzl byr:1949 hcl:#888785 hgt:191cm
-iyr:2020 eyr:2020
-
-byr:1951 hcl:#623a2f
-cid:308 ecl:hzl
-hgt:174cm pid:226138254
-eyr:2028
-iyr:2018
-
-ecl:brn hgt:62in
-eyr:2020 hcl:#ceb3a1 pid:650916481
-byr:1940
-iyr:2018
-
-hcl:#efcc98 ecl:brn
-byr:1940 eyr:2024 pid:#68d3ab
-hgt:177cm cid:83
-iyr:2017
-
-pid:9704738756 hcl:#fffffd eyr:1925
-iyr:2019 byr:1929 ecl:blu hgt:191cm
-
-ecl:brn hgt:151cm hcl:#c0946f iyr:2018 pid:602505609 eyr:2020
-byr:1974
-
-hgt:178cm
-eyr:2023 byr:1922
-iyr:2013
-hcl:#fffffd pid:205291054 ecl:blu
-
-byr:1985
-iyr:2016 hcl:#ceb3a1 hgt:161cm eyr:2030 ecl:amb
-pid:871809978
-
-iyr:2027 ecl:#d9c9cb hgt:110
-eyr:2034
-hcl:99d4ee pid:13355969 cid:168
-
-ecl:utc byr:2019
-iyr:2016 hgt:173in cid:266
-hcl:z eyr:2033
-pid:1835189643
-
-pid:364874100 ecl:amb hcl:#6b5442 hgt:184cm
-iyr:2017 eyr:2026 byr:1920 cid:127
-
-ecl:dne eyr:2020
-byr:2018 cid:262
-iyr:2010 hgt:60cm
-pid:95409983 hcl:z
-
-eyr:2026
-pid:135963889 iyr:2018 hcl:#ceb3a1
-ecl:amb
-
-hcl:#341e13 eyr:2028 iyr:2014 byr:1978
-cid:309
-pid:503628987
-ecl:oth hgt:159cm
-
-hcl:#a97842
-pid:171194014 hgt:193cm eyr:2023
-byr:1945 ecl:grt
-iyr:2019
-
-eyr:1967 cid:135 hcl:z
-ecl:gmt
-iyr:2024 pid:#a87744
-byr:2023 hgt:168cm
-
-pid:169cm
-cid:337 ecl:hzl hcl:#888785 byr:1927 hgt:153cm
-iyr:2022 eyr:2020
-
-byr:1963 hcl:#fffffd eyr:2021
-hgt:62in pid:702188504 iyr:2013
-ecl:hzl
-
-iyr:2024 ecl:amb hcl:#ceb3a1
-eyr:2017 pid:49752568 hgt:179cm byr:1938
-
-byr:2006
-ecl:#08021a
-eyr:2022 pid:520309937
-hgt:61in hcl:#ceb3a1
-iyr:2013
-
-hgt:150cm hcl:#733820 byr:1971 ecl:zzz cid:347
-iyr:2020 eyr:2020 pid:6028818045
-
-byr:2005 hgt:69cm
-ecl:lzr hcl:z iyr:2009 eyr:2038 pid:79626157
-
-iyr:2020 byr:2015 pid:882923693 hcl:#888785 eyr:2030
-ecl:xry hgt:65in
-
-hcl:z hgt:187cm pid:4397913655 iyr:1973 eyr:1925
-ecl:#93ae1a
-
-hgt:169cm
-iyr:2019 eyr:2023 pid:678937529
-ecl:blu byr:1998 hcl:#fffffd
-
-cid:87 hcl:#efcc98
-ecl:#e56390
-iyr:2013 hgt:191in
-eyr:2027 pid:923358773 byr:1960
-
-hgt:190cm byr:1939
-cid:55 eyr:2026 ecl:blu hcl:#623a2f pid:363917612
-iyr:2012
-
-pid:177cm hgt:165cm cid:276 eyr:2002 byr:2010 hcl:#7bea4c iyr:2017
-ecl:grt
-
-byr:2023 eyr:2031
-iyr:1987 hgt:172 hcl:z
-pid:4973557135 ecl:#7517e2
-
-eyr:2036 iyr:1989 ecl:#ef5492 hgt:188in pid:#b50065
-hcl:92e9ee byr:2015
-
-pid:873654822 iyr:2016 cid:310
-hgt:76in
-eyr:2029 hcl:#888785 byr:1958
-ecl:brn
-
-iyr:2013 ecl:amb byr:2024
-hgt:166cm
-cid:221 eyr:2040 pid:358648642 hcl:#733820
-
-hgt:181cm cid:295 ecl:blu eyr:2027
-iyr:2016
-byr:1932
-hcl:#2502ba
-pid:177357899
-
-pid:154588649 eyr:2028
-byr:1945 iyr:2020
-ecl:amb cid:220
-hgt:189cm hcl:#a97842
-
-iyr:2011
-eyr:2030 cid:143 byr:1998 pid:403108989
-ecl:oth hcl:#6b5442
-hgt:151cm
-
-pid:071042426 cid:217 iyr:2017 ecl:grn byr:1989 eyr:2026 hgt:193cm hcl:#7d3b0c
-
-eyr:2025
-iyr:2025 pid:3942412883 hcl:#cfa07d cid:237 ecl:utc hgt:182
-
-iyr:2012 eyr:1982 byr:2029 pid:8573047090
-hgt:159in ecl:#1e0124 hcl:#b6652a
-
-hcl:53c64f ecl:gmt iyr:1984 byr:2029
-hgt:59cm
-pid:#106076 eyr:2031
-
-hcl:#733820 iyr:2019
-eyr:2031
-pid:706963298
-hgt:134
-byr:2004
-
-byr:2012 cid:161
-eyr:2039 ecl:gry hgt:61cm iyr:1949 pid:870113802 hcl:z
-
-byr:1961 eyr:2023 pid:353075198 iyr:2020 hcl:#888785 ecl:oth
-hgt:163cm
-
-byr:2001 iyr:2015
-hgt:159cm hcl:#623a2f ecl:#3303fc
-pid:86352609 eyr:2030
-
-pid:392475721 ecl:brn byr:1927 iyr:2014 eyr:2024 hcl:#fffffd
-
-hgt:160cm eyr:2022 byr:1979 iyr:2010
-pid:974489456
-hcl:#efcc98
-
-ecl:grn eyr:2024
-hgt:166cm byr:1961
-pid:221051556
-hcl:#6b5442
-iyr:2028
-
-iyr:2010 cid:156
-byr:2005 hgt:155cm ecl:amb eyr:1988
-hcl:#866857
-pid:169cm
-
-eyr:2038 byr:1991 pid:#9b82ce
-iyr:2027 hcl:z
-cid:278 hgt:59cm ecl:#179d81
-
-ecl:blu hgt:151cm
-iyr:2013
-cid:117 pid:129843687 hcl:#c429e7 byr:1961
-eyr:2022
-
-hcl:#602927 byr:1996 pid:507775673 eyr:2020 hgt:153cm ecl:oth
-cid:251 iyr:2010
-
-hgt:170cm ecl:oth iyr:2010 eyr:2025 hcl:#602927 byr:1983 pid:113809908
-
-hcl:#c0946f pid:172142380
-iyr:2017 byr:1926
-hgt:190cm eyr:2028
-ecl:brn
-
-pid:812443511 hcl:#6b5442 eyr:2021 ecl:amb
-cid:60 iyr:2017 hgt:157cm byr:1926
-
-hgt:177cm
-ecl:gry eyr:2022 hcl:#888785 pid:570572334 byr:1943 iyr:2017
-
-pid:#967cbc hcl:z byr:2020 ecl:oth eyr:2035 iyr:2015
-cid:99 hgt:65cm
-
-iyr:2019 pid:285935311 hcl:#4c1ee4 byr:1954 eyr:2028 hgt:157cm
-
-ecl:xry eyr:1939
-pid:192cm
-hgt:114
-hcl:b97555 byr:2004 iyr:1970
-
-ecl:grn byr:2021 iyr:2030
-hcl:z pid:305489303 hgt:61cm eyr:2020
-
-eyr:2036 hgt:179cm
-pid:#8be5f5 byr:1981
-hcl:#cb5848 iyr:2015
-
-iyr:2011 ecl:oth hgt:176cm cid:344 pid:539941547 hcl:#efcc98
-
-eyr:1987 ecl:amb
-byr:2029 pid:046017350
-cid:182 iyr:2011 hcl:z hgt:191cm
-
-iyr:2019 byr:1948 eyr:2020 ecl:hzl hgt:176cm hcl:#733820 pid:235101182
-
-ecl:hzl
-eyr:2029 pid:262843012 hgt:76in hcl:#efcc98 iyr:2015 byr:1931
-
-iyr:2011 ecl:blu hgt:184cm
-byr:1945
-hcl:#c0946f pid:105042852
-
-iyr:2010
-pid:485638522 hcl:949a37 eyr:2030
-hgt:193cm
-ecl:gry byr:2021
-
-pid:565896801 eyr:2029 hcl:#fffffd ecl:amb iyr:2016 byr:1977
-hgt:170cm
-
-byr:1987
-hcl:#c0946f pid:931311386
-iyr:2010 eyr:2022
-
-eyr:2030
-hgt:177cm hcl:#a97842 byr:1978
-ecl:hzl pid:358177000
-iyr:2014
-
-iyr:2025
-pid:3639383157 cid:82 hcl:f2aec0 hgt:179cm
-eyr:1944 byr:1969
-ecl:#e167d3
-
-hgt:107 ecl:gmt iyr:2030 hcl:#866857 byr:2026 eyr:1990 pid:#87773e
-
-cid:220 hcl:z iyr:1921 hgt:65cm byr:1998 ecl:#34397f eyr:2035
-
-hcl:44e552 pid:#6f341e ecl:#59aeb1
-eyr:1926 hgt:187 iyr:1988
-byr:1991
-
-hcl:z hgt:70cm pid:653386115 iyr:1964 byr:2026 cid:103
-ecl:#b81c45 eyr:2034
-
-hcl:#623a2f cid:307 pid:204266921 hgt:172cm
-iyr:2012
-ecl:hzl
-eyr:2021
-byr:1984
-
-hgt:192cm
-byr:1930 pid:39349843 hcl:#866857 iyr:2013 cid:130 ecl:blu eyr:1962
-
-cid:97 eyr:2036 pid:#279c0b ecl:dne hgt:186in iyr:1973 hcl:691266
-
-byr:2026 hgt:185cm hcl:z ecl:grt pid:#562f7a eyr:1986 iyr:2029
-
-ecl:brn
-hcl:#b6652a eyr:2028
-pid:570023672
-byr:1988 hgt:162cm iyr:2015
-
-hgt:180in ecl:zzz hcl:5b1477 byr:2024
-eyr:2028
-pid:#b03174
-
-pid:157cm eyr:1989 hgt:188cm
-iyr:2015
-hcl:3362a9 ecl:gry byr:2027
-
-pid:111584950
-byr:1941 ecl:grn iyr:2013 hgt:179cm hcl:#866857
-eyr:2024
-
-ecl:#7f4baa
-iyr:2015 hcl:de1367
-eyr:2024 byr:1959
-pid:#cf4e78 hgt:60cm
-
-byr:2024 eyr:1953 pid:21579220
-hgt:179
-cid:94
-hcl:#a97842
-iyr:1977 ecl:xry
-
-hgt:179cm eyr:2020
-ecl:hzl hcl:#efcc98
-pid:905622096 byr:1929
-
-ecl:oth
-byr:2001 eyr:2008 iyr:2020
-hcl:#ceb3a1 pid:244298637 hgt:160cm
-
-eyr:2030
-byr:1972 hcl:#341e13
-ecl:grn iyr:2014 pid:274475554 hgt:71in
-
-byr:1938 hcl:z iyr:1956 pid:153cm hgt:62cm ecl:grt
-eyr:2036
-
-hgt:177cm cid:276 iyr:1921 hcl:19aa96 pid:843799864 eyr:2033
-ecl:#812d68
-
-pid:686496844
-ecl:brn hcl:#733820
-byr:1948 iyr:2010 eyr:2020
-hgt:164cm
-
-pid:39436322 ecl:blu hcl:25b3d4 hgt:185in
-iyr:2019 byr:1959 eyr:2022
-
-pid:119603708 hcl:#866857 byr:1983 hgt:157cm iyr:1978 ecl:hzl eyr:1945
-
-cid:331 hcl:z iyr:2017
-pid:255988517
-byr:2015
-eyr:2020 ecl:amb
-hgt:171
-
-hgt:180cm iyr:2013 ecl:brn
-hcl:#602927 byr:1943
-pid:898265221 eyr:2025
-
-eyr:2024
-hgt:163cm
-pid:892793767 byr:1971 ecl:oth iyr:2013 cid:119 hcl:#02f6b3
-
-byr:1920 cid:221
-pid:#7515a7 hgt:160in
-eyr:1921 iyr:1983 hcl:z
-
-byr:2029 hcl:z hgt:75cm eyr:1975 pid:184cm iyr:1992 ecl:dne
-
-iyr:1990
-hgt:174in eyr:1961 ecl:brn
-hcl:#a3313e byr:2029
-
-hgt:191cm eyr:2026 iyr:2019 ecl:brn
-byr:1930 hcl:#7d3b0c cid:174
-
-ecl:amb iyr:2015 hgt:163cm
-pid:664966673 hcl:#602927 eyr:2026 cid:229 byr:1941
-
-pid:3123244013 eyr:2037 iyr:2022 hcl:103dfa
-hgt:156cm byr:2027 ecl:gmt cid:195
-
-cid:151 ecl:blu pid:693382940
-iyr:2011 byr:1954
-hgt:170cm eyr:2030 hcl:#866857
-
-hcl:#341e13 eyr:2023 byr:1948 iyr:2010 pid:607929427
-ecl:oth hgt:160cm
-
-hcl:#c0946f
-ecl:brn
-hgt:189cm
-cid:116 iyr:2013 pid:277606931
-byr:1975
-
-eyr:2027
-cid:206 ecl:gry iyr:2010 hcl:#866857 byr:1997 hgt:190cm pid:687577894
-
-eyr:2029 iyr:2015 pid:681485527
-byr:1925 hgt:152cm
-ecl:amb hcl:#341e13
-
-eyr:2030
-hcl:#c396d9
-hgt:159cm pid:686268817
-ecl:brn byr:1983
-iyr:2017
-
-eyr:2038 byr:2012
-cid:303
-iyr:1941 hcl:z ecl:utc pid:203595168
-hgt:71cm
-
-pid:863355278 hcl:#888785
-iyr:2018
-byr:1953 eyr:2022 hgt:167cm
-ecl:amb
-
-pid:141244310 eyr:2025 hcl:#733820 ecl:amb hgt:154cm cid:61 iyr:2017
-byr:1929
-
-pid:361065637
-hcl:#623a2f byr:1964 iyr:2015 eyr:2027 ecl:gry hgt:67in
-
-cid:117 ecl:brn iyr:2025 byr:1982
-hcl:#ceb3a1 hgt:185cm
-pid:34652522
-
-cid:275 ecl:#7a4722 eyr:2001 byr:2018 iyr:1995
-hgt:105
-pid:95250112 hcl:z
-
-iyr:2017 ecl:amb hgt:152cm hcl:#733820 cid:57 eyr:2020 pid:701621326
-byr:1944
-
-hcl:#18171d
-ecl:brn iyr:2015 hgt:175cm eyr:2028 pid:311636591 cid:113
-byr:1979
-
-ecl:grn
-hgt:185cm
-pid:920998407 iyr:2016 byr:1930 eyr:2029 hcl:#7d3b0c
-
-iyr:2021 eyr:1931
-hcl:z byr:2010
-hgt:177in
-pid:#cfb659 ecl:zzz
-
-cid:171 hcl:#888785 iyr:2010 byr:1970 ecl:hzl
-pid:141430645 hgt:160cm
-eyr:2026
-
-hgt:172cm ecl:gry
-pid:428207256 cid:237 hcl:#733820 iyr:2012
-eyr:2027 byr:1951
-
-hgt:70cm cid:76 ecl:#c544c3 byr:2019
-pid:6133497812
-hcl:#efcc98
-eyr:2037 iyr:2015
-
-hgt:176in pid:582383714 byr:1980 ecl:amb hcl:08097e iyr:2020 eyr:2021
-
-ecl:oth
-eyr:2024
-hgt:176cm byr:1923
-iyr:2014 pid:737058734
-hcl:#b6652a cid:203
-
-ecl:amb
-eyr:2029
-hgt:186cm
-pid:440986981 iyr:2010 hcl:#cfa07d
-byr:1967
-
-pid:8729818647 hcl:z
-ecl:#ae70eb cid:168 hgt:161cm iyr:2030
-eyr:2020 byr:2022
-
-hcl:#43a092 hgt:165cm byr:1961
-pid:026098019
-iyr:2019 eyr:2020 ecl:amb
-
-cid:154 hgt:192cm
-eyr:2016 iyr:2030
-ecl:brn pid:#8e0762 byr:2020
-
-hgt:175cm ecl:brn byr:1944
-pid:553456151 iyr:2016 eyr:2027 hcl:#085f41
-
-ecl:gry
-byr:1975 eyr:2025 cid:122 pid:111078821
-hcl:#b6652a iyr:2015
-hgt:151cm
-
-hgt:159cm pid:946458516 eyr:2020 hcl:#a97842 byr:1972
-iyr:2016 cid:88 ecl:oth
-
-eyr:2023
-cid:156
-byr:1999
-hgt:186cm hcl:#fffffd pid:499141155
-ecl:grn
-
-hcl:#888785 hgt:165cm pid:864544116
-ecl:gry byr:1937
-iyr:2020 eyr:2026
-
-hgt:155cm
-iyr:2018 ecl:blu
-hcl:#a97842
-byr:1994 eyr:2024
-
-eyr:2021 iyr:2019 hgt:175cm cid:127 byr:1982 hcl:#888785 ecl:amb
-
-eyr:2022 iyr:2011 ecl:blu
-pid:202081532 hcl:z hgt:177in byr:1923
-
-iyr:2017 cid:213 hcl:#fffffd
-ecl:hzl
-hgt:193cm pid:564823661 byr:1966 eyr:2030
-
-hcl:#623a2f iyr:2014 hgt:177cm byr:1950 ecl:amb
-cid:290 eyr:2025 pid:669369557
-
-hgt:67cm
-eyr:2028 ecl:brn
-hcl:411b18 pid:222472243
-
-byr:1981 ecl:gry hcl:#b6652a eyr:2033 iyr:1943 pid:832989613 hgt:167cm
-
-byr:1970
-cid:172 hcl:#64fbcb eyr:2007
-ecl:hzl pid:982450142
-hgt:61cm iyr:2019
-
-eyr:2025
-hgt:161cm iyr:1962
-pid:394421140
-ecl:gry
-cid:209 hcl:#efcc98 byr:2001"""
-#+end_src
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorse
-:PROPERTIES:
-:CUSTOM_ID: The-workhorse
-:END:
-
-Another string parsing problem. This time, we take the whole input
-as a single string, and break off lines as we work
-(always at double line breaks.)
-
-The ~String~ method ~indexOf~ lets us find double line breaks,
-and then ~splitAt~ lets us break the string there.
-I use a tail recursive helper method to build up the result.
-
-I believe we do need to be a little careful
-in case there is extra whitespace between some entries;
-regular uses of the ~trim~ method on the remaining entries
-helps avoid any issues.
-(In the worst case, I believe we would include newlines in an entry
-or have a “phantom” entry which was only newlines.)
-
-To be nice and general, we don't just count the number
-of valid entries;
-instead, we return a ~Vector~ of the entries,
-each tagged as ~Either~ a ~Right~ (correct) string,
-or a ~Left~ (incorrect) string.
-When we make use of this method, we can just count
-the number of ~Right~'s.
-#+name: validateParagraphs
-#+begin_src amm
-def validateParagraphs(text: String,
-                       validator: String => Boolean):
-    Vector[Either[String,String]] = {
-
-  def validateParagraphsHelper(text: String,
-                               results: Vector[Either[String,String]]):
-      Vector[Either[String,String]] = {
-    
-    // Break off the portion up to the next double empty string.
-    val parbreak = text.indexOf("\n\n")
-    val (prepar, prerest) = text.splitAt(parbreak)
-    // Then trim whitespace on the ends of the paragraph and the rest.
-    val (par, rest) = (prepar.trim, prerest.trim)
-    if (par.nonEmpty) {
-      val par_validated = if (validator(par)) Right(par) else Left(par)
-      validateParagraphsHelper(rest, results :+ par_validated)
-    } else {
-      // Finally, check what's left over.
-      val rest_validated = if (validator(rest)) Right(rest) else Left(rest)
-      results :+ rest_validated
-    }
-  }
-
-  // Trim whitespace from the ends of the text before we begin.
-  validateParagraphsHelper(text.trim, Vector())
-}
-#+end_src
-
-#+name: passport-validator
-#+begin_src amm
-def validator(paragraph: String): Boolean = {
-  val fields = List("byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:")
-  fields forall {paragraph contains _}
-}
-#+end_src
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-We now just count the number of ~Right~ elements we get back
-from the paragraph validator.
-#+name: validateParagraphs
-#+begin_src amm :noweb yes
-<<day4-input-scala>>
-<<validateParagraphs>>
-<<passport-validator>>
-
-validateParagraphs(input,validator).count(_.isRight)
-#+end_src
-
-** Part 2
-:PROPERTIES:
-:CUSTOM_ID: Part-2
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-The line is moving more quickly now, but you overhear
-airport security talking about how passports
-with invalid data are getting through.
-Better add some data validation, quick!
-
-You can continue to ignore the cid field, but
-each other field has strict rules about
-what values are valid for automatic validation:
-
-- ~byr~ (Birth Year) - four digits; at least ~1920~ and at most ~2002~.
-- ~iyr~ (Issue Year) - four digits; at least ~2010~ and at most ~2020~.
-- ~eyr~ (Expiration Year) - four digits; at least ~2020~ and at most ~2030~.
-- ~hgt~ (Height) - a number followed by either ~cm~ or ~in~:
-  - If ~cm~, the number must be at least ~150~ and at most ~193~.
-  - If ~in~, the number must be at least ~59~ and at most ~76~.
-- ~hcl~ (Hair Color) - a ~#~ followed by exactly six characters ~0-9~ or ~a-f~.
-- ~ecl~ (Eye Color) - exactly one of: ~amb~ ~blu~ ~brn~ ~gry~ ~grn~ ~hzl~ ~oth~.
-- ~pid~ (Passport ID) - a nine-digit number, including leading zeroes.
-- ~cid~ (Country ID) - ignored, missing or not.
-Your job is to count the passports where all required fields
-are both present and valid according to the above rules.
-Here are some example values:
-#+begin_src text
-byr valid:   2002
-byr invalid: 2003
-
-hgt valid:   60in
-hgt valid:   190cm
-hgt invalid: 190in
-hgt invalid: 190
-
-hcl valid:   #123abc
-hcl invalid: #123abz
-hcl invalid: 123abc
-
-ecl valid:   brn
-ecl invalid: wat
-
-pid valid:   000000001
-pid invalid: 0123456789
-#+end_src
-Here are some invalid passports:
-#+begin_src text
-eyr:1972 cid:100
-hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
-
-iyr:2019
-hcl:#602927 eyr:1967 hgt:170cm
-ecl:grn pid:012533040 byr:1946
-
-hcl:dab227 iyr:2012
-ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
-
-hgt:59cm ecl:zzz
-eyr:2038 hcl:74454a iyr:2023
-pid:3556412378 byr:2007
-#+end_src
-Here are some valid passports:
-#+begin_src text
-pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
-hcl:#623a2f
-
-eyr:2029 ecl:blu cid:129 byr:1989
-iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm
-
-hcl:#888785
-hgt:164cm byr:2001 iyr:2015 cid:88
-pid:545766238 ecl:hzl
-eyr:2022
-
-iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
-#+end_src
-
-Count the number of valid passports - those that have
-all required fields and valid values.
-Continue to treat cid as optional.
-In your batch file, how many passports are valid?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-Is the same as previously.
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
-
-The ~validateParagraphs~ method from earlier still fits this problem.
-But we now require a much more involved ~validator~ method
-to give to it; specifically, we have a lot of regular expression
-matching to do to extract fields and check them.
-#+name: passport-validator-improved
-#+begin_src amm
-import scala.util.matching._
-
-def validator(paragraph: String): Boolean = {
-  // Many of the fields we need to validate are numbers
-  // needing to fall within a certain range.
-  // This helper handles the extraction of the match and the range check.
-  def numValidator(pattern: Regex, group: Int, low: Int, high: Int) = {
-    val the_match = pattern.unanchored.findFirstMatchIn(paragraph)
-    the_match match {
-      case Some(m) => val n = m.group(group).toInt; low <= n && n <= high
-      case None => false
-    }
-  }
-
-  // Fields which require numerical validation.
-  val has_birth_year = numValidator("""(^|\s)byr:(\d\d\d\d)($|\s)""".r, 2, 1920, 2002)
-  val has_issue_year = numValidator("""(^|\s)iyr:(\d\d\d\d)($|\s)""".r, 2, 2010, 2020)
-  val has_expir_year = numValidator("""(^|\s)eyr:(\d\d\d\d)($|\s)""".r, 2, 2020, 2030)
-  // (Note: only one of these heights be present.)
-  val has_height_in = numValidator("""(^|\s)hgt:(\d\d)in($|\s)""".r, 2, 59, 76)
-  val has_height_cm = numValidator("""(^|\s)hgt:(\d\d\d)cm($|\s)""".r, 2, 150, 193)
-  
-  // Fields which do not require additional validation.
-  val has_hair_colour = """(^|\s)hcl:#[0-9a-f]{6}($|\s)""".r.unanchored.matches(paragraph)
-  val has_eye_colour = """(^|\s)ecl:(amb|blu|brn|gry|grn|hzl|oth)($|\s)""".r.unanchored.matches(paragraph)
-  val has_passport_id = """(^|\s)pid:\d{9}($|\s)""".r.unanchored.matches(paragraph)
-
-  (has_birth_year && has_issue_year && has_expir_year
-    && (has_height_in || has_height_cm)
-    && has_hair_colour && has_eye_colour && has_passport_id)
-}
-#+end_src
-
-I got stuck for a short while with too many passports being validated
-(exactly one too many, it turned out).
-I suspect the problem was one “passport ID” field had too many digits;
-I had forgotten to require whitespace or the end of the string
-after the 9 required digits. That is why all these expressions
-now check for the beginning of the string or whitespace beforehand,
-and the end of the string or whitespace afterwards.
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-The answer is easily calculated once the validator is correct.
-#+name: validateParagraphs
-#+begin_src amm :noweb yes
-<<day4-input-scala>>
-<<validateParagraphs>>
-<<passport-validator-improved>>
-
-validateParagraphs(input,validator).count(_.isRight)
-#+end_src
-
-* Day  5 – Binary Boarding
-:PROPERTIES:
-:CUSTOM_ID: Day--5-–-Binary-Boarding
-:END:
-
-** Part 1
-:PROPERTIES:
-:CUSTOM_ID: Part-1
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-You board your plane only to discover a new problem:
-you dropped your boarding pass! You aren't sure which seat is yours,
-and all of the flight attendants are busy with the flood of people
-that suddenly made it through passport control.
-
-You write a quick program to use your phone's camera to scan
-all of the nearby boarding passes (your puzzle input);
-perhaps you can find your seat through process of elimination.
-
-Instead of zones or groups, this airline uses
-binary space partitioning to seat people.
-A seat might be specified like ~FBFBBFFRLR~,
-where ~F~ means "front", ~B~ means "back", ~L~ means "left",
-and ~R~ means "right".
-
-The first 7 characters will either be ~F~ or ~B~; these specify
-exactly one of the 128 rows on the plane (numbered ~0~ through ~127~).
-Each letter tells you which half of a region the given seat is in.
-Start with the whole list of rows; the first letter indicates
-whether the seat is in the front (~0~ through ~63~)
-or the back (~64~ through ~127~). The next letter indicates
-which half of that region the seat is in,
-and so on until you're left with exactly one row.
-
-For example, consider just the first seven characters of ~FBFBBFFRLR~:
-- Start by considering the whole range, rows ~0~ through ~127~.
-- ~F~ means to take the lower half, keeping rows ~0~ through ~63~.
-- ~B~ means to take the upper half, keeping rows ~32~ through ~63~.
-- ~F~ means to take the lower half, keeping rows ~32~ through ~47~.
-- ~B~ means to take the upper half, keeping rows ~40~ through ~47~.
-- ~B~ keeps rows ~44~ through ~47~.
-- ~F~ keeps rows ~44~ through ~45~.
-- The final ~F~ keeps the lower of the two, row ~44~.
-The last three characters will be either ~L~ or ~R~;
-these specify exactly one of the 8 columns of seats on the plane
-(numbered ~0~ through ~7~). The same process as above proceeds again,
-this time with only three steps. ~L~ means to keep the lower half,
-while ~R~ means to keep the upper half.
-
-For example, consider just the last 3 characters of ~FBFBBFFRLR~:
-- Start by considering the whole range, columns ~0~ through ~7~.
-- ~R~ means to take the upper half, keeping columns ~4~ through ~7~.
-- ~L~ means to take the lower half, keeping columns ~4~ through ~5~.
-- The final ~R~ keeps the upper of the two, column ~5~.
-So, decoding ~FBFBBFFRLR~ reveals that it is the seat at row ~44~,
-column ~5~.
-
-Every seat also has a unique seat ID: multiply the row by 8,
-then add the column. In this example,
-the seat has ID ~44 * 8 + 5 = 357~.
-
-Here are some other boarding passes:
-
-~BFFFBBFRRR~: row ~70~, column ~7~, seat ID ~567~.
-~FFFBBBFRRR~: row ~14~, column ~7~, seat ID ~119~.
-~BBFFBBFRLL~: row ~102~, column ~4~, seat ID ~820~.
-As a sanity check, look through your list of boarding passes.
-What is the highest seat ID on a boarding pass?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-**** Raw
-:PROPERTIES:
-:CUSTOM_ID: Raw
-:END:
-
-#+begin_src text
+#+begin_src text :tangle ./input/advent-of-code-2020/day5.txt
 FBBFFBBLLL
 FFBFFFBRLL
 FFBBBBFRRL
@@ -7362,1243 +5205,6 @@ FBFBBFFLRR
 FBFFBBFRRL
 BBFBFFBRLL
 #+end_src
-
-**** As a list of Scala strings
-:PROPERTIES:
-:CUSTOM_ID: As-a-list-of-Scala-strings
-:END:
-
-#+name: day5-input-scala
-#+begin_src amm
-val input = List(
-  "FBBFFBBLLL",
-  "FFBFFFBRLL",
-  "FFBBBBFRRL",
-  "FBFBBBBRLL",
-  "BFBBBBFLLR",
-  "FFFBBBBLRR",
-  "BFFFFFBLLL",
-  "BBFFFBFRRL",
-  "FFBFFFFLLR",
-  "BFFFBBBRRL",
-  "FBFBFFFLRL",
-  "FFFBBFBLRR",
-  "FBFBFBFLRR",
-  "FBBBBFBRRL",
-  "BFFBFFBRRR",
-  "FBBBFBBRLL",
-  "FBFFBFBRLR",
-  "BBFBFFFLRL",
-  "FFBFFFFRLR",
-  "FFBBFBFRRR",
-  "BFBBBFBLRR",
-  "FFBBFFFLRL",
-  "FBBBBFFRLR",
-  "FBBBBBBRLR",
-  "FFBFBFBLLL",
-  "BBFBFBBLLL",
-  "FFFFFBBRRL",
-  "FBFFBFBRRR",
-  "FFFBFFFRLL",
-  "BFBFBFFLLL",
-  "BFBFFBFLLL",
-  "FFFFBFFRRL",
-  "FBFFFFFRLR",
-  "FBBFFBBLLR",
-  "BFFFFFBLRL",
-  "BFBFFFBLLR",
-  "FBBBBBBLLL",
-  "BBFBFBFLLL",
-  "FFBFFBFLRR",
-  "BBFFFBBRLL",
-  "FFBFFFFLLL",
-  "FBBFFBFLLL",
-  "FFFBBBFRRR",
-  "BFBBFBFRLL",
-  "FBBFBFFRRL",
-  "FBFBBFBLRR",
-  "FFBBBBBRLR",
-  "FFBFBFFLLL",
-  "FBFFFBFRRL",
-  "BFFBBFFRLL",
-  "BFFBBFFLLR",
-  "BBFFBFFRRL",
-  "FBFBFBFLLR",
-  "BBFFBFBLRL",
-  "BFBFBFBLRR",
-  "FFBBFBBRRL",
-  "BFBBBFBRLR",
-  "FBFFFFBLLR",
-  "BFBFFBBLRR",
-  "BBFBFBFRRR",
-  "FFBFBBBRRL",
-  "BFBFBBFRLR",
-  "FBFBBBBRLR",
-  "BFFFFBBRRR",
-  "BBFFFBFLLR",
-  "FBFFFFBRRL",
-  "BBFFBFBLLL",
-  "BFFFBBBLLL",
-  "FFBFFFBLRR",
-  "BFBFBBBRRR",
-  "FBFFBFFRRR",
-  "BFFBFFBLLL",
-  "BFBBFFFLRL",
-  "BBFBFFBRLR",
-  "FBBFFFFLLL",
-  "FBFFFFBLLL",
-  "BBFFFFBRLR",
-  "BBFBFFBRRL",
-  "FBBFBFBRRR",
-  "FBFFBFFLRR",
-  "FFBBBFBLLR",
-  "FFFFFBFRRR",
-  "BFBBBBBLLR",
-  "BBFBFFFRLL",
-  "BFFBFBBLRR",
-  "BFFBBFBRLL",
-  "FBFFBFFRLR",
-  "FBFBBFFLLR",
-  "FFFFFBFRRL",
-  "FFBFFBFRLR",
-  "FBFBBBFLLL",
-  "FFBFBBFLLR",
-  "FBFFBBBRLR",
-  "FFFBFBFLLR",
-  "BFBBFBBLRL",
-  "BFFFFBFLLL",
-  "BFBFFBFLRL",
-  "BBFFBFBLLR",
-  "BFFFBFBRRL",
-  "BBFBFFBLLR",
-  "FFBBFFFRLL",
-  "FFFFFBBRLR",
-  "FFBFBFBRLL",
-  "FBBBBFBLRR",
-  "FFFBFFFRRL",
-  "FFFFBFFLRL",
-  "FFFFBFFRLR",
-  "BFFFFFFRRR",
-  "BBFFBFBRRL",
-  "BBFBFFFLRR",
-  "FFBBBFFLLR",
-  "FBFBFBBRLR",
-  "FBBFBBBLRR",
-  "BFFBBBFRLL",
-  "BFBBFBBLLL",
-  "FBFFFBBLLR",
-  "FBBBBFFRRL",
-  "BFBBFFFLLR",
-  "BFBBBFFLRL",
-  "FFBFFBBRLL",
-  "FBFBFFBRRR",
-  "FBBFBBBLRL",
-  "BFFFBFFLRL",
-  "BFFBFFBLRR",
-  "BFBFBBFLRL",
-  "FBFBBFFRLL",
-  "BFFFFBBRRL",
-  "FFBBBBBLRL",
-  "FBBFFBFRRL",
-  "BBFFBFBRLL",
-  "FBFFFFFLRL",
-  "FFFBFBFRLR",
-  "FFBBBBFLLR",
-  "FFFBBBFRLR",
-  "FFBBFFBRRR",
-  "FFFBFFBLRL",
-  "FBFBFBBLLL",
-  "BFFFFBBLRR",
-  "BBFFBBFLLR",
-  "FFFFFFBRLL",
-  "FBBBBBBLRR",
-  "FFFFBFBLLR",
-  "BBFFBBFRRL",
-  "BFBBBBBLRR",
-  "BFBBFBBLRR",
-  "BBFFFFBRRR",
-  "BFBBBFBLLR",
-  "BBFFBBBRRR",
-  "FBBFBFBRLL",
-  "FFFFFBBLRR",
-  "BBFBFBBLLR",
-  "FBFFFBFRLR",
-  "BBFFBFFLLR",
-  "BBFBFFFRLR",
-  "FFFFBFBLRL",
-  "FFBBBBBLRR",
-  "FBBBFFBLRR",
-  "FBBFBBFRLL",
-  "FBBFBFBRLR",
-  "FFBFBBBLRL",
-  "FBFFBBBLLL",
-  "FFFBBBBRRR",
-  "FFBFFBFLRL",
-  "BFFFBBFRLL",
-  "BFFFFBBLLR",
-  "BFFFFFBRRL",
-  "BFFBFBBRRL",
-  "FFBFFFBRRL",
-  "BFFBFFFLRL",
-  "BFFBBBFLLL",
-  "FFBBFFFLRR",
-  "FBBBFFBRLL",
-  "FFBBFFFRLR",
-  "BFBFBFFRLL",
-  "FFFFBBFRRR",
-  "BFBFBBFRRL",
-  "FBFBBBFLRL",
-  "FFFBFBBRLL",
-  "FFBBBFFLLL",
-  "BBFFFBBLRL",
-  "FBBBFFBRRR",
-  "BFBFBFBLLL",
-  "FFBFFBBRLR",
-  "FFBFBBBRLR",
-  "FFFFFFBRLR",
-  "BFFBBFFLRL",
-  "FFBFFBFRRR",
-  "FFBFBFFRLL",
-  "FBFBFFBLLR",
-  "FBFBFBBRRR",
-  "FFFBBFBRRR",
-  "FBBBBFBLLR",
-  "FFFFBFBRLR",
-  "FFFBBBFRLL",
-  "FBFFBFBLLL",
-  "FBFBFFFLRR",
-  "FFFBBFFLLL",
-  "BFBFFFFLLL",
-  "BBFFFBFLLL",
-  "FFFFBFBRRL",
-  "FFBBBFBRRL",
-  "BFBFFBBRLR",
-  "FFFBBFFLRL",
-  "FFFBFBBLLR",
-  "FFBBBFFRLR",
-  "FBBBBFBLRL",
-  "BFFFBBFLLL",
-  "BFFBFBFLLR",
-  "FBFFBBFLRR",
-  "BFFBBBBLLR",
-  "FBBBFFFRRR",
-  "FBFFBFBLRL",
-  "BFFFFFFRLR",
-  "FBBBBFBRRR",
-  "FFBBBBFLRL",
-  "BBFBFFBLRL",
-  "BFBFBBBLRR",
-  "FFFFFBFLLR",
-  "FBBFFBFLLR",
-  "BFFFFBBRLL",
-  "FFBFBBBLRR",
-  "FFFFBFFLLR",
-  "BBFFFFFRLR",
-  "FBBBBFFRLL",
-  "BFFFBFBLRR",
-  "FBFBBBBLLR",
-  "BFFBFFBRLL",
-  "BFBFBFFLRR",
-  "BFFFFBFLRR",
-  "FBBFFBFLRR",
-  "BFFBBFBLLR",
-  "FBBFFFBLRL",
-  "FBFBFBBRRL",
-  "FBFFBFFRRL",
-  "BFBBFBFLLR",
-  "FFFFBFFLRR",
-  "BFBFFFBLRL",
-  "BFFBBBBRRR",
-  "FFFFBBBLRR",
-  "FFFBBFBLLL",
-  "FFBBFBFLLR",
-  "BFBBFBFLLL",
-  "FBBFBFFLLR",
-  "FFFBBFFRRR",
-  "FFBBBBBRRR",
-  "FFFBFFFRLR",
-  "BFFBFBFLRR",
-  "FBFFBFBRLL",
-  "FFFFBFFLLL",
-  "FFBBBFFRLL",
-  "FBFBFFBLLL",
-  "FBFBBBFLLR",
-  "BFBBBFFRLL",
-  "BFBBBBBRRL",
-  "FFFFFFBRRL",
-  "FBBFBBFLRL",
-  "BFFBFBBRLL",
-  "FFFFFBFLRL",
-  "BFBFFFBLRR",
-  "BBFFFBFLRR",
-  "BFBFBBBLRL",
-  "FBFFFFBRLR",
-  "BFBFBBBLLL",
-  "BFFFFFFRRL",
-  "FBBFFFBRRR",
-  "FBBFBFFLRL",
-  "BBFFFFFLRL",
-  "BFFFFBBLRL",
-  "FBFBBFFRRR",
-  "FBBFFFFLRR",
-  "FFFBFFFLRR",
-  "FBFBBFFRRL",
-  "BFFBFFBRRL",
-  "BFFBFBFRRL",
-  "FFBBFBBLLR",
-  "FBFFBFFRLL",
-  "BFBFFBBLLL",
-  "FFBBFFBLLL",
-  "BBFFFBBRRL",
-  "BFFFFFFLLL",
-  "FFBBBBFRLL",
-  "BFBBBBFRRR",
-  "BFFBBBBRLR",
-  "FBFFBBFRLL",
-  "BBFBFFBLRR",
-  "FBFFBBBLRR",
-  "BBFBFFFRRL",
-  "BFBFFFFLRR",
-  "BFBFFBBRRR",
-  "FBBFFFBLLL",
-  "BFFBBBFRLR",
-  "BFFFFBFRLL",
-  "FBFBBBBRRL",
-  "BBFFBBFLRL",
-  "FBBBBFFLLR",
-  "BFBBFFBRRR",
-  "FBBFFBBLRR",
-  "FBBBBBBRRL",
-  "BBFFFBBLLR",
-  "BFBBBBFLRL",
-  "BFFBFFFRLR",
-  "FFFFBFBRRR",
-  "FFFFBFBRLL",
-  "BFFFFFFRLL",
-  "BFFFBBBRLL",
-  "FFFFFBBLLL",
-  "FBFFFBFLRR",
-  "FBFBFBFLLL",
-  "BFBBFFBRLL",
-  "BFFFBBFRLR",
-  "BFBBFFFRLL",
-  "FFFBBFBLRL",
-  "BBFFFFFLRR",
-  "BBFFFBFRLR",
-  "BFBBBBFLRR",
-  "FBFFFBBLLL",
-  "BBFFBFBRRR",
-  "FBFBFBBLRR",
-  "FBBFBFFRLR",
-  "FBFBBBBLLL",
-  "FFFBBFBLLR",
-  "FFFFBBBRRL",
-  "FFBBBBFRLR",
-  "FFFBFFBRRL",
-  "BFBBFBBLLR",
-  "FFBFFFFLRL",
-  "BFFBFBFRLR",
-  "FFBBFBBLLL",
-  "BFFBBBFLRL",
-  "FFFFFBFRLL",
-  "BFFBFFBRLR",
-  "BFFFBFFRRL",
-  "BFBFBBBRLL",
-  "BFFFFFBLRR",
-  "FBBFFBBRLL",
-  "FFFFBBBLRL",
-  "BBFFFFBLRR",
-  "BFBFBBBLLR",
-  "BFFFBFFRLR",
-  "BFBBFBFRRR",
-  "BFFBBBFLRR",
-  "FFBFBBFRRR",
-  "FBBBFBFRLR",
-  "BFBFFBBRLL",
-  "BBFFBFFRLL",
-  "BFFFBFBLLR",
-  "FBFBBFFLRL",
-  "BFFFFBBLLL",
-  "BFBBFBBRRL",
-  "BFFFBFFLLL",
-  "BFBBBFBLLL",
-  "FFBBFBFLRR",
-  "FFBBFBFRLR",
-  "BFBBBFFRRR",
-  "BBFBFFFLLL",
-  "BFFFFFBRLL",
-  "FBBFBBFRRR",
-  "BFFFBBFLRR",
-  "BFFBBBFRRL",
-  "FFBFFFFRRL",
-  "FBFFBFBLRR",
-  "FFBFBFBRLR",
-  "BBFFBFFLRR",
-  "BFFBBFFLLL",
-  "FFBBBFBRRR",
-  "BBFFBFFRRR",
-  "FBBFFFFRRR",
-  "FBBBBFFLRR",
-  "FBBFBBBRRR",
-  "FFBFBFBLRL",
-  "FBBFFFBLRR",
-  "FBFFBFFLRL",
-  "BFBBFFFRRR",
-  "FBFBBBFRLR",
-  "BFFFFFBRRR",
-  "FBFBFFFRRR",
-  "BBFFFBFLRL",
-  "FFBFBFBLLR",
-  "FBFFFBBRRL",
-  "FBBBFFBLLL",
-  "BFBFBFFRRR",
-  "FBFFBBBRLL",
-  "FFBFFBBLLR",
-  "FFBBFBBRLL",
-  "BFBFBBFRLL",
-  "BFBBFFBLLL",
-  "BFFBBBFRRR",
-  "BFBFBFBRRL",
-  "BFFFFFFLLR",
-  "BFFFBBBRRR",
-  "FBBBFBFRRR",
-  "FFFBFFBRLL",
-  "BFFFFBFLRL",
-  "FBFBBFFRLR",
-  "FBBBBBFLRL",
-  "FFFBBBFRRL",
-  "BFBFFFFLLR",
-  "FBFFFBBLRR",
-  "FBBFBBBRRL",
-  "FFFBBBFLRR",
-  "BFBFFBFRRL",
-  "BFFFBBFRRL",
-  "FBBBFFBLLR",
-  "FFBBFBBLRL",
-  "BBFBFBFRLR",
-  "FFBFFBFLLL",
-  "FFFFBFBLLL",
-  "BBFFFFBRLL",
-  "FBFFFBBRLR",
-  "FFBBBFFRRR",
-  "FFFBFFFRRR",
-  "FFBFBBBLLR",
-  "FFBFFFBRLR",
-  "FFBBBFBLRR",
-  "BFFBBBBLRL",
-  "BFFFFBFRRR",
-  "BBFBFBFRLL",
-  "FBFBBBFLRR",
-  "FFFFFBFLLL",
-  "BFBBBFFLLR",
-  "BFFBFBFRRR",
-  "BFBBFFBLRR",
-  "BBFFFBBRLR",
-  "FBBBBBBLRL",
-  "BFFBBBBRRL",
-  "FFBFBFFRLR",
-  "BFFFFFBLLR",
-  "BBFFFFBRRL",
-  "FFFBBFFLRR",
-  "BFFFFBFRRL",
-  "BBFFBFFLRL",
-  "BBFBFBFLRR",
-  "FBFBBBBLRR",
-  "BFFBBFBRRR",
-  "FFFBBBBRLL",
-  "FBFBBBFRRL",
-  "FFFFFFBRRR",
-  "BFFFFFFLRL",
-  "FFBBFFFLLR",
-  "FBBFBFBLLL",
-  "FBBFBBFRLR",
-  "BFFBFFBLLR",
-  "FBFBBFBRLL",
-  "FBFBFBFLRL",
-  "FFBFFFBLLR",
-  "FBBFFBBLRL",
-  "FFFBBBBLLR",
-  "BFFBBBBLRR",
-  "BFFBFBBLLR",
-  "FFBBFFBRLR",
-  "FBBBBFFLLL",
-  "BFFFFFBRLR",
-  "BFBBBBFRLL",
-  "FFFBBFFRLR",
-  "BFFFBFBLLL",
-  "BBFFFFFRRL",
-  "FBFFFFBRLL",
-  "BFBFBFBLRL",
-  "FBBFBBFLRR",
-  "FFBFBBFLRR",
-  "FFBFBFFLRR",
-  "FFBFFFFRLL",
-  "BFBFBFBRRR",
-  "FBBBBFFLRL",
-  "FFBFFFBLLL",
-  "BFBBBFFRLR",
-  "FBFBFFBRLL",
-  "FBBBBBFRRL",
-  "FBFFBFFLLL",
-  "BBFFBBBLLR",
-  "BFFFBFFRRR",
-  "BBFFBBBRLL",
-  "BBFFFBBLRR",
-  "FBBFBBBRLR",
-  "BFBFBBFRRR",
-  "FBFFBBFLRL",
-  "FFFFBBFLRR",
-  "BFFFBFBRLL",
-  "BBFFFFFRLL",
-  "FFFBFBFRRR",
-  "BFBBBBFLLL",
-  "FFBBBFBRLR",
-  "FFFFBBBRRR",
-  "BFBFFBFRLR",
-  "FBFFBBFLLL",
-  "FFBFFBBLRR",
-  "FBFBFFBLRR",
-  "FFBFFBBRRL",
-  "FFFBBBBRRL",
-  "BFFBFBBLRL",
-  "BBFFBBBLRR",
-  "FFFBBFBRLL",
-  "FFFBFBBLRL",
-  "BFBFFFBRRL",
-  "FBBFFFFLLR",
-  "BBFBFFBLLL",
-  "BFBFBBFLLR",
-  "BFFBFBBRRR",
-  "FBFFFFFLLR",
-  "FFBBBFFLRL",
-  "FBFFBBFRLR",
-  "BFFFBFBLRL",
-  "FBFBBBFRRR",
-  "FFBFFBFRRL",
-  "FBFBBFBRLR",
-  "BFBFBFFRLR",
-  "FBFFBBBRRR",
-  "BBFBFFFLLR",
-  "FBBFBBBLLL",
-  "FFBBBFBLLL",
-  "FFBFFFFRRR",
-  "BFFBFBFLLL",
-  "BFFBBBFLLR",
-  "FBBBBBBRLL",
-  "FBBFFBFRLL",
-  "FFFBFFBLLR",
-  "FFBBFFBLRL",
-  "BFBBFBFLRR",
-  "BFBFFFBLLL",
-  "FBFFFBBRRR",
-  "FFBFBFFLLR",
-  "FBFFBBBRRL",
-  "FBBBBFBLLL",
-  "FFFFFBBLLR",
-  "FBBFBFBLRL",
-  "BFBBFBBRLL",
-  "FFFFBFBLRR",
-  "BBFFBBFLLL",
-  "FBBBFBFRLL",
-  "FBFBBFBLLL",
-  "BBFBFBFLLR",
-  "BFBFBFBRLR",
-  "FFFFFBFRLR",
-  "FFFFFBBRLL",
-  "FBFBFBFRRR",
-  "FBBBFBFLRL",
-  "BBFFBBBLRL",
-  "FFBBBBBRLL",
-  "FBBBFBBRRR",
-  "BFFFBBBLLR",
-  "BFBBBBBRLL",
-  "FFFFFBBLRL",
-  "BBFFBFFRLR",
-  "BFBFBFBRLL",
-  "FFFFBBFLLL",
-  "BFBFBFFRRL",
-  "FFBBFFBLLR",
-  "BFBBFFFLLL",
-  "BFBBFFBRLR",
-  "FBFBFFBRLR",
-  "FBFFFBFRLL",
-  "FBBFBFFLRR",
-  "FBBFFBFRRR",
-  "BFBFFFFRLL",
-  "BFFFBBBLRL",
-  "FBFBBBBRRR",
-  "BBFFBBFLRR",
-  "FBBBBFBRLL",
-  "BBFFBBBRRL",
-  "BFBBBFFLLL",
-  "FBFFFFBLRL",
-  "FBFFFFFRRL",
-  "BFBBBFFLRR",
-  "FBBFBFBLRR",
-  "FBFBFBBLRL",
-  "FFBFBFFRRL",
-  "BFFBBFBRLR",
-  "FFBFFBBLLL",
-  "FBBBFBBLLL",
-  "FBBBFBBRRL",
-  "FBBBFBBLLR",
-  "FBFFFBFLLL",
-  "FBBBFFBRLR",
-  "FBBFBBBRLL",
-  "FBBFFFBLLR",
-  "FFFBFBBRRR",
-  "FBBFFFFLRL",
-  "BFFFFBFRLR",
-  "FBBBFFFLLL",
-  "FFBBFBFLLL",
-  "BBFFFFFRRR",
-  "BBFFFBFRRR",
-  "FFBFFBBLRL",
-  "FBBBFFBLRL",
-  "FFBBFBFRRL",
-  "FBFFFBFLRL",
-  "FBBBFFFLRL",
-  "FFFFBBBRLR",
-  "FFBBFBBRLR",
-  "FBFBFFBRRL",
-  "BFBFFBFRRR",
-  "BFBFBFFLRL",
-  "BFFBFFFLLL",
-  "FBBFBFBRRL",
-  "FFBBBFBLRL",
-  "BFFFFBFLLR",
-  "FBBBFBFLLL",
-  "FBFFFBBLRL",
-  "FBBFFFBRRL",
-  "FBBBBBFLLR",
-  "FBBBFBFRRL",
-  "FFFBBFBRRL",
-  "FBBBFFBRRL",
-  "FBFBFBBRLL",
-  "BFBBBBBLLL",
-  "FBFBFFFLLR",
-  "FFFBFFBRLR",
-  "BBFFBFBLRR",
-  "BFFFBFFLLR",
-  "FBBFBBFRRL",
-  "FFBBBBBLLL",
-  "FBBFBFFRLL",
-  "FFFBBBFLRL",
-  "FFBBBBFLRR",
-  "FBFFFFFRLL",
-  "BBFFFFBLLR",
-  "FFFFBBFRRL",
-  "FFBBBBFRRR",
-  "FBBBFBBLRL",
-  "BFFBBFBLRL",
-  "BFBBFFFRLR",
-  "FFFBFBBRRL",
-  "BBFBFBFRRL",
-  "FFFBBBFLLR",
-  "BFFFFBBRLR",
-  "BFFBFFFLLR",
-  "BBFBFFFRRR",
-  "FFFFBBFRLR",
-  "BFBBBFBRRR",
-  "FBFBBBBLRL",
-  "FFFFBBFLLR",
-  "FBFBBBFRLL",
-  "BFBBFBBRLR",
-  "FFBBFFFRRR",
-  "FFBBBFBRLL",
-  "FBBFFBFLRL",
-  "BFBFFFBRRR",
-  "BFFFBBBRLR",
-  "FFFFBFFRRR",
-  "FFBBFFBLRR",
-  "FBBFBFBLLR",
-  "FFFBBBFLLL",
-  "FBBBBBFLLL",
-  "FFFFBBBLLL",
-  "FFFBFFBLLL",
-  "BFBBBBBRLR",
-  "BFBFBBFLRR",
-  "FBFBBFBRRR",
-  "BFBBFFFLRR",
-  "FFBBFFFLLL",
-  "BFFFBBFLLR",
-  "FFBBFBFRLL",
-  "FBBBFFFRLL",
-  "FFFBBFBRLR",
-  "BFBFFBFLRR",
-  "FBFBBFBLLR",
-  "FBFFFFBRRR",
-  "FFFBFBBLLL",
-  "FBFBFFFRRL",
-  "FFFBFBFLRR",
-  "FFBBBBBRRL",
-  "FFFBFFFLLR",
-  "BFFFBFFRLL",
-  "BFBBBBBLRL",
-  "FBBBFBFLRR",
-  "FFFFBBBLLR",
-  "BFFFBFFLRR",
-  "FBBBBBFLRR",
-  "FBBBBBFRLR",
-  "BFFBFFFRRR",
-  "FFBFBBFLRL",
-  "FFBFBBFRRL",
-  "FFBFFBBRRR",
-  "FFFFBBFRLL",
-  "BBFBFBFLRL",
-  "FBFBBFFLLL",
-  "BBFFFFBLLL",
-  "FBBBBFFRRR",
-  "BFFBFBFRLL",
-  "BFBBFBFRRL",
-  "FFBFBBFLLL",
-  "FBFFFBFRRR",
-  "FFBFFBFLLR",
-  "BFBBFFBRRL",
-  "FBBFFBBRRR",
-  "FFBFBBBRLL",
-  "FBBBBBBLLR",
-  "FBFBBFBRRL",
-  "BFFBFFFRLL",
-  "BBFFBBFRRR",
-  "FBBBBBFRLL",
-  "FBBFFFFRLR",
-  "FBBFFBBRLR",
-  "BFBFBFBLLR",
-  "FBFFBFBRRL",
-  "FFFBBFFRRL",
-  "FFBFBBFRLR",
-  "BFFBFBBRLR",
-  "BFFFBFBRRR",
-  "BFBBBFFRRL",
-  "FBBBFBBLRR",
-  "FFFBFBFRLL",
-  "FFBBFFBRLL",
-  "FFFBBBBRLR",
-  "FBBBFBFLLR",
-  "BFBFBBBRRL",
-  "FBBBFFFRLR",
-  "FBFFFFFLRR",
-  "FFBFBFFRRR",
-  "FFFBFBBLRR",
-  "FBBFBFFLLL",
-  "FFBFFBFRLL",
-  "FFBBBFFLRR",
-  "FFBFBFBRRR",
-  "FFFBBBBLRL",
-  "FFBFBFFLRL",
-  "FBFBBFBLRL",
-  "FFFBFBFLRL",
-  "BFBFFBFLLR",
-  "BBFFFBFRLL",
-  "FFBBBBBLLR",
-  "BBFFFBBLLL",
-  "BBFBFFBRRR",
-  "BFBFFFBRLL",
-  "FFFBFBFRRL",
-  "FFBFFFFLRR",
-  "BBFFFFFLLL",
-  "FBBBFFFLRR",
-  "BFFFBBFRRR",
-  "FBBFBBBLLR",
-  "BFBFFFFRRL",
-  "FFBBFFBRRL",
-  "BFBFFBBLRL",
-  "BBFFFBBRRR",
-  "FFFBBFFRLL",
-  "BFFBBFBRRL",
-  "BFFFFFFLRR",
-  "BFBBBBFRLR",
-  "FBBFFBFRLR",
-  "BFFBBFFRRL",
-  "BFFBFFFRRL",
-  "FFFFBBBRLL",
-  "FBFBFFFRLR",
-  "BBFFBBFRLR",
-  "BBFFBBFRLL",
-  "BFFFBBFLRL",
-  "FBFFBFFLLR",
-  "BFBBFBFLRL",
-  "FBFBFBFRLL",
-  "BFBFBBBRLR",
-  "BFBFFBBLLR",
-  "FBBBBFBRLR",
-  "FBFFFFBLRR",
-  "FBFFBBFRRR",
-  "BBFFBFFLLL",
-  "FFFBFBFLLL",
-  "BFFBBFFRRR",
-  "FBBFBFFRRR",
-  "BBFFBBBRLR",
-  "FFFBFFBLRR",
-  "FBFBFBFRLR",
-  "BFBBBBBRRR",
-  "BFFBFBFLRL",
-  "BBFFBBBLLL",
-  "BBFFFFFLLR",
-  "BFBFFBFRLL",
-  "BFBBBBFRRL",
-  "BFBBFFBLRL",
-  "BFFBBFBLLL",
-  "BFFBBBBLLL",
-  "BFBFBBFLLL",
-  "FBFBFFFRLL",
-  "FBFBFBFRRL",
-  "BFFBFBBLLL",
-  "FFBBFBBRRR",
-  "FFFBFFBRRR",
-  "FBFFFBFLLR",
-  "FBFFFFFRRR",
-  "FBBFBBFLLL",
-  "FFFBFBBRLR",
-  "FBFFFFFLLL",
-  "FBBFFFFRRL",
-  "BFBBFFBLLR",
-  "BBFBFBBLRL",
-  "FBBFBBFLLR",
-  "BFBFFFFLRL",
-  "FFBBFBBLRR",
-  "BFBBBFBLRL",
-  "BFFBBFFRLR",
-  "FFFFBFFRLL",
-  "BFFBBFFLRR",
-  "FBBBFBBRLR",
-  "FBFBFFFLLL",
-  "FFBBBFFRRL",
-  "BFBBFBFRLR",
-  "FBFFFBBRLL",
-  "FFFBFFFLRL",
-  "BFBBBFBRRL",
-  "FBBFFFBRLR",
-  "FFBBBBFLLL",
-  "FBBBFFFLLR",
-  "FBFFBBFLLR",
-  "FFBFBBFRLL",
-  "BBFFBFBRLR",
-  "FBFFBBBLLR",
-  "FFBFBFBRRL",
-  "BFFBFFBLRL",
-  "FBFFBFBLLR",
-  "FFBFBFBLRR",
-  "FFBBFBFLRL",
-  "FFBBFFFRRL",
-  "BFBFBFFLLR",
-  "FBBBBBBRRR",
-  "BFBFFFFRLR",
-  "BFFBBBBRLL",
-  "FFFFFBBRRR",
-  "FFBFFFBRRR",
-  "FFFBFFFLLL",
-  "BFBFFFFRRR",
-  "FBBBBBFRRR",
-  "FBBBFFFRRL",
-  "FBBFFFFRLL",
-  "FFFFFBFLRR",
-  "FFBFBBBLLL",
-  "BFBFFBBRRL",
-  "FFFFBBFLRL",
-  "BFBBBFBRLL",
-  "FFBFFFBLRL",
-  "FBBFFFBRLL",
-  "BFFBBFBLRR",
-  "FFFBBFFLLR",
-  "FBBFFBBRRL",
-  "FFBFBBBRRR",
-  "FBFBFFBLRL",
-  "BFBBFBBRRR",
-  "BBFFFFBLRL",
-  "FBFBFBBLLR",
-  "BFFFBBBLRR",
-  "BFBFFFBRLR",
-  "FFFBBBBLLL",
-  "BFFBFFFLRR",
-  "BFBBFFFRRL",
-  "FBFFBBBLRL",
-  "FBFBBFFLRR",
-  "FBFFBBFRRL",
-  "BBFBFFBRLL")
-#+end_src
-
-*** The code
-:PROPERTIES:
-:CUSTOM_ID: The-code
-:END:
-
-**** The workhorses
-:PROPERTIES:
-:CUSTOM_ID: The-workhorses
-:END:
-
-We begin with a general method to shrink “binary spaces”.
-Given a range, and a list of “increase lower/decrease upper”
-commands, we return a new range resulting from
-applying the commands.
-#+name: shrinkBinSpace
-#+begin_src amm
-sealed trait BinSpaceModifier
-case object IncreaseLower extends BinSpaceModifier
-case object DecreaseUpper extends BinSpaceModifier
-
-def shrinkBinSpace(space: Tuple2[Int,Int],
-                   c: List[BinSpaceModifier]):
-    Tuple2[Int,Int] = c match {
-  case Nil => space
-  case IncreaseLower :: rest => {
-    val lower = space._1
-    val upper = space._2
-    val increased = ((upper + lower).toFloat / 2).ceil.toInt
-    shrinkBinSpace(Tuple2(increased,upper), rest)
-  }
-  case DecreaseUpper :: rest => {
-    val lower = space._1
-    val upper = space._2
-    val decreased = ((upper + lower).toFloat / 2).floor.toInt
-    shrinkBinSpace(Tuple2(lower,decreased), rest)
-  }
-}
-#+end_src
-
-#+RESULTS: shrinkBinSpace
-: defined trait BinSpaceModifier
-: defined object IncreaseLower
-: defined object DecreaseUpper
-: defined function shrinkBinSpace
-
-Now, we need only convert the strings into two lists
-of such commands.
-Since we know the exact form of the input strings,
-this method is quite exact; not generally useful.
-#+name: parseSeatCode
-#+begin_src amm
-def parseSeatCode(code: String):
-    Tuple2[List[BinSpaceModifier],List[BinSpaceModifier]] = {
-  val (rowLetters, columnLetters) = code.splitAt(7)
-  val rowCommands = rowLetters.map(l => l match {
-    case 'F' => DecreaseUpper
-    case 'B' => IncreaseLower}).toList
-  val columnCommands = columnLetters.map(l => l match {
-    case 'L' => DecreaseUpper
-    case 'R' => IncreaseLower}).toList
-
-  Tuple2(rowCommands,columnCommands)
-}
-#+end_src
-
-#+RESULTS: parseSeatCode
-: defined function parseSeatCode
-
-**** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-#+begin_src amm :noweb yes
-<<day5-input-scala>>
-<<parseSeatCode>>
-
-val highest_id = input.map(code => {
-  val (rowCommands, columnCommands) = parseSeatCode(code)
-  val row = shrinkBinSpace(Tuple2(0,127),rowCommands)._1
-  val column = shrinkBinSpace(Tuple2(0,7),columnCommands)._1
-
-  row * 8 + column
-}).max
-
-println("The highest ID for a seat is ${highest_id}.")
-#+end_src
-
-** Part 2
-:PROPERTIES:
-:CUSTOM_ID: Part-2
-:END:
-
-*** The narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-Ding! The "fasten seat belt" signs have turned on.
-Time to find your seat.
-
-It's a completely full flight, so your seat should be
-the only missing boarding pass in your list. However, there's a catch:
-some of the seats at the very front and back of the plane
-don't exist on this aircraft, so they'll be missing from your list as well.
-
-Your seat wasn't at the very front or back, though;
-the seats with IDs +1 and -1 from yours will be in your list.
-
-What is the ID of your seat?
-
-*** The input
-:PROPERTIES:
-:CUSTOM_ID: The-input
-:END:
-
-Is the same as previously.
-
-*** The answer
-:PROPERTIES:
-:CUSTOM_ID: The-answer
-:END:
-
-A simple enough search using ~find~ on the list of IDs we
-created earlier. Search for the ID which is not in the list,
-but whose successor and predecessor are.
-#+begin_src amm :noweb yes
-<<day5-input-scala>>
-<<parseSeatCode>>
-
-val seat_ids = input.map(code => {
-  val (rowCommands, columnCommands) = parseSeatCode(code)
-  val row = shrinkBinSpace(Tuple2(0,127),rowCommands)._1
-  val column = shrinkBinSpace(Tuple2(0,7),columnCommands)._1
-
-  row * 8 + column
-})
-
-val our_id = (0 to 1023).find(id =>
-  seat_ids.contains(id-1) && !seat_ids.contains(id) && seat_ids.contains(id+1))
-
-println("Our seat is ${our_id}.")
-#+end_src
-
-* Day  6 – Custom Customs
-:PROPERTIES:
-:CUSTOM_ID: Day--6-–-Custom-Customs
-:END:
-
-** The part 1 narrative
-:PROPERTIES:
-:CUSTOM_ID: The-narrative
-:END:
-
-#+begin_export html
-<p>As your flight approaches the regional airport where you'll switch to a much larger plane, <a href="https://en.wikipedia.org/wiki/Customs_declaration" target="_blank">customs declaration forms</a> are distributed to the passengers.</p>
-<p>The form asks a series of 26 yes-or-no questions marked <code>a</code> through <code>z</code>. All you need to do is identify the questions for which <em>anyone in your group</em> answers "yes". Since your group is just you, this doesn't take very long.</p>
-<p>However, the person sitting next to you seems to be experiencing a language barrier and asks if you can help. For each of the people in their group, you write down the questions for which they answer "yes", one per line.  For example:</p>
-<pre><code>abcx
-abcy
-abcz
-</code></pre>
-<p>In this group, there are <em><code>6</code></em> questions to which anyone answered "yes": <code>a</code>, <code>b</code>, <code>c</code>, <code>x</code>, <code>y</code>, and <code>z</code>. (Duplicate answers to the same question don't count extra; each question counts at most once.)</p>
-<p>Another group asks for your help, then another, and eventually you've collected answers from every group on the plane (your puzzle input). Each group's answers are separated by a blank line, and within each group, each person's answers are on a single line. For example:</p>
-<pre><code>abc
-
-a
-b
-c
-
-ab
-ac
-
-a
-a
-a
-a
-
-b
-</code></pre>
-<p>This list represents answers from five groups:</p>
-<ul>
-<li>The first group contains one person who answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
-<li>The second group contains three people; combined, they answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
-<li>The third group contains two people; combined, they answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
-<li>The fourth group contains four people; combined, they answered "yes" to only <em><code>1</code></em> question, <code>a</code>.</li>
-<li>The last group contains one person who answered "yes" to only <em><code>1</code></em> question, <code>b</code>.</li>
-</ul>
-<p>In this example, the sum of these counts is <code>3 + 3 + 3 + 1 + 1</code> = <em><code>11</code></em>.</p>
-<p>For each group, count the number of questions to which anyone answered "yes". <em>What is the sum of those counts?</em></p>
-#+end_export
-
-** The part 1 solution
-:PROPERTIES:
-:CUSTOM_ID: The-part-1-solution
-:END:
-
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
-import $file.resources, resources._
-import scala.io.Source
-#+end_src
-
-Parse the inputs as list of strings, then split the list on empty strings.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
-val source = Source.fromFile("../../input/advent-of-code-2020/day6.txt")
-val raw_input = source.getLines().toList
-source.close()
-
-val groups = spans(raw_input, ((x: String) => x != ""))
-             .filter((x: List[String]) => x != List(""))
-#+end_src
-
-We need to count the number of characters
-which occur at least once in each group.
-Our method will operate on lists of strings;
-to be a bit more general, it returns a list of the characters
-which occur at least once in each group.
-Then we can just check the list size afterward.
-
-We obtain the list by
-filtering down from the collection of lowercase characters.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
-def groupAnswers(group: List[String]): List[Char] =
-  ('a' to 'z').filter((c: Char) => group.exists(g => g.contains(c))).toList
-#+end_src
-
-Now fold over the list of groups, summing up the size of the lists
-returned by ~groupAnswers~.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
-val answer: Int = groups.foldLeft(0) {
-  (accum, g: List[String]) => accum + groupAnswers(g).length
-}
-
-println(s"The solution to part 1 is $answer")
-#+end_src
-
-For my input, the answer was 6532.
-
-** The part 2 narrative
-
-#+begin_export html
-<p>As you finish the last group's customs declaration, you notice that <span title="Don't worry, nobody ever misreads just one word in real life.">you misread one word</span> in the instructions:</p>
-<p>You don't need to identify the questions to which <em>anyone</em> answered "yes"; you need to identify the questions to which <em>everyone</em> answered "yes"!</p>
-<p>Using the same  example as above:</p>
-<pre><code>abc
-
-a
-b
-c
-
-ab
-ac
-
-a
-a
-a
-a
-
-b
-</code></pre>
-<p>This list represents answers from five groups:</p>
-<ul>
-<li>In the first group, everyone (all 1 person) answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
-<li>In the second group, there is <em>no</em> question to which everyone answered "yes".</li>
-<li>In the third group, everyone answered yes to only <em><code>1</code></em> question, <code>a</code>. Since some people did not answer "yes" to <code>b</code> or <code>c</code>, they don't count.</li>
-<li>In the fourth group, everyone answered yes to only <em><code>1</code></em> question, <code>a</code>.</li>
-<li>In the fifth group, everyone (all 1 person) answered "yes" to <em><code>1</code></em> question, <code>b</code>.</li>
-</ul>
-<p>In this example, the sum of these counts is <code>3 + 0 + 1 + 1 + 1</code> = <em><code>6</code></em>.</p>
-<p>For each group, count the number of questions to which <em>everyone</em> answered "yes". <em>What is the sum of those counts?</em></p>
-</article>
-#+end_export
-
-** The part 2 solution
-
-A simple solution tweak gives us this solution;
-unfortunately we do need another method,
-as the ~exists~ used in ~groupAnswers~ must be replaced by a ~forall~.
-We call the new method that results from this change
-“~groupConsensus~”.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
-def groupConsensus(group: List[String]): List[Char] =
-  ('a' to 'z').filter((c: Char) => group.forall(g => g.contains(c))).toList
-#+end_src
-
-Now fold over the list of groups, summing up the size of the lists
-returned by ~groupConsensus~.
-#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
-val answer2: Int = groups.foldLeft(0) {
-  (accum, g: List[String]) => accum + groupConsensus(g).length
-}
-
-println(s"The solution to part 2 is $answer2")
-#+end_src
-
-For my input, the answer was 3427.
-
-* Day  7 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day--7-–-???
-:END:
-* Day  8 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day--8-–-???
-:END:
-* Day  9 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day--9-–-???
-:END:
-* Day 10 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-10-–-???
-:END:
-* Day 11 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-11-–-???
-:END:
-* Day 12 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-12-–-???
-:END:
-* Day 13 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-13-–-???
-:END:
-* Day 14 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-14-–-???
-:END:
-* Day 15 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-15-–-???
-:END:
-* Day 16 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-16-–-???
-:END:
-* Day 17 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-17-–-???
-:END:
-* Day 18 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-18-–-???
-:END:
-* Day 19 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-19-–-???
-:END:
-* Day 20 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-20-–-???
-:END:
-* Day 21 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-21-–-???
-:END:
-* Day 22 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-22-–-???
-:END:
-* Day 23 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-23-–-???
-:END:
-* Day 24 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-24-–-???
-:END:
-* Day 25 – ???
-:PROPERTIES:
-:CUSTOM_ID: Day-25-–-???
-:END:
-* Inputs
-:PROPERTIES:
-:CUSTOM_ID: Inputs
-:END:
-
-The input sets for each day are collected here
-and then tangled into files in [[./input/advent-of-code-2020]].
 
 ** Day 6
 :PROPERTIES:
