@@ -3,11 +3,56 @@
 #+Description: A daily coding puzzle challenge from December 2020.
 #+Description: My solutions implemented in Scala.
 
-* Day  1 – Report Repair                        :scala:complete:
+* Resources
+:PROPERTIES:
+:CUSTOM_ID: Resources
+:END:
+
+** ~spans~: breaking up a list into a list of lists
+:PROPERTIES:
+:CUSTOM_ID: ~spans~:-breaking-up-a-list-into-a-list-of-lists
+:END:
+
+In some puzzzles, the input is grouped into lines
+separated by one or more newlines.
+For this, it's useful to be able to break a list into
+a list of lists based on some predicate on the elements.
+This is a generalisation of the ~span~ method,
+which usually breaks a list into a tuple consisting of the largest
+prefix of a list for which no elements satisfy the given predicate
+and the remainder of the list.
+Our new ~spans~ method breaks the list at every element which satisfies
+the given predicate; note that the “breaking” elements are
+included as singleton lists; this seems in spirit with the ~span~ method,
+though I will usually want to filter them out in my usage.
+#+begin_src amm :tangle ./src/advent-of-code-2020/resources.sc
+def spans[A](l: List[A], p: A => Boolean): List[List[A]] = l match {
+  case Nil => Nil
+  case _ => l.span(p) match {
+    case (Nil, Nil) => Nil
+    case (Nil, breaker :: rest) => List(breaker) :: spans(rest, p)
+    case (first, rest) => first :: spans(rest,p)
+  }
+}
+#+end_src
+
+#+RESULTS:
+: defined function spans
+
+* Day  1 – Report Repair
+:PROPERTIES:
+:CUSTOM_ID: Day--1-–-Report-Repair
+:END:
 
 ** Part 1
+:PROPERTIES:
+:CUSTOM_ID: Part-1
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 After saving Christmas five years in a row, you've decided
 to take a vacation at a nice resort on a tropical island.
@@ -51,8 +96,14 @@ Of course, your expense report is much larger. Find the two entries
 that sum to 2020; what do you get if you multiply them together?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 **** Raw
+:PROPERTIES:
+:CUSTOM_ID: Raw
+:END:
 
 #+name: day1-input-raw
 #+begin_src text
@@ -259,6 +310,9 @@ that sum to 2020; what do you get if you multiply them together?
 #+end_src
 
 **** As a Scala list
+:PROPERTIES:
+:CUSTOM_ID: As-a-Scala-list
+:END:
 
 For the moment, I “cheat” slightly by modifying the input list
 into an actual Scala list.
@@ -471,8 +525,14 @@ val input = List(
 #+end_src
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
 
 The intuitive solution is to perform a a double walkthrough
 of the list; walk through and, at each element ~e~,
@@ -506,6 +566,9 @@ def summingPair(xs : Seq[Int], sum: Int): Option[Tuple2[Int,Int]] = xs match {
 : defined function summingPair
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 Now we apply that method to the provided input,
 then match on it to produce the product of the pair.
@@ -520,8 +583,14 @@ summingPair(input,2020) match {
 #+end_src
 
 ** Part 2
+:PROPERTIES:
+:CUSTOM_ID: Part-2
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 The Elves in accounting are thankful for your help; one of them
 even offers you a starfish coin they had left over from a past vacation.
@@ -536,12 +605,21 @@ In your expense report, what is the product of the three
 entries that sum to 2020?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 …is the same as above.
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorse
+:PROPERTIES:
+:CUSTOM_ID: The-workhorse
+:END:
 
 This generalisation of the problem requires that we move away
 from the use of a tuple; of course we could move to a triple instead,
@@ -580,6 +658,9 @@ def summingSeq(xs : Seq[Int], sum: Int, n:Int): Either[String,List[Int]] = n mat
 : defined function summingSeq
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 Now we apply that method to the provided input,
 then match on it to extract the list and take its product.
@@ -593,11 +674,20 @@ summingSeq(input,2020,3) match {
 }
 #+end_src
 
-* Day  2 – Password Philosophy                  :scala:complete:
+* Day  2 – Password Philosophy
+:PROPERTIES:
+:CUSTOM_ID: Day--2-–-Password-Philosophy
+:END:
 
 ** Part 1
+:PROPERTIES:
+:CUSTOM_ID: Part-1
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 Your flight departs in a few days from the coastal airport;
 the easiest way down to the coast from here is via toboggan.
@@ -636,8 +726,14 @@ of their respective policies.
 How many passwords are valid according to their policies?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 **** Raw
+:PROPERTIES:
+:CUSTOM_ID: Raw
+:END:
 
 #+name: day2-input-raw
 #+begin_src text
@@ -1644,6 +1740,9 @@ How many passwords are valid according to their policies?
 #+end_src
 
 **** As a list of Scala strings
+:PROPERTIES:
+:CUSTOM_ID: As-a-list-of-Scala-strings
+:END:
 
 For today, I again “cheat” slightly
 by modifying the input into a list of Scala strings.
@@ -2657,8 +2756,14 @@ val input = List(
 #+end_src
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
 
 We require a parser for each line of the input.
 This takes the string giving the password policy and the password,
@@ -2687,6 +2792,9 @@ def satisfiesPolicy(s : String): Boolean = {
 : defined function satisfiesPolicy
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 For this problem, we just directly use a ~fold~.
 #+begin_src amm :noweb yes
@@ -2699,8 +2807,14 @@ input.foldLeft(0){
 #+end_src
 
 ** Part 2
+:PROPERTIES:
+:CUSTOM_ID: Part-2
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 While it appears you validated the passwords correctly,
 they don't seem to be what the
@@ -2725,10 +2839,16 @@ Given the same example list from above:
 How many passwords are valid according to the new interpretation of the policies?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 …is the same as that above.
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 We can this time directly reuse half of our workhorse
 from the first part, and in fact won't bother to
@@ -2765,11 +2885,20 @@ input.foldLeft(0){
 }
 #+end_src
 
-* Day  3 – Toboggan Trajectory                  :scala:complete:
+* Day  3 – Toboggan Trajectory
+:PROPERTIES:
+:CUSTOM_ID: Day--3-–-Toboggan-Trajectory
+:END:
 
 ** Part 1
+:PROPERTIES:
+:CUSTOM_ID: Part-1
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 With the toboggan login problems resolved, you set off toward the airport.
 While travel by toboggan might be easy, it's certainly not safe:
@@ -2844,8 +2973,14 @@ Starting at the top-left corner of your map and following
 a slope of right 3 and down 1, how many trees would you encounter?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 **** Raw
+:PROPERTIES:
+:CUSTOM_ID: Raw
+:END:
 
 #+begin_src text
 .#.#....##.......#..........#..
@@ -3174,6 +3309,9 @@ a slope of right 3 and down 1, how many trees would you encounter?
 #+end_src
 
 **** List of Scala strings
+:PROPERTIES:
+:CUSTOM_ID: List-of-Scala-strings
+:END:
 
 #+name: day3-input-scala
 #+begin_src amm
@@ -3504,8 +3642,14 @@ val input = List(
 #+end_src
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
 
 This is a fairly particular problem. I don't see an obvious
 generalisation, so I'll proceed with a fairly particular solution.
@@ -3561,6 +3705,9 @@ def encounters(map: List[String],
 #+end_src
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 #+begin_src amm :noweb yes
 <<day3-input-scala>>
@@ -3570,8 +3717,14 @@ encounters(input, {_ == '#'}, 0, (3,1))
 #+end_src
 
 ** Part 2
+:PROPERTIES:
+:CUSTOM_ID: Part-2
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 Time to check the rest of the slopes - you need to minimize
 the probability of a sudden arboreal stop, after all.
@@ -3593,12 +3746,21 @@ What do you get if you multiply together the number of trees
 encountered on each of the listed slopes?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 Is the same as for the previous part.
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorse
+:PROPERTIES:
+:CUSTOM_ID: The-workhorse
+:END:
 
 This second problem does not actually require
 a different solution; only a change to my ~velocity~ argument
@@ -3636,6 +3798,9 @@ def encounters(map: List[String],
 #+end_src
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 Just multiply together the results.
 #+begin_src amm :noweb yes
@@ -3651,11 +3816,20 @@ val e12 = encounters(input, {_ == '#'}, 0, (1,2))
 e11 * e31 * e51 * e71 * e12
 #+end_src
 
-* Day  4 – Passport Processing                  :scala:complete:
+* Day  4 – Passport Processing
+:PROPERTIES:
+:CUSTOM_ID: Day--4-–-Passport-Processing
+:END:
 
 ** Part 1
+:PROPERTIES:
+:CUSTOM_ID: Part-1
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 You arrive at the airport only to realize that you grabbed
 your North Pole Credentials instead of your passport.
@@ -3724,8 +3898,14 @@ all required fields. Treat ~cid~ as optional.
 In your batch file, how many passports are valid?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 **** Raw text
+:PROPERTIES:
+:CUSTOM_ID: Raw-text
+:END:
 
 #+begin_src text
 eyr:2029 byr:1931 hcl:z cid:128
@@ -4860,6 +5040,9 @@ cid:209 hcl:#efcc98 byr:2001
 #+end_src
 
 **** As a Scala string
+:PROPERTIES:
+:CUSTOM_ID: As-a-Scala-string
+:END:
 
 #+name: day4-input-scala
 #+begin_src scala
@@ -5995,8 +6178,14 @@ cid:209 hcl:#efcc98 byr:2001"""
 #+end_src
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorse
+:PROPERTIES:
+:CUSTOM_ID: The-workhorse
+:END:
 
 Another string parsing problem. This time, we take the whole input
 as a single string, and break off lines as we work
@@ -6059,6 +6248,9 @@ def validator(paragraph: String): Boolean = {
 #+end_src
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 We now just count the number of ~Right~ elements we get back
 from the paragraph validator.
@@ -6072,8 +6264,14 @@ validateParagraphs(input,validator).count(_.isRight)
 #+end_src
 
 ** Part 2
+:PROPERTIES:
+:CUSTOM_ID: Part-2
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 The line is moving more quickly now, but you overhear
 airport security talking about how passports
@@ -6154,12 +6352,21 @@ Continue to treat cid as optional.
 In your batch file, how many passports are valid?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 Is the same as previously.
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
 
 The ~validateParagraphs~ method from earlier still fits this problem.
 But we now require a much more involved ~validator~ method
@@ -6209,6 +6416,9 @@ now check for the beginning of the string or whitespace beforehand,
 and the end of the string or whitespace afterwards.
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 The answer is easily calculated once the validator is correct.
 #+name: validateParagraphs
@@ -6220,11 +6430,20 @@ The answer is easily calculated once the validator is correct.
 validateParagraphs(input,validator).count(_.isRight)
 #+end_src
 
-* Day  5 – Binary Boarding                      :scala:complete:
+* Day  5 – Binary Boarding
+:PROPERTIES:
+:CUSTOM_ID: Day--5-–-Binary-Boarding
+:END:
 
 ** Part 1
+:PROPERTIES:
+:CUSTOM_ID: Part-1
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 You board your plane only to discover a new problem:
 you dropped your boarding pass! You aren't sure which seat is yours,
@@ -6286,8 +6505,14 @@ As a sanity check, look through your list of boarding passes.
 What is the highest seat ID on a boarding pass?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 **** Raw
+:PROPERTIES:
+:CUSTOM_ID: Raw
+:END:
 
 #+begin_src text
 FBBFFBBLLL
@@ -7139,6 +7364,9 @@ BBFBFFBRLL
 #+end_src
 
 **** As a list of Scala strings
+:PROPERTIES:
+:CUSTOM_ID: As-a-list-of-Scala-strings
+:END:
 
 #+name: day5-input-scala
 #+begin_src amm
@@ -7992,8 +8220,14 @@ val input = List(
 #+end_src
 
 *** The code
+:PROPERTIES:
+:CUSTOM_ID: The-code
+:END:
 
 **** The workhorses
+:PROPERTIES:
+:CUSTOM_ID: The-workhorses
+:END:
 
 We begin with a general method to shrink “binary spaces”.
 Given a range, and a list of “increase lower/decrease upper”
@@ -8054,6 +8288,9 @@ def parseSeatCode(code: String):
 : defined function parseSeatCode
 
 **** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 #+begin_src amm :noweb yes
 <<day5-input-scala>>
@@ -8071,8 +8308,14 @@ println("The highest ID for a seat is ${highest_id}.")
 #+end_src
 
 ** Part 2
+:PROPERTIES:
+:CUSTOM_ID: Part-2
+:END:
 
 *** The narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
 
 Ding! The "fasten seat belt" signs have turned on.
 Time to find your seat.
@@ -8088,10 +8331,16 @@ the seats with IDs +1 and -1 from yours will be in your list.
 What is the ID of your seat?
 
 *** The input
+:PROPERTIES:
+:CUSTOM_ID: The-input
+:END:
 
 Is the same as previously.
 
 *** The answer
+:PROPERTIES:
+:CUSTOM_ID: The-answer
+:END:
 
 A simple enough search using ~find~ on the list of IDs we
 created earlier. Search for the ID which is not in the list,
@@ -8114,23 +8363,2395 @@ val our_id = (0 to 1023).find(id =>
 println("Our seat is ${our_id}.")
 #+end_src
 
-* Day  6 – ???
+* Day  6 – Custom Customs
+:PROPERTIES:
+:CUSTOM_ID: Day--6-–-Custom-Customs
+:END:
+
+** The part 1 narrative
+:PROPERTIES:
+:CUSTOM_ID: The-narrative
+:END:
+
+#+begin_export html
+<p>As your flight approaches the regional airport where you'll switch to a much larger plane, <a href="https://en.wikipedia.org/wiki/Customs_declaration" target="_blank">customs declaration forms</a> are distributed to the passengers.</p>
+<p>The form asks a series of 26 yes-or-no questions marked <code>a</code> through <code>z</code>. All you need to do is identify the questions for which <em>anyone in your group</em> answers "yes". Since your group is just you, this doesn't take very long.</p>
+<p>However, the person sitting next to you seems to be experiencing a language barrier and asks if you can help. For each of the people in their group, you write down the questions for which they answer "yes", one per line.  For example:</p>
+<pre><code>abcx
+abcy
+abcz
+</code></pre>
+<p>In this group, there are <em><code>6</code></em> questions to which anyone answered "yes": <code>a</code>, <code>b</code>, <code>c</code>, <code>x</code>, <code>y</code>, and <code>z</code>. (Duplicate answers to the same question don't count extra; each question counts at most once.)</p>
+<p>Another group asks for your help, then another, and eventually you've collected answers from every group on the plane (your puzzle input). Each group's answers are separated by a blank line, and within each group, each person's answers are on a single line. For example:</p>
+<pre><code>abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b
+</code></pre>
+<p>This list represents answers from five groups:</p>
+<ul>
+<li>The first group contains one person who answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>The second group contains three people; combined, they answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>The third group contains two people; combined, they answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>The fourth group contains four people; combined, they answered "yes" to only <em><code>1</code></em> question, <code>a</code>.</li>
+<li>The last group contains one person who answered "yes" to only <em><code>1</code></em> question, <code>b</code>.</li>
+</ul>
+<p>In this example, the sum of these counts is <code>3 + 3 + 3 + 1 + 1</code> = <em><code>11</code></em>.</p>
+<p>For each group, count the number of questions to which anyone answered "yes". <em>What is the sum of those counts?</em></p>
+#+end_export
+
+** The part 1 solution
+:PROPERTIES:
+:CUSTOM_ID: The-part-1-solution
+:END:
+
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+import $file.resources, resources._
+import scala.io.Source
+#+end_src
+
+Parse the inputs as list of strings, then split the list on empty strings.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+val source = Source.fromFile("../../input/advent-of-code-2020/day6.txt")
+val raw_input = source.getLines().toList
+source.close()
+
+val groups = spans(raw_input, ((x: String) => x != ""))
+             .filter((x: List[String]) => x != List(""))
+#+end_src
+
+We need to count the number of characters
+which occur at least once in each group.
+Our method will operate on lists of strings;
+to be a bit more general, it returns a list of the characters
+which occur at least once in each group.
+Then we can just check the list size afterward.
+
+We obtain the list by
+filtering down from the collection of lowercase characters.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+def groupAnswers(group: List[String]): List[Char] =
+  ('a' to 'z').filter((c: Char) => group.exists(g => g.contains(c))).toList
+#+end_src
+
+Now fold over the list of groups, summing up the size of the lists
+returned by ~groupAnswers~.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+val answer: Int = groups.foldLeft(0) {
+  (accum, g: List[String]) => accum + groupAnswers(g).length
+}
+
+println(s"The solution to part 1 is $answer")
+#+end_src
+
+For my input, the answer was 6532.
+
+** The part 2 narrative
+
+#+begin_export html
+<p>As you finish the last group's customs declaration, you notice that <span title="Don't worry, nobody ever misreads just one word in real life.">you misread one word</span> in the instructions:</p>
+<p>You don't need to identify the questions to which <em>anyone</em> answered "yes"; you need to identify the questions to which <em>everyone</em> answered "yes"!</p>
+<p>Using the same  example as above:</p>
+<pre><code>abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b
+</code></pre>
+<p>This list represents answers from five groups:</p>
+<ul>
+<li>In the first group, everyone (all 1 person) answered "yes" to <em><code>3</code></em> questions: <code>a</code>, <code>b</code>, and <code>c</code>.</li>
+<li>In the second group, there is <em>no</em> question to which everyone answered "yes".</li>
+<li>In the third group, everyone answered yes to only <em><code>1</code></em> question, <code>a</code>. Since some people did not answer "yes" to <code>b</code> or <code>c</code>, they don't count.</li>
+<li>In the fourth group, everyone answered yes to only <em><code>1</code></em> question, <code>a</code>.</li>
+<li>In the fifth group, everyone (all 1 person) answered "yes" to <em><code>1</code></em> question, <code>b</code>.</li>
+</ul>
+<p>In this example, the sum of these counts is <code>3 + 0 + 1 + 1 + 1</code> = <em><code>6</code></em>.</p>
+<p>For each group, count the number of questions to which <em>everyone</em> answered "yes". <em>What is the sum of those counts?</em></p>
+</article>
+#+end_export
+
+** The part 2 solution
+
+A simple solution tweak gives us this solution;
+unfortunately we do need another method,
+as the ~exists~ used in ~groupAnswers~ must be replaced by a ~forall~.
+We call the new method that results from this change
+“~groupConsensus~”.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+def groupConsensus(group: List[String]): List[Char] =
+  ('a' to 'z').filter((c: Char) => group.forall(g => g.contains(c))).toList
+#+end_src
+
+Now fold over the list of groups, summing up the size of the lists
+returned by ~groupConsensus~.
+#+begin_src amm :tangle ./src/advent-of-code-2020/day6.sc
+val answer2: Int = groups.foldLeft(0) {
+  (accum, g: List[String]) => accum + groupConsensus(g).length
+}
+
+println(s"The solution to part 2 is $answer2")
+#+end_src
+
+For my input, the answer was 3427.
+
 * Day  7 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day--7-–-???
+:END:
 * Day  8 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day--8-–-???
+:END:
 * Day  9 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day--9-–-???
+:END:
 * Day 10 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-10-–-???
+:END:
 * Day 11 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-11-–-???
+:END:
 * Day 12 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-12-–-???
+:END:
 * Day 13 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-13-–-???
+:END:
 * Day 14 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-14-–-???
+:END:
 * Day 15 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-15-–-???
+:END:
 * Day 16 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-16-–-???
+:END:
 * Day 17 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-17-–-???
+:END:
 * Day 18 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-18-–-???
+:END:
 * Day 19 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-19-–-???
+:END:
 * Day 20 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-20-–-???
+:END:
 * Day 21 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-21-–-???
+:END:
 * Day 22 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-22-–-???
+:END:
 * Day 23 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-23-–-???
+:END:
 * Day 24 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-24-–-???
+:END:
 * Day 25 – ???
+:PROPERTIES:
+:CUSTOM_ID: Day-25-–-???
+:END:
+* Inputs
+:PROPERTIES:
+:CUSTOM_ID: Inputs
+:END:
+
+The input sets for each day are collected here
+and then tangled into files in [[./input/advent-of-code-2020]].
+
+** Day 6
+:PROPERTIES:
+:CUSTOM_ID: Day-6
+:END:
+
+#+begin_src text :tangle ./input/advent-of-code-2020/day6.txt
+qtmdwspah
+sqwdamhpt
+phwdaqsmt
+stmdqwhap
+pqawdhtms
+
+bgsickuztovfwa
+yiozauvgfsbtkwc
+zygijavmtfkcuwobs
+fvsuwtiadzrncboklg
+
+dxgieku
+dihnxkgf
+
+mqybtd
+yqbtd
+btydq
+
+rgpbcfxtzoewy
+otbyrfgwxzpec
+yocrwtebzxgfp
+
+qcpngeodrszaky
+ocaqrngsyuz
+
+xwenu
+nwsxuye
+
+xapwvhsktlmr
+twpslarxhvkm
+vhlwmrapxkts
+pmkxraswvlth
+ksrxpvtmwahl
+
+xhcepbdsltvk
+khcdptsixbg
+spbjtdchxk
+cbkxspqtdrh
+
+kaishmtdl
+jcnprqigt
+
+pjqtekodlmwcaginxfzrushbv
+iuyzsfaxcvrotdmklgebpnjwqh
+dirxeqbswlonhzumgafvckptj
+zqpitfrjnmhvuxbcdlwkogase
+khncmsfdzlgwpvriotxujbaeq
+
+motb
+twm
+mvt
+nomt
+
+euwhdnlaxbtjiqz
+dquxjznhtlwebia
+atzdwxqiunhlebj
+jnwlzxdiuaheqbt
+
+jnktcwaovpbqzei
+qcrljzskbvo
+
+tangojspuvlwbryeicz
+eujvkaporgwdilbyfscztn
+
+pjrisxqwdoyze
+cvyzmjlqxsgpeirw
+xieqwcajzslryp
+xjpzerwqyamis
+
+rftxglbkpqnchvajs
+cnsvqgpurtjfeb
+
+m
+mcx
+wramgjy
+mv
+
+meacfoiqpbzy
+zmvqpaibegoyfc
+oiyzmaengcfbpq
+uiaqprbycmzfoe
+
+qjdnecvmsr
+sdmecpqn
+
+gt
+tg
+
+bndhmeupwszlqiycofkt
+fcrptkulhixjnazvmdg
+
+nrcytwdaozvbmhsjuk
+owarihdekqzslvnxmubyfpj
+suzlnmxvkwjyodhbrag
+
+fz
+zf
+zefpk
+fz
+fz
+
+zfnqcdhvjwxa
+hxfazjcwd
+xzhtajkfwcd
+
+weusntyxblcdqpvgfzoam
+oxiyslgabqvdhnwzm
+
+jneuovbpgfxlsmkwd
+kjbwonlspfdumcegthv
+omvfbgejaiwnkdulsp
+orfgdlbqjkvhumpewns
+
+mhb
+hb
+dhjxb
+boh
+
+af
+tzlbugdkq
+j
+
+qhgnav
+ngvahqp
+gvnqha
+
+hoer
+oufeq
+u
+gmy
+td
+
+naguhdzsmcxlye
+pglwjsvxzduc
+uosgxqzldct
+xugcszld
+qcxsgtlzoud
+
+uoxacitdkeh
+kypudjgbsefi
+
+bjywqhgcps
+uaybelqkjpiwc
+yblwqpjec
+jwvyrcpbqzt
+qjgywbocp
+
+cuvwxkmrnliodphaj
+rvuzcdxknphol
+hprvkucdonsxl
+
+qtgjunkhaovbw
+wkgvotljhbq
+
+blfvtr
+vrtfby
+mbtvjdfnr
+xbftpvrh
+svbrhptf
+
+rijakd
+kadnijer
+kqdwjifar
+jdrihkmaz
+ejnirkfda
+
+ysukmtloxgjhvnwp
+qjxlwnvpyzsgbutomd
+
+gxpdqomijnhkyws
+vyqgxmjpowhsnik
+mnxqhgykwiopjs
+
+fm
+u
+fc
+zd
+yplnbikosxj
+
+welcjifhgnzupo
+izfpwljnodctheg
+dtlhgznwepcojif
+hzwvgpcifnjleo
+wgpqvtcnjofhlezi
+
+azhipsvbx
+xwbip
+ixpb
+xbip
+bpxi
+
+yxhpltiuvzorefqnwm
+azwiylnohxmejqurftvp
+hvuzwfxmnqyeltpro
+kwxghtdyfreqmplvzuon
+
+n
+f
+a
+f
+
+xfoaj
+ofsqb
+eqfo
+
+canrzup
+znarcpu
+pzcnrua
+czaupnr
+puchnzra
+
+hwxtaqvsci
+rhxylbskwcjmoid
+svqexwhaic
+whxisc
+
+xfamongdyrhjpizqbtswl
+tsnermfbvidyqcwhlxuzg
+
+jz
+zj
+zj
+
+mohrs
+rom
+mro
+orm
+
+rnwbshdkxv
+vkrjwsdthnxb
+kjwrxhsvnb
+rnbhvxowas
+
+lbdahrf
+ralbfhd
+lhfadbr
+radhflb
+
+wztomybdgaqhu
+rmuohgyqbdz
+dgzqrumoayhb
+hgqdmyubjpeoz
+mgdquhzoyb
+
+xiy
+yix
+bixoy
+xyi
+xiy
+
+xvzqjwfkhctgeayu
+kdjmlrow
+
+vnlu
+ulnvg
+wluvn
+lvun
+
+btmcqewifuh
+gqvakfzrmyuicsjpdbo
+
+npfy
+yznfx
+ynf
+
+b
+b
+b
+b
+b
+
+zuhkqwfpm
+mqpzwkhf
+pnwfqchkzm
+kfumpqzhw
+qzwhkmpfu
+
+pcevtdhgylnmsxaqiuzkr
+pxanvcgiquethzksmylrd
+vdszgiqyautrpxhcnmlek
+
+bhru
+ubhr
+uhvopbr
+trbizhud
+
+omnpx
+yp
+cpf
+p
+
+fuhokrpewbyvlnjcdmqi
+pcijvmskndtwohxylqeurf
+cdvfhebukmjrqnolwpiy
+qpwhymlcfjrndoeuivk
+
+xwehzfud
+wupfdexz
+
+xbdh
+jxdhb
+
+hmkbuyl
+rtcefpsaui
+
+jlfsy
+oknuy
+kvpy
+
+hcgzs
+hegzs
+sapzhd
+
+vnhjbqk
+bkvqnhjd
+vhnkqjb
+jhnkqvb
+bnhjkvq
+
+myjnp
+wkyjamn
+kmyjna
+
+rupvd
+pvrud
+rpdvu
+
+kvnlmhgizwdbjsxf
+nmfdkzgjxlbvsiwh
+zmsphibqwglkejfxrvn
+
+ge
+eg
+g
+g
+ga
+
+eivbk
+vikeb
+bkiyve
+
+puvf
+fvup
+uvfp
+pvuf
+fvup
+
+rydhgfbmpktzvlewjusn
+wqgfnovcerskjad
+ekrfsjgvowndcxq
+
+muco
+ouse
+
+pxoihbg
+bogpxhi
+
+aik
+k
+k
+
+qa
+aq
+aq
+aq
+
+snezvhbkwa
+nvzuaksbh
+zbvalskhn
+xposdbmhnavgzk
+thvfcbznkulas
+
+jaxdfucymsghp
+hfxaqcwunsjgmkpyd
+glfdjpuzxacyhm
+
+sp
+ps
+
+cesof
+vsu
+s
+svu
+sv
+
+s
+t
+te
+t
+
+epnq
+oeyqn
+nqe
+qen
+qne
+
+taxpglnzkejswbo
+zekwtongjpbxas
+gasokxnzbejpwty
+wanzsfbgpxjeotk
+wzxaengjkbptfso
+
+imftvao
+vtmif
+
+pbjelcf
+prnhgwqem
+
+xopmzg
+zfoxg
+xzgo
+ozxg
+
+gmcybniqevotjda
+ytiebavgdqojcnm
+
+mr
+m
+
+f
+n
+
+mnhpxfircz
+cihmvrxzyf
+
+ygibvxud
+ykubiqxgvd
+xydibeuv
+buvqdyxi
+budxiyv
+
+zjpqlmftionbgu
+tzbfgjiqoumapn
+nzcjuftibompqg
+aztbmoiqnjfgup
+
+chpnjmvlw
+hlbrdvqemcnwp
+pnkvcmlwh
+lmcyfwpvhn
+ynlmcjvipawh
+
+kzhxeqfa
+feaxqzkh
+hzxkaeqf
+zfqhexka
+fqxahkze
+
+blwqdpy
+yqdaniplwbe
+jhxbrwdylngqs
+qwtdylukzvbm
+
+asobzdl
+jahzxpdy
+daksz
+zadufl
+
+ahunxksgp
+sakhpun
+nukathps
+uzhnsapk
+pmusknahz
+
+yzmogwp
+tbqcp
+bnpcr
+xhp
+
+dhyxojbvrqnml
+nkr
+rnc
+wngra
+
+kmdynhutpjlvxaroce
+pbwohkjtmyfnzg
+tjoikmhypnsq
+
+zduqkfivgjo
+oizvjfuqbd
+zvjuqrfigdo
+vudqiozjf
+oidvqyzuftj
+
+usmo
+sm
+sm
+ms
+
+njf
+f
+glft
+
+auh
+hwiavfug
+
+xevqipr
+gwxdmlsuakcyf
+
+iltoavmycurph
+luhcarivtomxy
+yihcratumoevxl
+louhcvmiytra
+miqzdtolhrcayuvwg
+
+xwtcmqso
+
+xdnimfbyr
+okimydfr
+uhgzfyjqat
+
+evjdtmcoxiklhpgwq
+qgnxbkftmhiy
+ixqrakuhngytm
+
+hfzpe
+uefphkb
+afmwhqpek
+fvpoygjinlhexds
+
+oly
+byoal
+yol
+koly
+oyl
+
+k
+k
+k
+k
+k
+
+ofhrz
+xhpruzq
+zrh
+hwgrbedykvsmzin
+
+ginxcsjevrwyqz
+egysvqncxzrij
+syvgzcnreqijx
+zcvxgsjrqenyi
+qyfvzirnjcgxes
+
+eyxfutwoqjbrvkgds
+xsfjoutrbeqwkvgyd
+vqwtjgdbrsfoyukxe
+vfurtykqgebjwosdx
+eypubrkojqvdsgtfwx
+
+odwmeztifrjxn
+nrgmwlxc
+vgkxwrlnm
+
+tz
+tz
+rtz
+
+daze
+ezyad
+
+ujqdozgh
+goujdmqkzh
+jghuqdzo
+gjozdqhu
+
+erdnakojyfzchvxg
+hfekdrnctgvzpyjaxom
+
+hwi
+wih
+hiw
+hiw
+
+krqdscaoiwhnyz
+rwjaknoxyidzsqhpc
+rnyqdawcoskifghz
+wahrqznyvdcskiuo
+
+swlakrxjmtpv
+inaylxhdjwkmsvur
+qbxavfrlewkcsjm
+
+ucxvtw
+ue
+u
+lu
+
+oztxeqjvgb
+tpdbjgoqe
+
+spyqunh
+uypnhqs
+
+fdw
+safw
+wfjh
+wfomxi
+lwfsdn
+
+daibtezjo
+qtxeaizjmdb
+aoejitbkzd
+etadizjb
+
+jkeynazqvobiflrushcwtgdmxp
+wnrjequcdxlkmtfobihsvy
+iksvuebxtjwmhfrdqyocln
+
+gkxq
+pkw
+kw
+
+swy
+ywsn
+
+jzqurhixawto
+gaojpfrzciq
+izoxrtqawj
+asoihjqzutr
+
+wijlermdyzhstf
+zjlrwfsdhmtiey
+elymwztijfrdhs
+
+qatxy
+tyq
+
+nja
+yha
+a
+gfsav
+kha
+
+uebolhvntdkfsxap
+fpnlskhdeuobva
+oahteupksbvdlnf
+oeulbvhdpfksna
+ansgphkrfdlovebu
+
+vpe
+vedp
+pev
+pev
+pev
+
+zacfpshmrequykt
+tuzarfpmknwc
+pzuimacvfktr
+
+cjeqourh
+eouqcljr
+rojueqc
+
+ykoi
+koyi
+koyi
+kiyo
+
+fvkhuntrmpz
+ckngmxirpuzvat
+rfuvksnozpath
+bntdrlyvkzupj
+rukwpvtzcn
+
+wczery
+eczwrby
+wrzcey
+
+xjndayl
+hnlyaxdj
+lndayxj
+ynjdlaxt
+
+j
+j
+j
+tj
+
+awhrfvjbzduistx
+gnyhcmteop
+
+ym
+y
+sy
+my
+
+zkai
+ajiz
+aiz
+aiz
+ikaz
+
+irgsokuwy
+lnxtcqsiwmf
+busyvhzidw
+
+qxhpynjewsfmkd
+hwpqenfkydm
+
+aedbfmx
+fwexa
+jgckhspy
+
+zpusakfeb
+izpev
+sdepzu
+znpwe
+pqjgehtxzr
+
+vqmlkjznbeiofahucdtsgw
+utmvhgqedbocfwkszjlain
+yfbqzaspnlgotrdjxuhvkemiwc
+idglcasthofkuemnbjwqzv
+
+uqhdebp
+chdbquepl
+qedzphbu
+hupdqbe
+qbedhpu
+
+ehnv
+t
+
+aksmbzu
+wvlhktdqpjmsirz
+fznykbsem
+ksgmz
+kzxsymc
+
+vnoetrhlgkcmqxdp
+nvdqtkolcrhxep
+pxcedrnhoiltqvk
+elrxnhitcpqdokv
+
+ymuxitzqsagrkofcvbj
+tauxskfigjymro
+
+cnfdjwbxkisp
+cpydkbjxwsifn
+cipnkbufswdjrx
+ybkxihfwejnscdp
+
+yueaplwitfdvkoxnbjcmrqgz
+jvlfmxoakzwiegpbdnrquct
+manwikovgbpuhrcfesjlzxtqd
+
+lptzwxfn
+fpnxtlz
+nxtflegzpj
+
+dkpuyaefsijvlrhgqxmnt
+bshiwokugpflvtmzeqxnyja
+
+in
+n
+xzou
+
+ng
+gn
+
+epqbvmi
+vqembi
+bvmeqizu
+mbeqiv
+
+cjapgriulbzeq
+ugiqdzcvpobjlrek
+zqleircpubjg
+cirjuqbzgepl
+
+nhpsreikdjzo
+hkjsnodipzer
+znoidphekjrs
+
+dezf
+edfz
+efdz
+rdfze
+
+nzitsqrfp
+qiznrfspt
+rfqizspnt
+nsqizrptf
+
+xntrkogqfapj
+nioagqtmrfkjyp
+
+is
+sgdi
+qsity
+
+pe
+ep
+ep
+ep
+
+uhvpiwdgsfr
+uwlpcqrezykovni
+
+aevu
+ae
+ea
+ae
+
+djzfhxmas
+msdxhz
+zexhdsymt
+dxzshktm
+dzemshxg
+
+msqiuvncoltxejg
+cqxfmsonlvute
+
+wmfblsrogvjinpc
+rplfngicojbkvwms
+cfbolhnjvrsimwgk
+gmisflrwnkcjbov
+vmwrcbosjngfuil
+
+kbxitoqvzajudfnsgmyc
+ikfwcxzgvtjedmsyouqnab
+aqknmufjiypcvxbgodstz
+
+eshyzxbqncuomfpwgk
+gzcxqpmhljeoyuikbfrn
+bzhxveutpfyaqmkcong
+
+evqyuicpfhl
+yquckvlpiejf
+
+anf
+szydm
+
+qt
+qt
+qt
+
+mfyovqgpnlbcxidauzh
+cqniopdhfgxlauvzbmy
+idxofbaylmcznuvqhpg
+qbcpihzogydlfvmnwuxa
+qgvcumyizpnabxdfhol
+
+btwjlohyfaq
+ydlwprkj
+
+rhisamcj
+csirha
+srcaih
+icshar
+
+mejydkgtnfovuzix
+enuvirjogdmkyxztf
+xefomztvkungysdijc
+jxdginfktapovyzueqhm
+fioktdsnemgjuzyxv
+
+hrztvexlkob
+lwekirhbxdzqtmo
+
+etxv
+arxtvue
+exvft
+
+fwdnqsomhtryxvcgzej
+eczwytuhfsgmdqnxoj
+ycdsqwznhftgjmkoxe
+tsjnexcafwmhygzbvqod
+
+xovcfts
+cfsopxvdt
+xoscfvt
+osfxtvc
+
+w
+rc
+t
+zs
+ik
+
+lzm
+zpl
+
+romqvb
+mvo
+
+uy
+y
+y
+y
+
+govwliuabszqp
+goiabwfusvzlpnq
+qpiwgbvaosulz
+apvguizblwsqo
+
+s
+m
+s
+s
+
+ozpiljymxhswnfuevt
+emvbwshnylzxpjti
+nveblmzchtwjiypsx
+
+nldfsb
+sfblndt
+sdblfn
+bnflds
+ndslbf
+
+ieg
+idew
+
+wonxsab
+wbsaoxn
+nobaxws
+wasbnox
+
+alscukjbf
+lsbjakfc
+
+jxcduqioabwpyhlzef
+ialdxwfzycqjhbepuo
+jfzypowishadclxbueq
+
+riydchjfnwqvtmbpsaloxe
+dsbwfintzelormhvxcaqpyj
+ejomaiyqsxcthfvpdlwbnr
+lrycvtunboifgxawqemhpjd
+xvtiafqrdwnoymclepbhj
+
+jsydqempfvntrhui
+miyefthpuqsrvnj
+zsvyrmhbtuelpqinfja
+nuphytvreqmfsji
+
+cltvanwuh
+tulachoyvwn
+tuwclvanh
+
+bixkgozashw
+hakibzoswmx
+
+poxkblmhqjftwsdcn
+bhtykpvzjxuiengao
+
+j
+j
+j
+
+cqodguxrzles
+loxqcrgeszudw
+ocsdqruxglze
+rugqoyxesdzlcf
+ulzdorxgsqec
+
+yvz
+vyz
+
+mfq
+sztdnk
+py
+
+zawgmj
+jawgz
+gwapjz
+sgzajw
+
+ekoadscpwhg
+jsuchbxmfyzlnwq
+
+wlkrqcjux
+xuqjclr
+gjrqlcxu
+
+afcosnhvprzblxtwd
+abszvxoglnctfhpwr
+bjhlvzfwceayksxtun
+tzvnxrhwlmsfacbd
+
+igreocyhquzjmvlx
+liowjethfkqszvmxdyu
+
+ljeqkvwpdazgocf
+cqgdyvmjuwpeotainsr
+
+mhoylsckuzxbiaevq
+vyczxkjeoapsbifu
+kxbdosyzavujiec
+
+mwsfxbkjqazpiohgnyldc
+xqgnadblfkwpcomshiy
+wgvsalrhqbmieyxodpfnkc
+
+eurqfmtkvjbosh
+vyqrhkotfblmseu
+brtfqkvoheums
+rvtksmehoubqf
+uwftdoarkmvqgehbcps
+
+ctyalrqdxskjuoh
+dlathrokujqxs
+hxsqukdoaltjr
+osrqkautljxdh
+
+zfdlxtr
+sburlzxd
+zlrdx
+
+ocfb
+cbfo
+
+uykhxqrtmnc
+ahigrcuptnxdqmk
+
+tckz
+ktzc
+
+vzgtxhkums
+kvzmhtgus
+sgthkzumv
+vzxsgmkuht
+znqmuhvkswgt
+
+jtdwk
+ydkti
+kdt
+dkjt
+
+mwxehozbnqpad
+ryjdeblzwxnpoucqahmtg
+
+liumaz
+izulam
+zauloim
+miludzaqr
+
+rzkjguslxohwnfdivm
+ofulwkhisgvjmnrxzd
+dikwvojugxzfrmnlsh
+sxjdzkcuworbnvgflmih
+vlmxrzikndhwjofgus
+
+fzqnodmx
+a
+v
+
+lfoeh
+leovfh
+hofsle
+
+djku
+kjud
+dukj
+
+qtiwbxfhlzjnokvpadruymgse
+onurjdisvgzwaqkybftlhpmex
+fnmqwuhtyjrkepbgildovxasz
+marndljbkegqxtupviscywfhzo
+fdbqehtxkavjimzwporsugyln
+
+aqkonbhvfdljigp
+phaqrlkbjdin
+phldcbkaumjvinq
+iplbjxeykqhdazn
+
+zsl
+sz
+xsyzh
+zs
+
+xdhlq
+ndlkxjyu
+xlde
+xdl
+
+blwmairvkofcuq
+tedokrvbqm
+
+pw
+p
+
+iqrbnglofs
+grwuylifvkbq
+
+yl
+yl
+
+xaizpuhlqo
+kiloxm
+ilkox
+
+puaorhzmtvfg
+mutoegrhzafv
+
+lrzmpt
+dpqyihnsa
+
+jfiodcs
+spi
+swni
+isn
+
+ohdmyvlpbxjnqzfrswiuaeg
+ceafhrujqtndivbxpwzsmg
+
+mvoxyd
+tvdoymx
+xdymov
+
+py
+y
+
+nutogsehiczykpmdvf
+ngmueistpxkfodhvzrcy
+yuhczioegpvmnfktsd
+
+zp
+z
+zbc
+z
+z
+
+creyt
+uisfmova
+er
+
+dltugzhniyjro
+lizndhrutojyg
+jhgnzytuordli
+lhgotuznirjydc
+
+xtrckznswlueia
+ivnwstaeulrkzjc
+kcwaleiuznqrts
+rkwiunqzatsecl
+
+y
+pqnae
+ofm
+fl
+y
+
+czoi
+smvbnd
+tzi
+
+tzanvx
+azgnjx
+ingjzyuae
+anrhzkq
+
+eqhafrbmw
+rjscmwxz
+lrgnyfeukdvmiqwpt
+
+tarsmxwveqdhjbk
+xrajvebtdmwkh
+taojykmefwbdzrxuvnp
+wbdtmjrevakx
+ctilgkbmaredjwvx
+
+wp
+p
+p
+
+zprwtogmdu
+orwdmtzuxpg
+omwputzdgr
+umgrtpwozd
+wgzdrtpmou
+
+xtkjsm
+ylqptfjmk
+
+pzgyknr
+kyorpngz
+pnzykgra
+
+rtsiypahgecuvj
+rsudtcgjiheyvp
+rpyehvtijcgsu
+cyprhvestgjui
+uvigershtyjpc
+
+jlmhtfbsoq
+gbtohjsqm
+mbstojqh
+mhkecsqtabjox
+
+xrhinjamvo
+hproxvnma
+mzscorhnx
+
+utwprfqjyhsvzaomcb
+yesrijzcagmhbwoutvpnqk
+porcxwmyutzajbhqsv
+uvrcpyzsmhajowtqb
+ycpwuzovatbsmjqhr
+
+fbkgycqutlmw
+wuybgqmlcfk
+xycgbkqmulwf
+bgcfwyuqklm
+
+vntsimju
+boegqz
+
+edotgsi
+dgoism
+iogds
+gdstio
+sogdixz
+
+fdi
+ifd
+
+rx
+v
+x
+
+qibkwyvmtxargjldc
+bykzitxevgrwsnqflcdjm
+
+dborhtpxjsflciveyq
+xbuijhdqafnsrvepozytcl
+qhlopsdtebcjyfrixv
+hlvdyqxtcroegfjbisp
+ormifqdhyvxjpclebst
+
+qtzumogwrclaiex
+iburltzgexdocwapq
+ixuwtoqlegnrzc
+xizeklwrugtqhoj
+
+iynjbsahtvfeurqkgd
+rtnwjgeukyadicflq
+deytfqknlpjuairgc
+
+oy
+to
+po
+
+wyj
+q
+
+vatgy
+xegndfrv
+smgv
+sgzbacv
+
+ifmepunrdszgh
+mvgdesianluzpfrh
+eypfughdnmszitr
+nepugsfimzrdh
+fzuiqesnjcdwoxmhkpbrg
+
+goycuvjqnpix
+ytwnigvcjq
+
+bsiczfhkne
+gwxp
+ojdl
+a
+uvgm
+
+kaxzjpmwutcqnv
+isadmolbtrfugxyhcj
+
+vxqhfryiakbn
+txhqbavyknri
+
+ptbqifxcwyjgordls
+dbpvkeauyc
+
+kovpawxf
+ovwxkpfa
+xbknwjpcoaftq
+oxapvfkw
+
+ybjvaftkzheqgiuposnmxc
+ungfezmiskqvyjaphobxtc
+yjqimsvbktaonpeucfzhgrx
+nepvgsifuqytahxzmjkocb
+qmaexzipshcvjkfyonutgb
+
+u
+u
+u
+u
+
+tpgqyvjaedlkbhwr
+nytwkpqlvmgrbehxjad
+
+vsruxht
+rdmb
+rfb
+
+khqyd
+ycj
+
+aidrbmzkxvt
+yzvbkiorxamdt
+
+mzwvhblrxtn
+vqalzwcbrxjmtnd
+wlvnrtxmzcbg
+
+ow
+ow
+ewuob
+wo
+
+gl
+mnacgl
+lg
+gul
+kdflg
+
+oqvd
+qodvy
+qdvo
+qvoda
+
+rd
+fus
+thoi
+
+rtnz
+tqagrnlb
+
+wemlvjbhuqcfrtodkxzn
+pjbtruvdmhowfznlxekq
+eoyadnxbuktqshgwfmvzirlj
+
+kumotnwel
+lmezwoutkn
+nuemkwlot
+efnlduohmtkw
+
+mhaubleozw
+zwulbhmo
+mhbzouwl
+hmwulbzo
+
+hvjpdoiswzbenma
+ojndsepwhiq
+dwsjnhiope
+tsohjdpwien
+joipwhesnd
+
+edbhi
+fisdhbe
+
+r
+v
+v
+v
+
+ezlc
+czei
+azlcei
+czie
+eynczs
+
+ngfuhekmzxvopy
+twogyeknxvmhbjzpuf
+zxpfnygeomukvh
+
+ktxduimz
+vtgmurjiqk
+mtkbuia
+
+uykwh
+kuyhnw
+
+dzjqnwbrouh
+qfncpvszdeg
+cydmlqnz
+dzqtn
+
+xga
+hmxpdg
+fnxgeu
+nxeogu
+
+nsxrgu
+xngurs
+
+jvmudzscnalhwktry
+lrvucmjkwztsyna
+wyruzcjxlbtemsknva
+yzwvklpcqustojrmnai
+zyjntswcuarkmvl
+
+zq
+qz
+qz
+qz
+zqt
+
+gbpnqrxu
+dqnxyvwhbtgi
+csqmbfjeaokxlz
+
+rdtuqpxnbzj
+yzsnpu
+fcnrzpou
+penzu
+nvukhlmizwpag
+
+tdvfgahbiw
+gtbpsdo
+
+ucdprxmznhbw
+rcumdzpwnx
+dxnpzrmcuw
+drpxcmnzuw
+zxwcnpmrdu
+
+dhouqlfvsakg
+uaofqkdsvhgl
+uoalfhvqsgkd
+klgvfudqosah
+auhslqfkgvdo
+
+qkwfimrogubyhljda
+shuprevacxlndiqfjwy
+
+crpsetajviwmqhl
+szqdpfvimaekgbj
+
+geyqpl
+gzqlei
+qleg
+
+kcfipzjwyugsrtahboneqxdm
+uwkcmtdfopayenqbshxi
+eudhcyfpwamoxvkqlistnb
+
+yfqbtnwuzsdl
+lszfnquwbtyd
+fsjznbdwytulq
+bfgldzqyutwsn
+
+n
+uv
+
+vjfzuhqgaypbmcd
+hqmbpsjyugrvfzatndc
+ovfazbdipqxeclykjgum
+vmbzptjwydaguncfrq
+
+k
+w
+k
+k
+
+eipruzqndlys
+elrysidnzqu
+
+pzlgeciqys
+wjvrdxmunfsb
+
+kdy
+kd
+kd
+dlk
+kd
+
+yretjs
+g
+kahzubo
+rjd
+r
+
+hlxpawm
+xmyeltpqw
+gmpxicbv
+burmxc
+ozxmsfjdn
+
+dtskziwy
+qxzycupgs
+
+iflherjytpxg
+thienjgrfxly
+heyftrgjlix
+igyfjurphtexl
+gtyxrjleihf
+
+nuswkhz
+xosqihvwfrez
+hgszyw
+
+ukphojt
+hotkpzju
+htupjbko
+mjpkouhd
+
+luhsi
+shliu
+lihqsu
+
+iqr
+ybndlhzrgwtmkf
+rxcuq
+
+j
+j
+j
+j
+
+rwqsbyoe
+fweujxcoliya
+mpowrey
+
+wvn
+wv
+
+frbuexwg
+xmqgdwfeb
+
+rbyjsiqxtfcvlup
+vqpuyrifcsjxtlb
+yvtqirslxpjfbcu
+vsribxjcufylqpt
+
+ikcvoguphqtyjdswzexa
+ptjocgxiuhwavydsqzek
+ipcuohvqdwyxsetkagjz
+vpgdhzqckoywxaijuest
+
+erhdoyugavcq
+doqsvahugec
+cnhezgfavbuixdo
+
+lhgvknmequsctapxzbjdorf
+fodnxkrlqthcubmzvpjaeg
+fcvqmordxhklpybujgenatz
+nlmbxvpcokearhdzjtqufg
+uthcdpbvojlqewrknafgxzmi
+
+hwjpevzgrtmoqknydfs
+jvzstyfdhgkoqpmw
+
+ncw
+gwivun
+wnl
+nxw
+najwbzdrke
+
+ckyowhxblrt
+flabyrdwctk
+lbwripvjtykcs
+
+pn
+eonwtzp
+yxsirvqhcm
+fapu
+njwb
+
+lsjdymwpz
+zmrhuajxvewysp
+
+lyisuvcbdqxotkmh
+bkmrldugxsycohqitv
+xlhcvtmyqibdosuk
+hscubvoelkyqdximt
+
+mb
+mjbf
+rbm
+
+zvqlg
+gnlvjbz
+zvdgl
+dslgvzt
+vczwgl
+
+bem
+yqpgj
+dxflhwokatuvnzs
+irqc
+jqp
+
+gqolch
+hnozqgcl
+
+dnhwl
+hdo
+fduc
+
+lug
+lug
+gurkal
+lgu
+ulg
+
+uahmzdyxbr
+htkmwpcxbqy
+cbhyxmp
+
+ajv
+mjt
+j
+ji
+
+bfpygmtxajnk
+kpnmfbxtgayj
+pcynamktgbjxf
+tfympjvqxgnkab
+
+x
+x
+x
+mxf
+vqx
+
+wlzsgdhixr
+hgcoaiwpbluv
+wyhlig
+iwfnlhqgs
+jfgqihmxwlr
+
+cqrdbpoehiwfuzvgalxm
+ularwipqxcfedozmbvg
+vurqezjkoysgpalbfimxwcdt
+mcvfzqplaxwrgoebiud
+
+mydhxfvgzcleojiq
+ixcozgyvjdfl
+njxuwiaovpycslrzgdf
+
+gfwtnr
+mojdinwkf
+rfnwqhcg
+wfn
+
+lwise
+arl
+trzbvl
+bal
+
+y
+y
+y
+y
+
+sayqdimthfrpjvgn
+crdphnmayqbgf
+
+sfgtqwbzej
+pnmlcyitj
+
+yvtng
+tyn
+nyutg
+ytgenh
+onpty
+
+bleicngomsqhwfdy
+mrbnfygxpiwucoldqshke
+cqdeimynwhsfoblg
+gqesldbcijmwhonfy
+enblgcmfwdhyqois
+
+ufmsgkbcxz
+xfsckzmub
+umbkoxzhrsvcnf
+kzmcsbfxgu
+
+tuiwqd
+hbtdou
+
+t
+t
+t
+t
+t
+
+ureltqfji
+ohzkrul
+
+oievpqgs
+sqdvopigle
+easvqpkgio
+
+upkr
+urpk
+
+wrbipknheldxjfm
+rhjexfldkwpb
+lhrpejxfwbdk
+
+drybxszfetlnwjigk
+fngbltzjywsroixk
+
+hodteualp
+dtrpuile
+
+tqrbsjni
+sbcirnqt
+rsbaitqv
+qbsrit
+gbtsriq
+
+ovjmetdznlw
+dtjvlmonze
+zdjntemolvw
+mlouvjngzkdter
+
+ckrnly
+rclkyn
+cyjlkrnh
+crynkl
+ylckrn
+
+zjk
+zkj
+djkz
+jzk
+jzk
+
+xoj
+mjro
+kjuxro
+ybsjeahf
+
+zhwvtialqegufxmrcj
+hwljxrecaqmztgifv
+vgibmzlxwrdeacfqhjt
+
+nxicerwtzolfgky
+hogmsvdplbweja
+
+w
+clq
+i
+gi
+
+cilrkspgjqmw
+xhvadtlyfjobnzue
+
+ckytg
+nqtyg
+gyxbt
+kygtc
+
+fwcd
+wfc
+oebwhmil
+fdwxr
+
+lomdtfsihk
+sfyitokldmh
+dimyotfkls
+iovdstlmkfj
+smulideqtfok
+
+frazxb
+ahfbxz
+bafzx
+aftbxpz
+
+ubdarimsqvgtlhfjze
+eqfrvhsguzjamtidl
+
+hjidpgrc
+vrp
+zpxwsulqrona
+drhpftvi
+kbrdhype
+
+xidcskygjwmbzr
+bsqexaypghjkv
+
+tgxmy
+atxym
+txym
+
+qjrbmxtluews
+ulbrwtjsxqop
+fzbksturwmxlqj
+tbxvnsjqriuwcl
+
+edhvzwqxojuplbkyf
+wfphdjyczxvlkbqo
+jhxbpkvyfzdloqw
+yhmlfwoqkjpvdxbz
+qfmxikhozbvwydplj
+
+seyq
+yogxm
+
+jzbgatxhrplowqsyecvdn
+nzjvohtguxpydsrlcewab
+
+apzf
+zanwg
+pza
+az
+
+sapxfnyhbowujlcdveqiztkm
+tzskjxqcoebdunyfphi
+
+caruks
+rhlwsv
+
+cnswqfaztmdh
+uxszromtanqdfb
+
+cjnmstxqvdik
+qmjdcksitxvn
+cjktvxqmdnis
+cjnrsqdkxptivm
+
+oq
+qaion
+omq
+qo
+
+kzymeqtbasgn
+cuktvbsorim
+lpjxwhdf
+
+knflw
+ezvkn
+yuhakrnc
+
+vidhwxfrmnsyuct
+rzumskdfeqx
+
+p
+p
+
+duicxvgnbeopfzlqyrks
+skdetoclpbmzqfghwixr
+gfozcdskprxeaiqbml
+plkhqcifedxbgosrz
+
+ydtjolrxzefiaschwng
+tdoerngfhzwxjcylia
+zrawdytxhcojlgenfi
+
+ghvjqlifws
+sfiqklwjehrgv
+
+q
+q
+s
+a
+s
+
+et
+tme
+
+a
+a
+a
+a
+a
+
+qng
+g
+wg
+
+nvmlaui
+audrigo
+atnjdu
+hybxcpszkwuq
+fnu
+
+zmngdceqikxyuapwv
+ciwyqekgamdzvp
+ikcpavfgbwmerqyz
+
+mcvyjezqxrpkiu
+wlfatnmghs
+
+awkqenuiorcd
+lkuowsracdtzqgei
+joxhucpqrmfyvikawe
+
+cdn
+ndc
+
+fybj
+bjfy
+byjucsf
+flybjx
+
+zfcphgxqno
+zhmxyncpqr
+iqhwaclzupsne
+
+oscpyvdebfhz
+pbonsjyrelkfxvz
+wfpvyigbmaeztoqus
+
+ypbfhaivmkx
+xpjfhikyoca
+
+wkzvxlebarsmcdpi
+xidcbpswmazekr
+zsxwidpmekacrb
+pwczxsedakirbm
+
+vfupqwdshxygkmrzol
+wslmypfkogrxzqdvh
+qwlxsrfzpgdomvyhk
+
+cmkdiapszuyb
+bkpyduimascz
+
+vjpxmdzfwkuq
+eycbgsnhltmapxo
+
+xmnklfpugdewtj
+okzerxjuihqcptdmysf
+
+yajvhbtowixds
+dvynabxjiwhs
+asydoixzbh
+ihjdxbasyk
+lifxrbspedahyumcg
+
+snragze
+gmszrnae
+egrazsn
+ensragz
+
+odi
+odi
+ido
+odi
+
+mvogdzfker
+veongkrpzmdf
+vgekmrzdfo
+ombjdfqykergvz
+hzsormkdgfve
+
+l
+l
+l
+ly
+
+kgnpliuwmsebhjfrcyqxotvazd
+mzqryvgsftauxpcknehbiwojld
+
+vczkrabfmhpyjteui
+merjtikybvaugz
+aieydktjrmzvubg
+yeslqoibauvtkmrjz
+
+vi
+vip
+eigv
+vix
+iv
+
+mcuknbexfowszpvtyi
+ztmfwonvcsapqxyieb
+etowynxzcpirmbvsf
+wjfnyvopzetkmiusbcx
+
+ywhqemsx
+banksxwemy
+ymsexw
+smyewx
+szxeywm
+
+yvqtnsahzpwebgr
+zgtjnevyapwbhrs
+jzynhrpvwgsbat
+obtynrfwslcahvzgpm
+eytrpagzwsjvbkhn
+
+ynwutpmvhj
+mvwjpuyt
+wupzyjvmt
+
+kwnyatozcmdqbpsvejfrxug
+vkzjaogfmqsxhnyctpu
+cozypjmtvlxquakgfnsi
+
+qrwtgecs
+daley
+emh
+
+qmbjwe
+qebfwjm
+qewjm
+qjiwem
+
+dqc
+tad
+qdcs
+
+zrvjnfpe
+zpefunyvqc
+fzpvern
+pnefvz
+envpfz
+
+nduhkvstxqmbfyr
+ufmhbtkqvxdnpy
+hdntqxuvmbkfy
+
+ot
+o
+yv
+xp
+
+evkrifstpzgbahl
+vzkmdtchgseajyfub
+bgtnkxvheoaqifsz
+
+wxec
+wfuie
+awmj
+ghsnkvwbqor
+mcexwf
+
+teosna
+tnkb
+ptm
+t
+
+r
+na
+ykx
+
+jdl
+mzjtp
+
+xbpj
+tzrkxba
+xnbjmgosv
+mhxbw
+
+j
+j
+j
+j
+
+xn
+lrvt
+htg
+mr
+
+hafkb
+fkab
+afbk
+
+zlyxomawvuib
+vxwzbaymolui
+
+tcdfzgx
+ql
+luo
+uh
+
+ixtbluahoeqgsv
+eovsiglhuqanxtb
+
+ntychjig
+chyijtgn
+hcnjtiyg
+tgjnhiyc
+tgjiychn
+
+khomqatzscydwunfe
+ygoazrdukh
+zokbrlyaudjh
+
+uojynifthzvcgqp
+phnvryfbtucl
+
+sbeizdtjopxu
+nouqbeykmszd
+
+cga
+gca
+cag
+
+hiogxbslyptfc
+pilwxcthogysb
+holsibtcypfgx
+
+oahyr
+pkjro
+
+qgfkj
+gjzk
+jgvk
+
+kw
+wk
+kw
+wk
+
+bxvmnks
+sfmbva
+
+fsocn
+ygfopn
+
+wbarmxtfyjzenicvlhps
+aefdirlyvzjpwtcmnh
+rqymwfzjpevchiaotnl
+lietnypmcrvhowfjaz
+ztjcehympnavirlwf
+
+gqsnyhtafdcbki
+yncbhxiakgpqt
+
+mikyzoxflndetbp
+ebqdwiopkhyfxnl
+jbscverlgfyauo
+
+bkewpj
+n
+solnxmfr
+
+ybxa
+ybxa
+xyba
+byax
+abxy
+
+sgbo
+sg
+
+unvqlyhzdaxrcwg
+dxvhaugicrzqnlw
+mrplcqatdxzbuvgnwh
+vzaurnhdgqlxwc
+ucdwavqhylxrngz
+
+frhdaek
+fpuwosv
+
+qm
+m
+smg
+#+end_src
