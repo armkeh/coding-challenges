@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/armkeh/coding-challenges/advent-of-code-2022/settings"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
 
@@ -13,8 +14,8 @@ type Elf = []int
 // The group of elves is a list of `Elf`s.
 type Elves = []Elf
 
-func Part1(inputPath string) (string, error) {
-	input, err := utils.GetInputByLines(inputPath)
+func Part1(c settings.Config) (string, error) {
+	input, err := utils.GetInputByLines(c.InputPath)
 	if err != nil {
 		return "", err
 	}
@@ -39,7 +40,7 @@ func Part1(inputPath string) (string, error) {
 			currentElf = Elf{}
 			currentElfCals = 0
 		} else {
-		  cals, err := strconv.Atoi(s)
+			cals, err := strconv.Atoi(s)
 			if err != nil {
 				return "", fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
 			}
