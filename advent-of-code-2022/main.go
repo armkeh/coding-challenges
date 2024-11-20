@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/armkeh/coding-challenges/advent-of-code-2022/day1"
+	"github.com/armkeh/coding-challenges/advent-of-code-2022/day01"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/settings"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
@@ -40,8 +40,8 @@ func main() {
 
 	var runner func(settings.Config)(string, error)
 	switch {
-		case day == 1  && part == 1: runner = day1.Part1
-		case day == 1  && part == 2: runner = day1.Part2
+		case day == 1  && part == 1: runner = day01.Part1
+		case day == 1  && part == 2: runner = day01.Part2
 		case day == 2  && part == 1: runner = unimplemented
 		case day == 2  && part == 2: runner = unimplemented
 		case day == 3  && part == 1: runner = unimplemented
