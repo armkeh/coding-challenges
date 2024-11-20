@@ -10,6 +10,12 @@ type rucksack struct {
 	secondCompartment string
 }
 
+type elfGroup struct {
+	firstInventory string
+	secondInventory string
+	thirdInventory string
+}
+
 // Split the rucksack's contents into the contents of each compartment.
 // By the problem statement, the first half of the rucksack contents are in the first compartment,
 // and the second half are in the second compartment.
