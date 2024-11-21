@@ -8,12 +8,16 @@ import (
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
 
-const returnMsg = "The sum of priorities of group badges is %d."
-
 func Part2(c settings.Config) (string, error) {
+	p, err := priorityOfBadges(c)
+
+	return fmt.Sprintf("The sum of priorities of group badges is %d.", p), err
+}
+
+func priorityOfBadges(c settings.Config) (int, error) {
 	input, err := utils.GetInputByLines(c.InputPath)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	sumOfPriorities := 0
@@ -22,7 +26,7 @@ func Part2(c settings.Config) (string, error) {
 		  // Check any remaining lines are empty
 			for j := i; i < len(input); i++ {
 				if input[j] != "" {
-					return "", fmt.Errorf("Not enough input lines left to form a group, but some remaining lines are non-empty: %v", input[i:])
+					return 0, fmt.Errorf("Not enough input lines left to form a group, but some remaining lines are non-empty: %v", input[i:])
 				}
 			}
 			break
@@ -39,7 +43,7 @@ func Part2(c settings.Config) (string, error) {
 				p, err := priority(r)
 
 				if err != nil {
-					return "", fmt.Errorf("Error checking priority on line %d; %w", i, err)
+					return 0, fmt.Errorf("Error checking priority on line %d; %w", i, err)
 				}
 
 				c.Logger.Debugf("For group starting on line %d, badge is %s, and priority is %d.", i, string(r), p)
@@ -53,5 +57,5 @@ func Part2(c settings.Config) (string, error) {
 		}
 	}
 
-	return fmt.Sprintf(returnMsg, sumOfPriorities), nil
+	return sumOfPriorities, nil
 }

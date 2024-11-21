@@ -1,7 +1,6 @@
 package day03
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -17,12 +16,12 @@ func TestPart2(t *testing.T) {
 	cases := map[string]struct{
 		input string
 		errExpected bool
-		expected string
+		expected int
 	}{
 		"PASS: Empty input": {
 			input: "",
 			errExpected: false,
-			expected: fmt.Sprintf(returnMsg, 0),
+			expected: 0,
 		},
 
 		"PASS: Test input": {
@@ -33,7 +32,7 @@ wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw`,
 			errExpected: false,
-			expected: fmt.Sprintf(returnMsg, 70),
+			expected: 70,
 		},
 
 		"FAIL: Incomplete group, only one elf": {
@@ -96,7 +95,7 @@ ttgJtRGJQctTZtZT`,
 				InputPath: f.Name(),
 			}
 
-			actual, err := Part2(conf)
+			actual, err := priorityOfBadges(conf)
 
 			if tc.errExpected {
 				if err == nil {
@@ -107,7 +106,7 @@ ttgJtRGJQctTZtZT`,
 					t.Fatalf("Returned unexpected error: %s", err)
 				}
 				if actual != tc.expected {
-					t.Fatalf("Actual result (%s) does not match expected result (%s).", actual, tc.expected)
+					t.Fatalf("Actual result (%d) does not match expected result (%d).", actual, tc.expected)
 				}
 			}
 		})
