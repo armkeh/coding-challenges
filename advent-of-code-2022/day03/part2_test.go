@@ -1,10 +1,10 @@
 package day03
 
 import (
-	"os"
 	"testing"
 
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/settings"
+	"github.com/armkeh/coding-challenges/advent-of-code-2022/testutils"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
 
@@ -68,31 +68,15 @@ ttgJtRGJQctTZtZT`,
 		testLogger.Debugf("Running test case %s", name)
 
 		t.Run(name, func(t *testing.T) {
-			
-			// Create temporary input file
-			f, err := os.CreateTemp("/tmp/", "aoc2022-test-input-*.txt")
-			if err != nil {
-				t.Fatalf("Failed to create temporary input file; %s", err)
-			}
-
-			// Defer its cleanup
-			cleanupTempFile := func() {
-				err := os.Remove(f.Name())
-				if err != nil {
-					t.Fatalf("Failed to cleanup temporary input file: %s", err)
-				}
-			}
+			inputFilename, cleanupTempFile, err := testutils.CreateTempInputFile(tc.input)
 			defer cleanupTempFile()
-
-			// Write the test input to the file
-			_, err = f.Write([]byte(tc.input))
 			if err != nil {
-				t.Fatalf("Failed to write test input to temporary file: %s", err)
+				t.Fatal(err.Error())
 			}
 
 			conf := settings.Config{
 				Logger: testLogger,
-				InputPath: f.Name(),
+				InputPath: inputFilename,
 			}
 
 			actual, err := priorityOfBadges(conf)
