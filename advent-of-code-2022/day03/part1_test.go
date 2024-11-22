@@ -29,6 +29,24 @@ func TestPart1(t *testing.T) {
 			errExpected: false,
 			expected:    157,
 		},
+
+		"PASS: Even inventory size": {
+			input:       elfWithOddInventorySize,
+			errExpected: false,
+			expected:    1,
+		},
+
+		"PASS: Odd inventory size": {
+			input:       elfWithEvenInventorySize,
+			errExpected: false,
+			expected:    1,
+		},
+
+		"PASS: No duplicate items": {
+			input:       elfWithNoDuplicateItems,
+			errExpected: false,
+			expected:    0,
+		},
 	}
 
 	for name, tc := range cases {
