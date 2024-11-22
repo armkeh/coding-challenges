@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -29,4 +30,19 @@ func GetInputByLines(path string) ([]string, error) {
 	}
 
 	return strings.Split(input, "\n"), err
+}
+
+func RemoveEmptyLines(lines []string) []string {
+	isEmptyLine := func(s string) bool { return s == "" }
+
+	return slices.DeleteFunc(lines, isEmptyLine)
+}
+
+func GetInputByLinesLessEmptyLines(path string) ([]string, error) {
+	input, err := GetInputByLines(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return RemoveEmptyLines(input), nil
 }

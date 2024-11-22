@@ -9,9 +9,18 @@ import (
 )
 
 func Part1(c settings.Config) (string, error) {
-	input, err := utils.GetInputByLines(c.InputPath)
+	sumOfPriorities, err := duplicateItemPriorities(c)
 	if err != nil {
 		return "", err
+	}
+
+	return fmt.Sprintf("The sum of priorities of items accidentally included in both compartments of a knapsack is %d.", sumOfPriorities), err
+}
+
+func duplicateItemPriorities(c settings.Config) (int, error) {
+	input, err := utils.GetInputByLinesLessEmptyLines(c.InputPath)
+	if err != nil {
+		return 0, err
 	}
 
 	sumOfPriorities := 0
@@ -23,7 +32,7 @@ func Part1(c settings.Config) (string, error) {
 				p, err := priority(r)
 
 				if err != nil {
-					return "", fmt.Errorf("Error checking priority on line %d; %w", line, err)
+					return 0, fmt.Errorf("Error checking priority on line %d; %w", line, err)
 				}
 
 				c.Logger.Debugf("On line %d, duplicate item is %s, and priority is %d.", line, string(r), p)
@@ -38,5 +47,5 @@ func Part1(c settings.Config) (string, error) {
 		}
 	}
 
-	return fmt.Sprintf("The sum of priorities of items accidentally included in both compartments of a knapsack is %d.", sumOfPriorities), nil
+	return sumOfPriorities, nil
 }

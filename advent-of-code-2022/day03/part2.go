@@ -9,21 +9,21 @@ import (
 )
 
 func Part2(c settings.Config) (string, error) {
-	p, err := priorityOfBadges(c)
+	p, err := badgePriorities(c)
 
 	return fmt.Sprintf("The sum of priorities of group badges is %d.", p), err
 }
 
-func priorityOfBadges(c settings.Config) (int, error) {
-	input, err := utils.GetInputByLines(c.InputPath)
+func badgePriorities(c settings.Config) (int, error) {
+	input, err := utils.GetInputByLinesLessEmptyLines(c.InputPath)
 	if err != nil {
 		return 0, err
 	}
 
 	sumOfPriorities := 0
 	for i := 0; i < len(input); i += 3 {
-		if i + 2 >= len(input) {
-		  // Check any remaining lines are empty
+		if i+2 >= len(input) {
+			// Check any remaining lines are empty
 			for j := i; i < len(input); i++ {
 				if input[j] != "" {
 					return 0, fmt.Errorf("Not enough input lines left to form a group, but some remaining lines are non-empty: %v", input[i:])
@@ -32,10 +32,10 @@ func priorityOfBadges(c settings.Config) (int, error) {
 			break
 		}
 
-		group := elfGroup {
-			firstInventory: input[i],
+		group := elfGroup{
+			firstInventory:  input[i],
 			secondInventory: input[i+1],
-			thirdInventory: input[i+2],
+			thirdInventory:  input[i+2],
 		}
 
 		for _, r := range group.firstInventory {

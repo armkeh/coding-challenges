@@ -6,14 +6,14 @@ import (
 )
 
 type rucksack struct {
-	firstCompartment string
+	firstCompartment  string
 	secondCompartment string
 }
 
 type elfGroup struct {
-	firstInventory string
+	firstInventory  string
 	secondInventory string
-	thirdInventory string
+	thirdInventory  string
 }
 
 // Split the rucksack's contents into the contents of each compartment.
@@ -23,7 +23,7 @@ func parseRucksack(s string) rucksack {
 	half := len(s) / 2
 
 	return rucksack{
-		firstCompartment: s[:half],
+		firstCompartment:  s[:half],
 		secondCompartment: s[half:],
 	}
 }
@@ -34,10 +34,10 @@ func priority(r rune) (int, error) {
 	}
 
 	if unicode.IsLower(r) {
-		return int(r - 'a') + 1, nil
-	} else if unicode.IsUpper(r) { 
-		return int(r - 'A') + 27, nil
+		return int(r-'a') + 1, nil
+	} else if unicode.IsUpper(r) {
+		return int(r-'A') + 27, nil
 	}
 
-	return 0, fmt.Errorf("%s is not an upper or lowercase letter", string(r))
+	return 0, fmt.Errorf("'%s' is not an upper or lowercase letter", string(r))
 }

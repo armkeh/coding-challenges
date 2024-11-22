@@ -8,7 +8,7 @@ import (
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
 
-func TestPart2(t *testing.T) {
+func TestPart1(t *testing.T) {
 	testLogger := utils.Logger{
 		MinLevel: utils.Debug,
 	}
@@ -27,33 +27,7 @@ func TestPart2(t *testing.T) {
 		"PASS: Test input": {
 			input:       testInput,
 			errExpected: false,
-			expected:    70,
-		},
-
-		"PASS: Extra trailing newlines": {
-			input:       testWithExtraTrailingNewlines,
-			errExpected: false,
-			expected:    70,
-		},
-
-		"FAIL: Incomplete group, only one elf": {
-			input:       singleElf,
-			errExpected: true,
-		},
-
-		"FAIL: Incomplete group, only two elves": {
-			input:       twoElves,
-			errExpected: true,
-		},
-
-		"FAIL: Incomplete group, one extra elf": {
-			input:       testLessTwoElves,
-			errExpected: true,
-		},
-
-		"FAIL: Incomplete group, two extra elves": {
-			input:       testLessOneElf,
-			errExpected: true,
+			expected:    157,
 		},
 	}
 
@@ -72,7 +46,7 @@ func TestPart2(t *testing.T) {
 				InputPath: inputFilename,
 			}
 
-			actual, err := badgePriorities(conf)
+			actual, err := duplicateItemPriorities(conf)
 
 			if tc.errExpected {
 				if err == nil {
