@@ -47,6 +47,12 @@ func TestPart1(t *testing.T) {
 			errExpected: false,
 			expected:    0,
 		},
+
+		"FAIL: Duplicate item is non-letter ASCII character": {
+			input:       "aa",
+			errExpected: false,
+			expected:    0,
+		},
 	}
 
 	for name, tc := range cases {
