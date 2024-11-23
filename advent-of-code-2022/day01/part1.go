@@ -9,9 +9,18 @@ import (
 )
 
 func Part1(c settings.Config) (string, error) {
-	input, err := utils.GetInputByLines(c.InputPath)
+	maxCals, maxElf, err := maxCalories(c)
 	if err != nil {
 		return "", err
+	}
+
+	return fmt.Sprintf("The elf with the maximum calories has %d calories and inventory contents %v.", maxCals, maxElf), nil
+}
+
+func maxCalories(c settings.Config) (int, Elf, error) {
+	input, err := utils.GetInputByLines(c.InputPath)
+	if err != nil {
+		return 0, Elf{}, err
 	}
 
 	maxElf := Elf{}
@@ -36,7 +45,7 @@ func Part1(c settings.Config) (string, error) {
 		} else {
 			cals, err := strconv.Atoi(s)
 			if err != nil {
-				return "", fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
+				return 0, Elf{}, fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
 			}
 
 			currentElf = append(currentElf, cals)
@@ -44,5 +53,5 @@ func Part1(c settings.Config) (string, error) {
 		}
 	}
 
-	return fmt.Sprintf("The elf with the maximum calories has %d calories and inventory contents %v.", maxCals, maxElf), nil
+	return maxCals, maxElf, nil
 }
