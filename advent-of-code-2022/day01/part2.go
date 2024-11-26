@@ -9,22 +9,38 @@ import (
 )
 
 func Part2(c settings.Config) (string, error) {
-	input, err := utils.GetInputByLines(c.InputPath)
+	topCals, topElves, err := topCalories(c)
 	if err != nil {
 		return "", err
 	}
 
+	totalTopCals := 0
+	for _, cals := range topCals {
+		totalTopCals += cals
+	}
+
+	return fmt.Sprintf("The three elves with the maximum calories carry %d calories, "+
+		"their calorie counts are %v, and their inventory contents are: %v.",
+		totalTopCals, topCals, topElves), nil
+}
+
+func topCalories(c settings.Config) ([]int, []Elf, error) {
+	input, err := utils.GetInputByLines(c.InputPath)
+	if err != nil {
+		return []int{}, []Elf{}, err
+	}
+
 	const (
-		most       = 1
-		secondmost = 2
-		thirdmost  = 3
+		most       = 0
+		secondmost = 1
+		thirdmost  = 2
 	)
-	maxElves := map[int]Elf{
+	maxElves := []Elf{
 		most:       {},
 		secondmost: {},
 		thirdmost:  {},
 	}
-	maxCals := map[int]int{
+	maxCals := []int{
 		most:       0,
 		secondmost: 0,
 		thirdmost:  0,
@@ -68,7 +84,7 @@ func Part2(c settings.Config) (string, error) {
 		} else {
 			cals, err := strconv.Atoi(s)
 			if err != nil {
-				return "", fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
+				return []int{}, []Elf{}, fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
 			}
 
 			currentElf = append(currentElf, cals)
@@ -76,10 +92,5 @@ func Part2(c settings.Config) (string, error) {
 		}
 	}
 
-	totalMaxCals := 0
-	for _, cals := range maxCals {
-		totalMaxCals += cals
-	}
-
-	return fmt.Sprintf("The three elves with the maximum calories carry %d calories, their calorie counts are %v, and their inventory contents are: %v.", totalMaxCals, maxCals, maxElves), nil
+	return maxCals, maxElves, nil
 }
