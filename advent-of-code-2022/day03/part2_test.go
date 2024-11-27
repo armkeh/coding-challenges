@@ -18,40 +18,40 @@ func TestPart2(t *testing.T) {
 		errExpected bool
 		expected    int
 	}{
-		"PASS: Empty input": {
+		"POSITIVE: Empty input": {
 			input:       "",
 			errExpected: false,
 			expected:    0,
 		},
 
-		"PASS: Test input": {
+		"POSITIVE: Test input": {
 			input:       testInput,
 			errExpected: false,
 			expected:    70,
 		},
 
-		"PASS: Extra trailing newlines": {
+		"POSITIVE: Extra trailing newlines": {
 			input:       testWithExtraTrailingNewlines,
 			errExpected: false,
 			expected:    70,
 		},
 
-		"FAIL: Incomplete group, only one elf": {
+		"NEGATIVE: Incomplete group, only one elf": {
 			input:       singleElf,
 			errExpected: true,
 		},
 
-		"FAIL: Incomplete group, only two elves": {
+		"NEGATIVE: Incomplete group, only two elves": {
 			input:       twoElves,
 			errExpected: true,
 		},
 
-		"FAIL: Incomplete group, one extra elf": {
+		"NEGATIVE: Incomplete group, one extra elf": {
 			input:       testLessTwoElves,
 			errExpected: true,
 		},
 
-		"FAIL: Incomplete group, two extra elves": {
+		"NEGATIVE: Incomplete group, two extra elves": {
 			input:       testLessOneElf,
 			errExpected: true,
 		},

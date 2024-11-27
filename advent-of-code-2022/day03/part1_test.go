@@ -18,37 +18,37 @@ func TestPart1(t *testing.T) {
 		errExpected bool
 		expected    int
 	}{
-		"PASS: Empty input": {
+		"POSITIVE: Empty input": {
 			input:       "",
 			errExpected: false,
 			expected:    0,
 		},
 
-		"PASS: Test input": {
+		"POSITIVE: Test input": {
 			input:       testInput,
 			errExpected: false,
 			expected:    157,
 		},
 
-		"PASS: Even inventory size": {
+		"POSITIVE: Even inventory size": {
 			input:       elfWithOddInventorySize,
 			errExpected: false,
 			expected:    1,
 		},
 
-		"PASS: Odd inventory size": {
+		"POSITIVE: Odd inventory size": {
 			input:       elfWithEvenInventorySize,
 			errExpected: false,
 			expected:    1,
 		},
 
-		"PASS: No duplicate items": {
+		"POSITIVE: No duplicate items": {
 			input:       elfWithNoDuplicateItems,
 			errExpected: false,
 			expected:    0,
 		},
 
-		"FAIL: Duplicate item is non-letter ASCII character": {
+		"NEGATIVE: Duplicate item is non-letter ASCII character": {
 			input:       "aa",
 			errExpected: false,
 			expected:    0,

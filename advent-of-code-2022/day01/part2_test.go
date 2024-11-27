@@ -20,47 +20,47 @@ func TestPart2(t *testing.T) {
 		expectedTopCals  []int
 		expectedTopElves []Elf
 	}{
-		"PASS: Empty input": {
+		"POSITIVE: Empty input": {
 			input:            "",
 			errExpected:      false,
 			expectedTopCals:  []int{0, 0, 0},
 			expectedTopElves: []Elf{emptyElf(), emptyElf(), emptyElf()},
 		},
 
-		"PASS: Test input": {
+		"POSITIVE: Test input": {
 			input:            testInput,
 			errExpected:      false,
 			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, testThirdmostCals},
 			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), testThirdmostElf()},
 		},
 
-		"PASS: Multiple newlines input": {
+		"POSITIVE: Multiple newlines input": {
 			input:            multipleNewlinesInput,
 			errExpected:      false,
 			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, testThirdmostCals},
 			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), testThirdmostElf()},
 		},
 
-		"PASS: Single elf input": {
+		"POSITIVE: Single elf input": {
 			input:            singleElfInput,
 			errExpected:      false,
 			expectedTopCals:  []int{testMaximumCals, 0, 0},
 			expectedTopElves: []Elf{testMaximumElf(), emptyElf(), emptyElf()},
 		},
 
-		"PASS: Two elf input": {
+		"POSITIVE: Two elf input": {
 			input:            twoElfInput,
 			errExpected:      false,
 			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, 0},
 			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), emptyElf()},
 		},
 
-		"FAIL: Non-integer input": {
+		"NEGATIVE: Non-integer input": {
 			input:       nonIntegerInput,
 			errExpected: true,
 		},
 
-		"FAIL: Negative input": {
+		"NEGATIVE: Negative input": {
 			input:       negativeInput,
 			errExpected: true,
 		},
