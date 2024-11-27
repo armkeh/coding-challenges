@@ -26,7 +26,7 @@ func maxCalories(c settings.Config) (int, Elf, error) {
 	maxElf := Elf{}
 	maxCals := 0
 	checkAgainstMaxElf := func(e Elf, cals int) {
-		if cals > maxCals {
+		if cals >= maxCals {
 			maxElf = e
 			maxCals = cals
 		}
@@ -46,6 +46,10 @@ func maxCalories(c settings.Config) (int, Elf, error) {
 			cals, err := strconv.Atoi(s)
 			if err != nil {
 				return 0, Elf{}, fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
+			}
+
+			if cals < 0 {
+				return 0, Elf{}, fmt.Errorf("Inventory entry %s on line %d was negative!", s, line)
 			}
 
 			currentElf = append(currentElf, cals)

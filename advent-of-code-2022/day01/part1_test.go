@@ -24,6 +24,31 @@ func TestPart1(t *testing.T) {
 			input:        "",
 			errExpected:  false,
 			expectedCals: 0,
+			expectedInv:  emptyElf(),
+		},
+
+		"PASS: Test input": {
+			input:        testInput,
+			errExpected:  false,
+			expectedCals: testMaximumCals,
+			expectedInv:  testMaximumElf(),
+		},
+
+		"PASS: Multiple newlines input": {
+			input:        multipleNewlinesInput,
+			errExpected:  false,
+			expectedCals: testMaximumCals,
+			expectedInv:  testMaximumElf(),
+		},
+
+		"FAIL: Non-integer input": {
+			input:       nonIntegerInput,
+			errExpected: true,
+		},
+
+		"FAIL: Negative input": {
+			input:       negativeInput,
+			errExpected: true,
 		},
 	}
 

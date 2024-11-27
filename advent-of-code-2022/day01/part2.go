@@ -30,11 +30,15 @@ func topCalories(c settings.Config) ([]int, []Elf, error) {
 		return []int{}, []Elf{}, err
 	}
 
+	// We will use slices to store the elves with the topmost calories in their inventory.
+	// We define aliases to use as the array indices to improve code clarity.
 	const (
 		most       = 0
 		secondmost = 1
 		thirdmost  = 2
 	)
+
+	// Initialize the arrays as elves with empty inventories.
 	maxElves := []Elf{
 		most:       {},
 		secondmost: {},
@@ -45,6 +49,9 @@ func topCalories(c settings.Config) ([]int, []Elf, error) {
 		secondmost: 0,
 		thirdmost:  0,
 	}
+
+	// This function checks a new elf againt the existing elves in the topmost slices,
+	// and fits them in if they beat one of the topmost.
 	checkAgainstMaxElves := func(e Elf, cals int) {
 		if cals > maxCals[most] {
 			maxElves[thirdmost] = maxElves[secondmost]
@@ -85,6 +92,10 @@ func topCalories(c settings.Config) ([]int, []Elf, error) {
 			cals, err := strconv.Atoi(s)
 			if err != nil {
 				return []int{}, []Elf{}, fmt.Errorf("Inventory entry %s on line %d could not be parsed as integer; %w", s, line, err)
+			}
+
+			if cals < 0 {
+				return []int{}, []Elf{}, fmt.Errorf("Inventory entry %s on line %d was negative!", s, line)
 			}
 
 			currentElf = append(currentElf, cals)

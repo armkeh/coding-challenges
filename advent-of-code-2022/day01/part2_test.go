@@ -26,6 +26,44 @@ func TestPart2(t *testing.T) {
 			expectedTopCals:  []int{0, 0, 0},
 			expectedTopElves: []Elf{emptyElf(), emptyElf(), emptyElf()},
 		},
+
+		"PASS: Test input": {
+			input:            testInput,
+			errExpected:      false,
+			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, testThirdmostCals},
+			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), testThirdmostElf()},
+		},
+
+		"PASS: Multiple newlines input": {
+			input:            multipleNewlinesInput,
+			errExpected:      false,
+			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, testThirdmostCals},
+			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), testThirdmostElf()},
+		},
+
+		"PASS: Single elf input": {
+			input:            singleElfInput,
+			errExpected:      false,
+			expectedTopCals:  []int{testMaximumCals, 0, 0},
+			expectedTopElves: []Elf{testMaximumElf(), emptyElf(), emptyElf()},
+		},
+
+		"PASS: Two elf input": {
+			input:            twoElfInput,
+			errExpected:      false,
+			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, 0},
+			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), emptyElf()},
+		},
+
+		"FAIL: Non-integer input": {
+			input:       nonIntegerInput,
+			errExpected: true,
+		},
+
+		"FAIL: Negative input": {
+			input:       negativeInput,
+			errExpected: true,
+		},
 	}
 
 	for name, tc := range cases {
