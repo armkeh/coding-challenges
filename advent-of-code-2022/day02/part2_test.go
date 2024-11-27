@@ -1,7 +1,6 @@
-package day01
+package day02
 
 import (
-	"slices"
 	"testing"
 
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/settings"
@@ -9,45 +8,40 @@ import (
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
 
-func TestPart1(t *testing.T) {
+func TestPart2(t *testing.T) {
 	testLogger := utils.Logger{
 		MinLevel: utils.Debug,
 	}
 
 	cases := map[string]struct {
-		input        string
-		errExpected  bool
-		expectedCals int
-		expectedInv  Elf
+		input       string
+		errExpected bool
+		expected    int
 	}{
 		"POSITIVE: Empty input": {
-			input:        "",
-			errExpected:  false,
-			expectedCals: 0,
-			expectedInv:  emptyElf(),
+			input:       "",
+			errExpected: false,
+			expected:    0,
 		},
 
 		"POSITIVE: Sample input": {
-			input:        sampleInput,
-			errExpected:  false,
-			expectedCals: testMaximumCals,
-			expectedInv:  testMaximumElf(),
+			input:       sampleInput,
+			errExpected: false,
+			expected:    12,
 		},
 
-		"POSITIVE: Multiple newlines input": {
-			input:        multipleNewlinesInput,
-			errExpected:  false,
-			expectedCals: testMaximumCals,
-			expectedInv:  testMaximumElf(),
-		},
-
-		"NEGATIVE: Non-integer input": {
-			input:       nonIntegerInput,
+		"NEGATIVE: Their play invalid": {
+			input:       invalidTheirPlay,
 			errExpected: true,
 		},
 
-		"NEGATIVE: Negative input": {
-			input:       negativeInput,
+		"NEGATIVE: Our play invalid": {
+			input:       invalidOurPlay,
+			errExpected: true,
+		},
+
+		"NEGATIVE: Incomplete instruction": {
+			input:       incompleteInstruction,
 			errExpected: true,
 		},
 	}
@@ -67,7 +61,7 @@ func TestPart1(t *testing.T) {
 				InputPath: inputFilename,
 			}
 
-			actualCals, actualInv, err := maxCalories(conf)
+			actual, err := strategicallyPlayTicTacToe(conf)
 
 			if tc.errExpected {
 				if err == nil {
@@ -77,8 +71,8 @@ func TestPart1(t *testing.T) {
 				if err != nil {
 					t.Fatalf("Returned unexpected error: %s", err)
 				}
-				if actualCals != tc.expectedCals || !slices.Equal(actualInv, tc.expectedInv) {
-					t.Fatalf("Actual results (calories %d, inventory %v) does not match expected result (%d, %v).", actualCals, actualInv, tc.expectedCals, tc.expectedInv)
+				if actual != tc.expected {
+					t.Fatalf("Actual result (%d) does not match expected result (%d).", actual, tc.expected)
 				}
 			}
 		})

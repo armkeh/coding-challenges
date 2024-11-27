@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	testInput = `1000
+	sampleInput = `1000
 2000
 3000
 

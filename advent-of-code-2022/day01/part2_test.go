@@ -27,8 +27,8 @@ func TestPart2(t *testing.T) {
 			expectedTopElves: []Elf{emptyElf(), emptyElf(), emptyElf()},
 		},
 
-		"POSITIVE: Test input": {
-			input:            testInput,
+		"POSITIVE: Sample input": {
+			input:            sampleInput,
 			errExpected:      false,
 			expectedTopCals:  []int{testMaximumCals, testSecondmostCals, testThirdmostCals},
 			expectedTopElves: []Elf{testMaximumElf(), testSecondmostElf(), testThirdmostElf()},
