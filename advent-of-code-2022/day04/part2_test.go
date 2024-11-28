@@ -23,6 +23,27 @@ func TestPart2(t *testing.T) {
 			errExpected: false,
 			expected:    0,
 		},
+
+		"POSITIVE: Sample input": {
+			input:       sampleInput,
+			errExpected: false,
+			expected:    4,
+		},
+
+		"NEGATIVE: Malformed range": {
+			input:       malformedRange,
+			errExpected: true,
+		},
+
+		"NEGATIVE: Incomplete range": {
+			input:       incompleteRange,
+			errExpected: true,
+		},
+
+		"NEGATIVE: Non-integer range": {
+			input:       nonIntegerRange,
+			errExpected: true,
+		},
 	}
 
 	for name, tc := range cases {
@@ -40,7 +61,7 @@ func TestPart2(t *testing.T) {
 				InputPath: inputFilename,
 			}
 
-			actual, err := part2Helper(conf)
+			actual, err := overlappingRangeCount(conf)
 
 			if tc.errExpected {
 				if err == nil {
