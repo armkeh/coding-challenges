@@ -8,6 +8,7 @@ import (
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/day01"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/day02"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/day03"
+	"github.com/armkeh/coding-challenges/advent-of-code-2022/day04"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/settings"
 	"github.com/armkeh/coding-challenges/advent-of-code-2022/utils"
 )
@@ -55,9 +56,9 @@ func main() {
 	case day == 3 && part == 2:
 		runner = day03.Part2
 	case day == 4 && part == 1:
-		runner = unimplemented
+		runner = day04.Part1
 	case day == 4 && part == 2:
-		runner = unimplemented
+		runner = day04.Part2
 	case day == 5 && part == 1:
 		runner = unimplemented
 	case day == 5 && part == 2:

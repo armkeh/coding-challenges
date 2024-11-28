@@ -23,6 +23,27 @@ func TestPart1(t *testing.T) {
 			errExpected: false,
 			expected:    0,
 		},
+
+		"POSITIVE: Sample input": {
+			input:       sampleInput,
+			errExpected: false,
+			expected:    2,
+		},
+
+		"NEGATIVE: Malformed range": {
+			input:       malformedRange,
+			errExpected: true,
+		},
+
+		"NEGATIVE: Incomplete range": {
+			input:       incompleteRange,
+			errExpected: true,
+		},
+
+		"NEGATIVE: Non-integer range": {
+			input:       nonIntegerRange,
+			errExpected: true,
+		},
 	}
 
 	for name, tc := range cases {
@@ -40,7 +61,7 @@ func TestPart1(t *testing.T) {
 				InputPath: inputFilename,
 			}
 
-			actual, err := part1Helper(conf)
+			actual, err := subsumedAssignmentCount(conf)
 
 			if tc.errExpected {
 				if err == nil {

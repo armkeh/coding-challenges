@@ -8,7 +8,7 @@ import (
 )
 
 func Part2(c settings.Config) (string, error) {
-	res, err := part1Helper(c)
+	res, err := part2Helper(c)
 
 	return fmt.Sprintf("Not yet implemented; %d", res), err
 }
