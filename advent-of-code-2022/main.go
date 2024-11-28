@@ -29,7 +29,7 @@ func main() {
 	}
 
 	if conf.InputPath == "" {
-		conf.InputPath = fmt.Sprintf("./inputs/day%d.txt", day)
+		conf.InputPath = fmt.Sprintf("./inputs/day%02d.txt", day)
 	}
 
 	if *debug {
