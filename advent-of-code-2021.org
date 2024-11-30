@@ -1063,6 +1063,22 @@ main = do
 import Data.List((\\))
 #+end_src
 
+We can identify numerals as follows. The order here matters;
+we work from known information downwards.
+|---+---------------------------------------------------------------------|
+| 1 | Only digit of its length.                                           |
+| 4 | Only digit of its length.                                           |
+| 7 | Only digit of its length.                                           |
+| 8 | Only digit of its length.                                           |
+| 9 | Only six digit signal with all letters shared with 4 and 7.         |
+| 0 | Only six digit signal with all elements shared with 7 but not 4.    |
+| 6 | Only six digit signal with not all letters shared with 4 or with 7. |
+| 3 | Only five digit signal with all letters shared with 7.              |
+| 5 | Only five digit with only one letter missing compared to 6.         |
+| 2 | The remaining digit.                                                |
+|---+---------------------------------------------------------------------|
+
+We extend the digit identification functions with above logic.
 #+begin_src haskell :tangle ./src/advent-of-code-2021/day08s2/main.hs
 is1 :: String -> Bool
 is1 s = length s == 2
@@ -1076,6 +1092,29 @@ is7 s = length s == 3
 is8 :: String -> Bool
 is8 s = length s == 7
 #+end_src
+
+Now, for ease of reference, let's label each segment with a letter from the end of the alphabet.
+#+begin_src text
+ TTT
+U   V
+U   V
+ WWW
+X   Y
+X   Y
+ ZZZ
+#+end_src
+
+We can deduce the mapping of “signal digits” to “segment digits”
+once we can identify each numerals.
+|---+---------------------------------------------------|
+| ~T~ | The only signal digit not shared between 1 and 7. |
+| ~U~ | The only signal digit not shared between 3 and 9. |
+| ~V~ | The only signal digit not shared between 6 and 8. |
+| ~W~ | The only signal digit not shared between 0 and 8. |
+| ~X~ | The only signal digit not shared between 5 and 6. |
+| ~Y~ | The only signal digit in 9 which is not in 6.     |
+| ~Z~ | The remaining signal digit.                       |
+|---+---------------------------------------------------|
 
 #+begin_src haskell :tangle ./src/advent-of-code-2021/day08s2/main.hs
 signalA :: [String] -> Char
