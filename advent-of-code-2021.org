@@ -1,0 +1,1104 @@
+#+Title: Advent of Code 2021
+#+Author: Mark Armstrong
+#+Description: My solutions to the AoC 2021 challenge, implemented in Haskell.
+
+* Introduction
+
+In 2021, I began the Advent of Code challenge in Haskell,
+as a bit of a “functional break” from my day job working in Go.
+
+I completed the first seven and a half days at that time,
+and later picked it up again in late 2024 to brush up on my Haskell skills.
+
+* Day 1
+
+** Description
+
+:TODO: Grab the HTML and put it in begin/end html blocks.
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day01s1/main.hs
+calculateDepth :: (Int -> Int -> Bool) -> (Int -> Int -> Int) -> [Int] -> Int
+calculateDepth cmp iter [] = 0
+calculateDepth cmp iter (_ : []) = 0
+calculateDepth cmp iter (x : y : zs) = if cmp x y then (iter x y) + r else r
+  where r = calculateDepth cmp iter (y : zs)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day01s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day1.txt"
+  let inputLines = lines inputRaw
+  let inputInts = map (\ s -> read s :: Int) inputLines
+  print (calculateDepth ((\ x y -> x < y) :: Int -> Int -> Bool) (\ _ _ -> 1) inputInts)
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day01s2/main.hs
+calculateDepth :: (Int -> Int -> Bool) -> [Int] -> Int
+calculateDepth cmp (x1 : zs@(x2 : x3 : x4 : _)) = if cmp (x1 + x2 + x3) (x2 + x3 + x4) then 1 + r else r
+  where r = calculateDepth cmp zs
+calculateDepth _ _ = 0
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day01s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day1.txt"
+  let inputLines = lines inputRaw
+  let inputInts = map (\ s -> read s :: Int) inputLines
+  print (calculateDepth ((\ x y -> x < y) :: Int -> Int -> Bool) inputInts)
+#+end_src
+
+* Day 2
+
+** Description
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s1/main.hs
+{-# LANGUAGE ViewPatterns #-}
+
+import Data.List
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s1/main.hs
+data Command = Up Int | Down Int | Forward Int
+
+navigate :: [Command] -> (Int, Int) -> (Int, Int)
+navigate [] pos = pos
+navigate (Up n : cs) (x , y) = navigate cs (x , y - n) -- Remember going up decreases depth
+navigate (Down n : cs) (x , y) = navigate cs (x , y + n)
+navigate (Forward n : cs) (x , y) = navigate cs (x + n , y)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s1/main.hs
+parseCommand :: String -> Command
+parseCommand (stripPrefix "up " -> Just n) = Up (read n :: Int)
+parseCommand (stripPrefix "down " -> Just n) = Down (read n :: Int)
+parseCommand (stripPrefix "forward " -> Just n) = Forward (read n :: Int)
+parseCommand s = error ("Bad command: " ++ s)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day2.txt"
+  let inputLines = lines inputRaw
+  let inputCommands = map parseCommand inputLines
+  let pos = navigate inputCommands (0, 0)
+  print $ fst pos * snd pos
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s2/main.hs
+{-# LANGUAGE ViewPatterns #-}
+
+import Data.List
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s2/main.hs
+data Command = Up Int | Down Int | Forward Int
+
+navigate :: [Command] -> (Int, Int) -> Int -> (Int, Int)
+navigate [] pos aim = pos
+navigate (Up n : cs) pos aim = navigate cs pos (aim - n) -- Remember going up decreases depth
+navigate (Down n : cs) pos aim = navigate cs pos (aim + n)
+navigate (Forward n : cs) (x , y) aim = navigate cs (x + n , y + (aim * n)) aim
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s2/main.hs
+parseCommand :: String -> Command
+parseCommand (stripPrefix "up " -> Just n) = Up (read n :: Int)
+parseCommand (stripPrefix "down " -> Just n) = Down (read n :: Int)
+parseCommand (stripPrefix "forward " -> Just n) = Forward (read n :: Int)
+parseCommand s = error ("Bad command: " ++ s)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day02s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day2.txt"
+  let inputLines = lines inputRaw
+  let inputCommands = map parseCommand inputLines
+  let pos = navigate inputCommands (0, 0) 0
+  print $ fst pos * snd pos
+#+end_src
+
+* Day 3
+
+** Description
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s1/main.hs
+import Data.List
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s1/main.hs
+parseBitstring :: String -> [Bool]
+parseBitstring [] = []
+parseBitstring ('0' : xs) = False : parseBitstring xs
+parseBitstring ('1' : xs) = True : parseBitstring xs
+parseBitstring (b : _) = error ("Bad bit: " ++ [b])
+
+bitstringToInt :: [Bool] -> Int
+bitstringToInt xs = helper $ reverse xs
+  where
+    helper [] = 0
+    helper (True : xs) = 1 + (2 * helper xs)
+    helper (False : xs) = 2 * helper xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s1/main.hs
+bitCounts :: [Bool] -> (Int, Int)
+bitCounts [] = (0, 0)
+bitCounts (b : bs) = if b then (1 + t, f) else (t, 1 + f)
+  where
+    r = bitCounts bs
+    t = fst r
+    f = snd r
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day3.txt"
+  let inputLines = lines inputRaw
+  let inputBitstrings = map parseBitstring inputLines
+  let bitEntries = transpose inputBitstrings   -- results in list of lists containing entries for each bit, from leftmost to rightmost
+  let cs = map bitCounts bitEntries
+  let gamma = map (\ (t, f) -> if f < t then True else False) cs
+  let epsilon = map (\ (t, f) -> if t < f then True else False) cs
+  print $ (bitstringToInt gamma) * (bitstringToInt epsilon)
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s2/main.hs
+import Data.List
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s2/main.hs
+parseBitstring :: String -> [Bool]
+parseBitstring [] = []
+parseBitstring ('0' : xs) = False : parseBitstring xs
+parseBitstring ('1' : xs) = True : parseBitstring xs
+parseBitstring (b : _) = error ("Bad bit: " ++ [b])
+
+bitstringToInt :: [Bool] -> Int
+bitstringToInt xs = helper $ reverse xs
+  where
+    helper [] = 0
+    helper (True : xs) = 1 + (2 * helper xs)
+    helper (False : xs) = 2 * helper xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s2/main.hs
+bitCounts :: [Bool] -> (Int, Int)
+bitCounts [] = (0, 0)
+bitCounts (b : bs) = if b then (1 + t, f) else (t, 1 + f)
+  where
+    r = bitCounts bs
+    t = fst r
+    f = snd r
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s2/main.hs
+filterByFirstBit :: Bool -> [[Bool]] -> [[Bool]]
+filterByFirstBit _ [] = []
+filterByFirstBit _ bss@([] : _) = bss
+filterByFirstBit True (bs@(True : _) : bss) = bs : filterByFirstBit True bss
+filterByFirstBit False (bs@(False : _) : bss) = bs : filterByFirstBit False bss
+filterByFirstBit c (_ : bss) = filterByFirstBit c bss
+
+oxygen :: [[Bool]] -> [Bool]
+oxygen [] = error "Ran out of candidates in oxygen filter!"
+oxygen ([] : _) = []
+oxygen (bs : []) = bs
+oxygen bss = if fst cs >= snd cs then True : (oxygen (map tail (filterByFirstBit True bss)))
+                                 else False : (oxygen (map tail (filterByFirstBit False bss)))
+  where
+    cs = bitCounts (head (transpose $ bss))
+
+co2 :: [[Bool]] -> [Bool]
+co2 [] = error "Ran out of candidates in co2 filter!"
+co2 ([] : _) = []
+co2 (bs : []) = bs
+co2 bss = if snd cs > fst cs then True : (co2 (map tail (filterByFirstBit True bss)))  
+                             else False : (co2 (map tail (filterByFirstBit False bss)))
+  where
+    cs = bitCounts (head (transpose $ bss))
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day03s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day3.txt"
+  let inputLines = lines inputRaw
+  let inputBitstrings = map parseBitstring inputLines
+  let bitEntries = transpose inputBitstrings   -- results in list of lists containing entries for each bit, from leftmost to rightmost
+  let oxygenGeneratorRating = oxygen inputBitstrings
+  let co2ScrubberRating = co2 inputBitstrings
+  print $ (bitstringToInt oxygenGeneratorRating) * (bitstringToInt co2ScrubberRating)
+#+end_src
+
+* Day 4
+
+** Description
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+import Data.Char(isSpace)
+import Data.List(find)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+
+map5 :: (a -> b) -> (a, a, a, a, a) -> (b, b, b, b, b)
+map5 f (a1, a2, a3, a4, a5) = (f a1, f a2, f a3, f a4, f a5)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+type Cell = (Int, Bool)
+type Row = (Cell, Cell, Cell, Cell, Cell)
+type Board = ((Row, Row, Row, Row, Row))
+
+parseBoardList :: [String] -> [[Cell]]
+parseBoardList [] = []
+parseBoardList (s : rest) = ((map (\ w -> (read w , False) :: Cell) $ words s)) : parseBoardList rest
+
+cellListToBoard :: [[Cell]] -> Board
+cellListToBoard ((b1 : i1 : n1 : g1 : o1 : []) :
+             (b2 : i2 : n2 : g2 : o2 : []) :
+             (b3 : i3 : n3 : g3 : o3 : []) :
+             (b4 : i4 : n4 : g4 : o4 : []) :
+             (b5 : i5 : n5 : g5 : o5 : []) : []) = ((b1, i1, n1, g1, o1),
+                                                    (b2, i2, n2, g2, o2),
+                                                    (b3, i3, n3, g3, o3),
+                                                    (b4, i4, n4, g4, o4),
+                                                    (b5, i5, n5, g5, o5))
+cellListToBoard _ = error "Bad board!"
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+markCell :: Int -> Cell -> Cell
+markCell _ c@(_, True) = c
+markCell called (n, False) = if called == n then (n, True) else (n, False)
+
+markRow :: Int -> Row -> Row
+markRow called = map5 (markCell called)
+
+markBoard :: Int -> Board -> Board
+markBoard called = map5 (markRow called)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+columns :: Board -> Board
+columns ((b1, i1, n1, g1, o1),
+         (b2, i2, n2, g2, o2),
+         (b3, i3, n3, g3, o3),
+         (b4, i4, n4, g4, o4),
+         (b5, i5, n5, g5, o5)) = ((b1, b2, b3, b4, b5),
+                                  (i1, i2, i3, i4, i5),
+                                  (n1, n2, n3, n4, n5),
+                                  (g1, g2, g3, g4, g5),
+                                  (o1, o2, o3, o4, o5))
+
+isWinningRow :: Row -> Bool
+isWinningRow ((_, True), (_, True), (_, True), (_, True), (_, True)) = True
+isWinningRow _ = False
+
+isWinningBoard :: Board -> Bool
+isWinningBoard b@(r1, r2, r3, r4, r5) = any isWinningRow [r1,r2,r3,r4,r5,c1,c2,c3,c4,c5]
+  where
+    (c1,c2,c3,c4,c5) = columns b
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+playBingo :: [Int] -> [Board] -> (Maybe Board, Int)
+playBingo = playBingoHelper 0
+  where 
+    playBingoHelper lastCall [] bs = (find isWinningBoard bs, lastCall)
+    playBingoHelper lastCall (n : ns) bs = case find isWinningBoard bs of
+      Nothing -> playBingoHelper n ns (map (markBoard n) bs)
+      (Just b) -> (Just b, lastCall)
+
+scoreCell :: Cell -> Int
+scoreCell (_, True) = 0
+scoreCell (n, False) = n
+
+scoreRow :: Row -> Int
+scoreRow (b, i, n, g, o) = scoreCell b + scoreCell i + scoreCell n + scoreCell g + scoreCell o
+
+scoreWinner :: Maybe Board -> Int -> Maybe Int
+scoreWinner Nothing _ = Nothing
+scoreWinner (Just (r1, r2, r3, r4, r5)) n =
+  Just ((scoreRow r1 + scoreRow r2 + scoreRow r3 + scoreRow r4 + scoreRow r5) * n)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day4.txt"
+  let numbers = map (\ s -> read s :: Int) $ splitOn ',' $ takeWhile (/= '\n') inputRaw
+  -- Drop the first line, which is the numbers to call, and then any leading whitespace.
+  -- Then split into lines.
+  let boardLines = lines $ dropWhile isSpace $ dropWhile (/= '\n') inputRaw
+  -- Boards were seperated by a empty line, which will now be an empty string.
+  let rawBoards = splitOn "" boardLines
+  let boards = map cellListToBoard (map parseBoardList rawBoards)
+  let winner = playBingo numbers boards
+  print (scoreWinner (fst winner) (snd winner))
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+import Data.Char(isSpace)
+import Data.List(find)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+
+map5 :: (a -> b) -> (a, a, a, a, a) -> (b, b, b, b, b)
+map5 f (a1, a2, a3, a4, a5) = (f a1, f a2, f a3, f a4, f a5)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+type Cell = (Int, Bool)
+type Row = (Cell, Cell, Cell, Cell, Cell)
+type Board = ((Row, Row, Row, Row, Row))
+
+parseBoardList :: [String] -> [[Cell]]
+parseBoardList [] = []
+parseBoardList (s : rest) = ((map (\ w -> (read w , False) :: Cell) $ words s)) : parseBoardList rest
+
+cellListToBoard :: [[Cell]] -> Board
+cellListToBoard ((b1 : i1 : n1 : g1 : o1 : []) :
+             (b2 : i2 : n2 : g2 : o2 : []) :
+             (b3 : i3 : n3 : g3 : o3 : []) :
+             (b4 : i4 : n4 : g4 : o4 : []) :
+             (b5 : i5 : n5 : g5 : o5 : []) : []) = ((b1, i1, n1, g1, o1),
+                                                    (b2, i2, n2, g2, o2),
+                                                    (b3, i3, n3, g3, o3),
+                                                    (b4, i4, n4, g4, o4),
+                                                    (b5, i5, n5, g5, o5))
+cellListToBoard _ = error "Bad board!"
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+markCell :: Int -> Cell -> Cell
+markCell _ c@(_, True) = c
+markCell called (n, False) = if called == n then (n, True) else (n, False)
+
+markRow :: Int -> Row -> Row
+markRow called = map5 (markCell called)
+
+markBoard :: Int -> Board -> Board
+markBoard called = map5 (markRow called)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+columns :: Board -> Board
+columns ((b1, i1, n1, g1, o1),
+         (b2, i2, n2, g2, o2),
+         (b3, i3, n3, g3, o3),
+         (b4, i4, n4, g4, o4),
+         (b5, i5, n5, g5, o5)) = ((b1, b2, b3, b4, b5),
+                                  (i1, i2, i3, i4, i5),
+                                  (n1, n2, n3, n4, n5),
+                                  (g1, g2, g3, g4, g5),
+                                  (o1, o2, o3, o4, o5))
+
+isWinningRow :: Row -> Bool
+isWinningRow ((_, True), (_, True), (_, True), (_, True), (_, True)) = True
+isWinningRow _ = False
+
+isWinningBoard :: Board -> Bool
+isWinningBoard b@(r1, r2, r3, r4, r5) = any isWinningRow [r1,r2,r3,r4,r5,c1,c2,c3,c4,c5]
+  where
+    (c1,c2,c3,c4,c5) = columns b
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+playBingo :: [Int] -> [Board] -> (Maybe Board, Int)
+playBingo = playBingoHelper 0
+  where 
+    playBingoHelper _ [] [] = error "No boards left somehow!"
+    playBingoHelper lastCall [] (b : []) = if isWinningBoard b then (Just b, lastCall)
+                                                               else error ("Last board doesn't win after all numbers called!" ++ show b)
+    playBingoHelper _ [] bs@(_ : _) = error ("Too many boards left after last number!" ++ show bs)
+    playBingoHelper lastCall (n : ns) (b : []) = if isWinningBoard b then (Just b, lastCall)
+                                                                     else playBingoHelper n ns (markBoard n b : [])
+    playBingoHelper lastCall (n : ns) bs@(_ : _) = playBingoHelper n ns (filter (not . isWinningBoard) (map (markBoard n) bs))
+
+scoreCell :: Cell -> Int
+scoreCell (_, True) = 0
+scoreCell (n, False) = n
+
+scoreRow :: Row -> Int
+scoreRow (b, i, n, g, o) = scoreCell b + scoreCell i + scoreCell n + scoreCell g + scoreCell o
+
+scoreWinner :: Maybe Board -> Int -> Maybe Int
+scoreWinner Nothing _ = Nothing
+scoreWinner (Just (r1, r2, r3, r4, r5)) n =
+  Just ((scoreRow r1 + scoreRow r2 + scoreRow r3 + scoreRow r4 + scoreRow r5) * n)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day04s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day4.txt"
+  let numbers = map (\ s -> read s :: Int) $ splitOn ',' $ takeWhile (/= '\n') inputRaw
+  -- Drop the first line, which is the numbers to call, and then any leading whitespace.
+  -- Then split into lines.
+  let boardLines = lines $ dropWhile isSpace $ dropWhile (/= '\n') inputRaw
+  -- Boards were seperated by a empty line, which will now be an empty string.
+  let rawBoards = splitOn "" boardLines
+  let boards = map cellListToBoard (map parseBoardList rawBoards)
+  let winner = playBingo numbers boards
+  print (scoreWinner (fst winner) (snd winner))
+#+end_src
+
+* Day 5
+
+** COMMENT Star 1
+
+This version took way too long.
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+type Line = ((Int, Int), (Int, Int))
+
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+
+parseLine :: String -> Line
+parseLine s = ((x1, y1), (x2, y2))
+  where
+    ws = words s
+    sp1 = splitOn ',' (ws !! 0)
+    sp2 = splitOn ',' (ws !! 2)
+    x1 = (\ s -> read s :: Int) (sp1 !! 0)
+    y1 = (\ s -> read s :: Int) (sp1 !! 1)
+    x2 = (\ s -> read s :: Int) (sp2 !! 0)
+    y2 = (\ s -> read s :: Int) (sp2 !! 1)
+
+isPoint :: Line -> Bool
+isPoint ((x1, y1), (x2, y2)) = x1 == x2 && y1 == y2
+
+isHorizontal :: Line -> Bool
+isHorizontal ((x1, _), (x2, _)) = x1 == x2
+
+isVertical :: Line -> Bool
+isVertical ((_, y1), (_, y2)) = y1 == y2
+
+isStraight :: Line -> Bool
+isStraight l = isHorizontal l || isVertical l
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+type Grid = Int -> Int -> Int
+
+emptyGrid :: Grid
+emptyGrid _ _ = 0
+
+incrementPointOnGrid :: Int -> Int -> Grid -> Grid
+incrementPointOnGrid x y g x' y' = if x == x' && y == y' then g x y + 1 else g x y
+
+incrementLineOnGrid :: Line -> Grid -> Grid
+incrementLineOnGrid l@((x1, y1), (x2, y2)) g
+  | isPoint l = incrementPointOnGrid x1 y1 g
+  | isHorizontal l =
+      if y1 < y2 then
+        incrementLineOnGrid ((x1, y1 + 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+      else
+        incrementLineOnGrid ((x1, y1), (x2, y2 + 1)) $ incrementPointOnGrid x1 y1 g
+  | isVertical l = 
+      if x1 < x2 then
+        incrementLineOnGrid ((x1 + 1, y1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+      else
+        incrementLineOnGrid ((x1, y1), (x2 + 1, y2)) $ incrementPointOnGrid x1 y1 g
+  | otherwise = error $ "Diagonal line " ++ show l ++ " not handled yet!"
+
+linesToGrid :: [Line] -> Grid
+linesToGrid ls = helper ls emptyGrid
+  where
+    helper [] g = g
+    helper (l : ls) g = helper ls $ incrementLineOnGrid l g
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+countOnGrid :: (Int -> Int) -> Int -> Int -> Int -> Int -> Grid -> Int
+countOnGrid counter xLow yLow xHigh yHigh g
+    | yLow <= yHigh = (rowHelper xLow xHigh yLow) + (countOnGrid counter xLow (yLow + 1) xHigh yHigh g)
+    | otherwise = 0
+  where
+    rowHelper xLow xHigh y
+      | xLow <= xHigh = counter (g xLow y) + rowHelper (xLow + 1) xHigh y
+      | otherwise = 0
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+maxX :: [Line] -> Int
+maxX [] = 0
+maxX (((x1, _), (x2, _)) : ls) = max x1 (max x2 (maxX ls))
+
+maxY :: [Line] -> Int
+maxY [] = 0
+maxY (((_, y1), (_, y2)) : ls) = max y1 (max y2 (maxY ls))
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day5.txt"
+  let inputLines = map parseLine (lines inputRaw)
+  let straightLines = filter isStraight inputLines
+  let grid = linesToGrid straightLines
+  let count = countOnGrid (\ n -> if n > 1 then 1 else 0) 0 0 (maxX straightLines) (maxY straightLines) grid
+  print count
+#+end_src
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+import Prelude hiding (replicate)
+import Data.Sequence hiding (filter)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+type Line = ((Int, Int), (Int, Int))
+
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+
+parseLine :: String -> Line
+parseLine s = ((x1, y1), (x2, y2))
+  where
+    ws = words s
+    sp1 = splitOn ',' (ws !! 0)
+    sp2 = splitOn ',' (ws !! 2)
+    x1 = (\ s -> read s :: Int) (sp1 !! 0)
+    y1 = (\ s -> read s :: Int) (sp1 !! 1)
+    x2 = (\ s -> read s :: Int) (sp2 !! 0)
+    y2 = (\ s -> read s :: Int) (sp2 !! 1)
+
+isPoint :: Line -> Bool
+isPoint ((x1, y1), (x2, y2)) = x1 == x2 && y1 == y2
+
+isHorizontal :: Line -> Bool
+isHorizontal ((x1, _), (x2, _)) = x1 == x2
+
+isVertical :: Line -> Bool
+isVertical ((_, y1), (_, y2)) = y1 == y2
+
+isStraight :: Line -> Bool
+isStraight l = isHorizontal l || isVertical l
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+type Grid = Seq (Seq Int)
+
+emptyGrid :: Int -> Int -> Grid
+emptyGrid maxX maxY = replicate maxY (replicate maxX 0)
+
+incrementPointOnGrid :: Int -> Int -> Grid -> Grid
+incrementPointOnGrid x y g = adjust incrementPointInRow y g
+  where
+    incrementPointInRow = adjust (+ 1) x 
+    
+incrementLineOnGrid :: Line -> Grid -> Grid
+incrementLineOnGrid l@((x1, y1), (x2, y2)) g
+  | isPoint l = incrementPointOnGrid x1 y1 g
+  | isHorizontal l =
+      if y1 < y2 then
+        incrementLineOnGrid ((x1, y1 + 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+      else
+        incrementLineOnGrid ((x1, y1), (x2, y2 + 1)) $ incrementPointOnGrid x1 y2 g
+  | isVertical l = 
+      if x1 < x2 then
+        incrementLineOnGrid ((x1 + 1, y1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+      else
+        incrementLineOnGrid ((x1, y1), (x2 + 1, y2)) $ incrementPointOnGrid x2 y1 g
+  | otherwise = error $ "Diagonal line " ++ show l ++ " not handled yet!"
+
+addLinesToGrid :: [Line] -> Grid -> Grid
+addLinesToGrid [] g = g
+addLinesToGrid (l : ls) g = addLinesToGrid ls $ incrementLineOnGrid l g
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+sumOnGrid :: (Int -> Int) -> Grid -> Int
+sumOnGrid f Empty = 0
+sumOnGrid f (row :<| rest) = sumOnRow row + sumOnGrid f rest
+  where
+    sumOnRow Empty = 0
+    sumOnRow (x :<| xs) = f x + sumOnRow xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+maxX :: [Line] -> Int
+maxX [] = 0
+maxX (((x1, _), (x2, _)) : ls) = max x1 (max x2 (maxX ls))
+
+maxY :: [Line] -> Int
+maxY [] = 0
+maxY (((_, y1), (_, y2)) : ls) = max y1 (max y2 (maxY ls))
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day5.txt"
+  let inputLines = map parseLine (lines inputRaw)
+  let straightLines = filter isStraight inputLines
+  let grid = addLinesToGrid straightLines (emptyGrid (maxX straightLines) (maxY straightLines))
+  let count = sumOnGrid (\ n -> if n > 1 then 1 else 0) grid
+  print count
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s2/main.hs
+import Prelude hiding (replicate)
+import Data.Sequence hiding (filter)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s2/main.hs
+type Line = ((Int, Int), (Int, Int))
+
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+
+parseLine :: String -> Line
+parseLine s = ((x1, y1), (x2, y2))
+  where
+    ws = words s
+    sp1 = splitOn ',' (ws !! 0)
+    sp2 = splitOn ',' (ws !! 2)
+    x1 = (\ s -> read s :: Int) (sp1 !! 0)
+    y1 = (\ s -> read s :: Int) (sp1 !! 1)
+    x2 = (\ s -> read s :: Int) (sp2 !! 0)
+    y2 = (\ s -> read s :: Int) (sp2 !! 1)
+
+isPoint :: Line -> Bool
+isPoint ((x1, y1), (x2, y2)) = x1 == x2 && y1 == y2
+
+isHorizontal :: Line -> Bool
+isHorizontal ((x1, _), (x2, _)) = x1 == x2
+
+isVertical :: Line -> Bool
+isVertical ((_, y1), (_, y2)) = y1 == y2
+
+isStraight :: Line -> Bool
+isStraight l = isHorizontal l || isVertical l
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s2/main.hs
+type Grid = Seq (Seq Int)
+
+emptyGrid :: Int -> Int -> Grid
+emptyGrid maxX maxY = replicate maxY (replicate maxX 0)
+
+incrementPointOnGrid :: Int -> Int -> Grid -> Grid
+incrementPointOnGrid x y g = adjust incrementPointInRow y g
+  where
+    incrementPointInRow = adjust (+ 1) x 
+    
+incrementLineOnGrid :: Line -> Grid -> Grid
+incrementLineOnGrid l@((x1, y1), (x2, y2)) g
+  | isPoint l = incrementPointOnGrid x1 y1 g
+  | isHorizontal l =
+    if y1 < y2 then
+      incrementLineOnGrid ((x1, y1 + 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+    else
+      incrementLineOnGrid ((x1, y1 - 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+  | isVertical l =
+    if x1 < x2 then
+      incrementLineOnGrid ((x1 + 1, y1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+    else
+      incrementLineOnGrid ((x1 - 1, y1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+  | otherwise =
+    if x1 < x2 && y1 < y2 then
+       incrementLineOnGrid ((x1 + 1, y1 + 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+    else if x1 < x2 && y2 < y1 then
+       incrementLineOnGrid ((x1 + 1, y1 - 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+    else if x2 < x1 && y1 < y2 then
+       incrementLineOnGrid ((x1 - 1, y1 + 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+    else
+       incrementLineOnGrid ((x1 - 1, y1 - 1), (x2, y2)) $ incrementPointOnGrid x1 y1 g
+
+addLinesToGrid :: [Line] -> Grid -> Grid
+addLinesToGrid [] g = g
+addLinesToGrid (l : ls) g = addLinesToGrid ls $ incrementLineOnGrid l g
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s2/main.hs
+sumOnGrid :: (Int -> Int) -> Grid -> Int
+sumOnGrid f Empty = 0
+sumOnGrid f (row :<| rest) = sumOnRow row + sumOnGrid f rest
+  where
+    sumOnRow Empty = 0
+    sumOnRow (x :<| xs) = f x + sumOnRow xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s2/main.hs
+maxX :: [Line] -> Int
+maxX [] = 0
+maxX (((x1, _), (x2, _)) : ls) = max x1 (max x2 (maxX ls))
+
+maxY :: [Line] -> Int
+maxY [] = 0
+maxY (((_, y1), (_, y2)) : ls) = max y1 (max y2 (maxY ls))
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day05s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day5.txt"
+  let inputLines = map parseLine (lines inputRaw)
+  --let straightLines = filter isStraight inputLines
+  let grid = addLinesToGrid inputLines (emptyGrid (maxX inputLines) (maxY inputLines))
+  let count = sumOnGrid (\ n -> if n > 1 then 1 else 0) grid
+  print count
+#+end_src
+
+* Day 6
+
+** COMMENT Star 1
+
+This version is very slow. Simulating 40 days is reasonable.
+Simulating 80 days took too long to complete.
+
+Realised too late that it would be far better not to use a list;
+instead, “lump” the fish into “pools”.
+Keep track of which pool is reproducing each day.
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+
+snoc :: [a] -> a -> [a]
+snoc [] y = y : []
+snoc (x : xs) y = x : (snoc xs y)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+type Fish = Int
+type School = [Fish]
+
+reproducing :: Fish -> Bool
+reproducing 0 = True
+reproducing _ = False
+
+resetFish :: Fish
+resetFish = 6
+
+newFish :: Fish
+newFish = 8
+
+preparing :: Fish -> Fish
+preparing n = n - 1
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+schoolday :: School -> School
+schoolday [] = []
+schoolday (fish : fishes)
+  | reproducing fish = snoc (resetFish : (schoolday fishes)) newFish
+  | otherwise = (preparing fish) : (schoolday fishes)
+
+term :: Int -> School -> School
+term 0 s = s
+term n s = term (n - 1) (schoolday s)
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day6.txt"
+  let startingFish = map (\ s -> read s :: Int) $ splitOn ',' inputRaw
+  print (length (term 80 startingFish))
+#+end_src
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+data CycleDay = 
+  Zero | One | Two | Three | Four | Five | Six | Seven | Eight
+  deriving Eq
+
+-- A school of fish is a mapping from cycle day to fish counts.
+type School = CycleDay -> Int
+
+initSchool :: [Int] -> School
+initSchool [] = \ d -> 0
+initSchool (x : xs) = case x of
+  0 -> (\ d -> if d == Zero  then r d + 1 else r d)
+  1 -> (\ d -> if d == One   then r d + 1 else r d)
+  2 -> (\ d -> if d == Two   then r d + 1 else r d)
+  3 -> (\ d -> if d == Three then r d + 1 else r d)
+  4 -> (\ d -> if d == Four  then r d + 1 else r d)
+  5 -> (\ d -> if d == Five  then r d + 1 else r d)
+  6 -> (\ d -> if d == Six   then r d + 1 else r d)
+  7 -> (\ d -> if d == Seven then r d + 1 else r d)
+  8 -> (\ d -> if d == Eight then r d + 1 else r d)
+  _ -> error "Invalid starting reproduction cycle date for a fish!"
+  where
+    r = initSchool xs
+
+schoolday :: School -> School
+schoolday s Zero  = s One
+schoolday s One   = s Two
+schoolday s Two   = s Three
+schoolday s Three = s Four
+schoolday s Four  = s Five
+schoolday s Five  = s Six
+schoolday s Six   = s Seven + s Zero
+schoolday s Seven = s Eight
+schoolday s Eight = s Zero
+
+term :: Int -> School -> School
+term 0 s = s
+term n s = term (n - 1) (schoolday s)
+
+population :: School -> Int
+population s = s Zero + s One + s Two + s Three + s Four + s Five + s Six + s Seven + s Eight
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day6.txt"
+  let s = initSchool $ map (\ s -> read s :: Int) $ splitOn ',' inputRaw
+  print $ population $ term 80 s 
+#+end_src
+
+** Star 2
+
+Infuriatingly, my function patching approach was also swiftly defeated
+by the simple scaling of the number of days.
+(Not really infuriating; it's a good lesson in the limits
+ of repeated function patching.)
+
+The trick then is to keep it simple.
+We need to track 8 integers.
+Use a tuple! They're much cheaper!
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s2/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s2/main.hs
+type School = (Int, Int, Int, Int, Int, Int, Int, Int, Int)
+
+initSchool :: [Int] -> School
+initSchool [] = (0,0,0,0,0,0,0,0,0)
+initSchool (x : xs) = case x of
+  0 -> (c0 + 1, c1, c2, c3, c4, c5, c6, c7, c8)
+  1 -> (c0, c1 + 1, c2, c3, c4, c5, c6, c7, c8)
+  2 -> (c0, c1, c2 + 1, c3, c4, c5, c6, c7, c8)
+  3 -> (c0, c1, c2, c3 + 1, c4, c5, c6, c7, c8)
+  4 -> (c0, c1, c2, c3, c4 + 1, c5, c6, c7, c8)
+  5 -> (c0, c1, c2, c3, c4, c5 + 1, c6, c7, c8)
+  6 -> (c0, c1, c2, c3, c4, c5, c6 + 1, c7, c8)
+  7 -> (c0, c1, c2, c3, c4, c5, c6, c7 + 1, c8)
+  8 -> (c0, c1, c2, c3, c4, c5, c6, c7, c8 + 1)
+  _ -> error "Invalid starting reproduction cycle date for a fish!"
+  where
+    (c0, c1, c2, c3, c4, c5, c6, c7, c8) = initSchool xs
+
+schoolday :: School -> School
+schoolday (c0, c1, c2, c3, c4, c5, c6,      c7, c8) =
+          (c1, c2, c3, c4, c5, c6, c7 + c0, c8, c0)
+
+term :: Int -> School -> School
+term 0 s = s
+term n s = term (n - 1) (schoolday s)
+
+population :: School -> Int
+population (c0 , c1 , c2 , c3 , c4 , c5 , c6 , c7 , c8) =
+            c0 + c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day06s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day6.txt"
+  let s = initSchool $ map (\ s -> read s :: Int) $ splitOn ',' inputRaw
+  print $ population $ term 256 s 
+#+end_src
+
+* Day 7
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day07s1/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day07s1/main.hs
+formupCost :: [Int] -> Int -> Int
+formupCost [] _ = 0
+formupCost (c : cs) pos = abs(c - pos) + formupCost cs pos
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day07s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day7.txt"
+  let crabs = map (\ s -> read s :: Int) $ splitOn ',' inputRaw
+  print $ foldr1 min $ map (formupCost crabs) $ enumFromTo (minimum crabs) (maximum crabs)
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day07s2/main.hs
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn _ [] = []
+splitOn div xs = takeWhile (/= div) xs : splitOn div rest
+  where
+    rest = dropWhile (== div) $ dropWhile (/= div) xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day07s2/main.hs
+type Crab = Int
+type Pos  = Int
+
+-- Move costs are triangular numbers: https://en.wikipedia.org/wiki/Triangular_number
+moveCost :: Crab -> Pos -> Int
+moveCost c p = let n = abs(c - p) in (n * (n + 1)) `div` 2
+
+formupCost :: [Crab] -> Pos -> Int
+formupCost [] _ = 0
+formupCost (c : cs) p = moveCost c p + formupCost cs p
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day07s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day7.txt"
+  let crabs = map (\ s -> read s :: Crab) $ splitOn ',' inputRaw
+  print $ foldr1 min $ map (formupCost crabs) $ enumFromTo (minimum crabs) (maximum crabs)
+#+end_src
+
+* Day 8
+
+** Star 1
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day08s1/main.hs
+is1 :: String -> Bool
+is1 s = length s == 2
+
+is4 :: String -> Bool
+is4 s = length s == 4
+
+is7 :: String -> Bool
+is7 s = length s == 3
+
+is8 :: String -> Bool
+is8 s = length s == 7
+
+hasUniqueSegmentNumber :: String -> Bool
+hasUniqueSegmentNumber s = is1 s || is4 s || is7 s || is8 s
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day08s1/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day8.txt"
+  let inputLines = lines inputRaw
+  let outputs = map (\ s -> words $ tail $ tail $ dropWhile (/= '|') s) inputLines
+  let identifiableDigits = map (\ o -> length (filter hasUniqueSegmentNumber o)) outputs
+  print (foldr (+) 0 identifiableDigits)
+#+end_src
+
+** Star 2
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day08s2/main.hs
+import Data.List((\\))
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day08s2/main.hs
+is1 :: String -> Bool
+is1 s = length s == 2
+
+is4 :: String -> Bool
+is4 s = length s == 4
+
+is7 :: String -> Bool
+is7 s = length s == 3
+
+is8 :: String -> Bool
+is8 s = length s == 7
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day08s2/main.hs
+signalA :: [String] -> Char
+signalA xs = case segments1 of
+    (segments1 : []) -> (case segments7 of
+        (segments7 : []) -> (let difference = segments1 \\ segments 7 in
+          case difference of
+            (c : []) -> c
+            otherwise -> error $ "Too few or too many different segments between a 1 and 7; " ++ show segments1 ++ "," ++ show segments7
+                            )
+        otherwise -> error $ "No 7 or more than one 7 in input" ++ show xs
+      )
+    otherwise -> error $ "No 1 or more than one 1 in input " ++ show xs
+  segments1 = filter is1 xs
+  segments7 = filter is7 xs
+#+end_src
+
+#+begin_src haskell :tangle ./src/advent-of-code-2021/day08s2/main.hs
+main :: IO ()
+main = do
+  inputRaw <- readFile "./../../../input/advent-of-code-2021/day8.txt"
+  let inputLines = lines inputRaw
+  let io = map (\ s -> let p = span (/= '|') s in (words $ fst p, words $ tail $ snd p)) inputLines
+  print $ map (segments $ fst) io
+#+end_src
+
