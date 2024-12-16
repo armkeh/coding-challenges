@@ -20,26 +20,9 @@ public class AdventOfCode2024 {
             return String.format("Input file %s not found; " + e, inputPath);
         }
 
-        var leftList = new ArrayList<Integer>();
-        var rightList = new ArrayList<Integer>();
-        for ( var line : input ) {
-            var entries = line.split("   ");
-
-            if (entries.length != 2) {
-                return String.format("Encountered input line '%s' which does not have a left and right entry; %d entries found!", line, entries.length);
-            }
-
-            Integer left, right;
-            try {
-                left = Integer.valueOf(entries[0]);
-                right = Integer.valueOf(entries[1]);
-            } catch(NumberFormatException e) {
-                return String.format("Error converting one or both of the entries on line '%s' to an Integer; " + e, line);
-            }
-
-            leftList.add(left);
-            rightList.add(right);
-        }
+        var lists = Tuple.parseLinesToIntegerLists(input);
+        var leftList = lists.x;
+        var rightList = lists.y;
 
         Collections.sort(leftList);
         Collections.sort(rightList);
@@ -50,6 +33,29 @@ public class AdventOfCode2024 {
         }
 
         return String.format("The sum of differences in the entries is %d.", sumOfDifferences);
+    }
+
+    public static String day01PartTwo(String inputPath) {
+        ArrayList<String> input;
+        try {
+            input = Utils.parseAsLines(inputPath);
+        } catch(FileNotFoundException e) {
+            return String.format("Input file %s not found; " + e, inputPath);
+        }
+
+        var lists = Tuple.parseLinesToIntegerLists(input);
+        var leftList = lists.x;
+        var rightList = lists.y;
+
+        var rightOccurrenceMap = Utils.occurrenceMap(rightList);
+
+        int sumOfSimilarityScores = 0;
+        for ( var e : leftList ) {
+            var occurrences = rightOccurrenceMap.getOrDefault(e, 0);
+            sumOfSimilarityScores += e * occurrences;
+        }
+
+        return String.format("The sum of the similarity scores is %d.", sumOfSimilarityScores);
     }
 
     public static String day07PartOne(String inputPath) {

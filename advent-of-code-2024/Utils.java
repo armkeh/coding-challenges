@@ -18,4 +18,14 @@ public class Utils {
 
         return input;
     }
+
+    public static <T> HashMap<T,Integer> occurrenceMap(ArrayList<T> list) {
+        var occMap = new HashMap<T,Integer>();
+
+        for ( var e : list ) {
+            occMap.put(e, occMap.getOrDefault(e, 0) + 1);
+        }
+
+        return occMap;
+    }
 }
