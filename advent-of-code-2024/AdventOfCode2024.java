@@ -4,25 +4,18 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.regex.Pattern;
-import java.util.Scanner;
 
 public class AdventOfCode2024 {
     public static void main(String[] args) {
         var inputPath = "inputs/day01.txt";
 
-        System.out.println(day01PartOne(inputPath));
+        System.out.println(day01PartTwo(inputPath));
     }
 
     public static String day01PartOne(String inputPath) {
-        var input = new ArrayList<String>();
+        ArrayList<String> input;
         try {
-            Scanner scanner = new Scanner(new File(inputPath));
-
-            while (scanner.hasNextLine()) {
-                input.add(scanner.nextLine());
-            }
-
-            scanner.close();
+            input = Utils.parseAsLines(inputPath);
         } catch(FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
@@ -62,13 +55,7 @@ public class AdventOfCode2024 {
     public static String day07PartOne(String inputPath) {
         var input = new ArrayList<String>();
         try {
-            Scanner scanner = new Scanner(new File(inputPath));
-
-            while (scanner.hasNextLine()) {
-                input.add(scanner.nextLine());
-            }
-
-            scanner.close();
+            input = Utils.parseAsLines(inputPath);
         } catch(FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
