@@ -7,9 +7,9 @@ import java.util.regex.Pattern;
 
 public class AdventOfCode2024 {
     public static void main(String[] args) {
-        var inputPath = "inputs/day01.txt";
+        var inputPath = "inputs/day02.txt";
 
-        System.out.println(day01PartTwo(inputPath));
+        System.out.println(day02PartOne(inputPath));
     }
 
     public static String day01PartOne(String inputPath) {
@@ -20,7 +20,7 @@ public class AdventOfCode2024 {
             return String.format("Input file %s not found; " + e, inputPath);
         }
 
-        var lists = Tuple.parseLinesToIntegerLists(input);
+        var lists = Tuple.parseLinesToTupleOfIntegerLists(input);
         var leftList = lists.x;
         var rightList = lists.y;
 
@@ -43,7 +43,7 @@ public class AdventOfCode2024 {
             return String.format("Input file %s not found; " + e, inputPath);
         }
 
-        var lists = Tuple.parseLinesToIntegerLists(input);
+        var lists = Tuple.parseLinesToTupleOfIntegerLists(input);
         var leftList = lists.x;
         var rightList = lists.y;
 
@@ -56,6 +56,46 @@ public class AdventOfCode2024 {
         }
 
         return String.format("The sum of the similarity scores is %d.", sumOfSimilarityScores);
+    }
+
+    public static String day02PartOne(String inputPath) {
+        ArrayList<String> input;
+        try {
+            input = Utils.parseAsLines(inputPath);
+        } catch(FileNotFoundException e) {
+            return String.format("Input file %s not found; " + e, inputPath);
+        }
+
+        var reports = Utils.parseLinesToIntegerLists(input);
+
+        var safeReports = 0;
+        for ( var report : reports ) {
+            if (report.size() < 2) {
+                return "Error; not enough levels in a report!";
+            }
+
+            var incrementing = report.get(0) < report.get(1);
+
+            var safetyIncrement = 1;
+            for (var i = 0; i < report.size() - 1; i++) {
+                int diff;
+                if (incrementing) {
+                    diff = report.get(i+1) - report.get(i);
+                } else {
+                    diff = report.get(i) - report.get(i+1);
+                }
+
+                if (diff < 1 || diff > 3) {
+                    // Violation found, stop checking this report and don't increment.
+                    safetyIncrement = 0;
+                    break;
+                }
+            }
+
+            safeReports += safetyIncrement;
+        }
+
+        return String.format("There are %d safe reports.", safeReports);
     }
 
     public static String day07PartOne(String inputPath) {

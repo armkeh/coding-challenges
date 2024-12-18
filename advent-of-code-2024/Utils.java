@@ -28,4 +28,25 @@ public class Utils {
 
         return occMap;
     }
+
+    public static ArrayList<ArrayList<Integer>> parseLinesToIntegerLists(ArrayList<String> lines) throws IllegalArgumentException, NumberFormatException {
+        var listOfLists = new ArrayList<ArrayList<Integer>>();
+        
+        for ( var line : lines ) {
+            var entries = line.split(" ");
+
+            var list = new ArrayList<Integer>();
+            for ( var entry : entries ) {
+                try {
+                    list.add(Integer.valueOf(entry));
+                } catch(NumberFormatException e) {
+                    throw new NumberFormatException(String.format("Error converting entry '%s' on line '%s' to an Integer; " + e, entry, line));
+                }
+            }
+            
+            listOfLists.add(list);
+        }
+
+        return listOfLists;
+    }
 }
