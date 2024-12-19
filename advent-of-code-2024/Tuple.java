@@ -12,7 +12,7 @@ public class Tuple<X, Y> {
         var xList = new ArrayList<Integer>();
         var yList = new ArrayList<Integer>();
 
-        for ( var line : strings ) {
+        for (var line : strings) {
             var entries = line.split("   ");
 
             if (entries.length != 2) {

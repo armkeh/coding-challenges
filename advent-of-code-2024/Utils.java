@@ -22,7 +22,7 @@ public class Utils {
     public static <T> HashMap<T,Integer> occurrenceMap(ArrayList<T> list) {
         var occMap = new HashMap<T,Integer>();
 
-        for ( var e : list ) {
+        for (var e : list) {
             occMap.put(e, occMap.getOrDefault(e, 0) + 1);
         }
 
@@ -32,11 +32,11 @@ public class Utils {
     public static ArrayList<ArrayList<Integer>> parseLinesToIntegerLists(ArrayList<String> lines) throws IllegalArgumentException, NumberFormatException {
         var listOfLists = new ArrayList<ArrayList<Integer>>();
         
-        for ( var line : lines ) {
+        for (var line : lines) {
             var entries = line.split(" ");
 
             var list = new ArrayList<Integer>();
-            for ( var entry : entries ) {
+            for (var entry : entries) {
                 try {
                     list.add(Integer.valueOf(entry));
                 } catch(NumberFormatException e) {

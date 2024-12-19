@@ -50,7 +50,7 @@ public class AdventOfCode2024 {
         var rightOccurrenceMap = Utils.occurrenceMap(rightList);
 
         int sumOfSimilarityScores = 0;
-        for ( var e : leftList ) {
+        for (var e : leftList) {
             var occurrences = rightOccurrenceMap.getOrDefault(e, 0);
             sumOfSimilarityScores += e * occurrences;
         }
@@ -69,7 +69,7 @@ public class AdventOfCode2024 {
         var reports = Utils.parseLinesToIntegerLists(input);
 
         var safeReports = 0;
-        for ( var report : reports ) {
+        for (var report : reports) {
             if (report.size() < 2) {
                 return "Error; not enough levels in a report!";
             }
@@ -107,7 +107,7 @@ public class AdventOfCode2024 {
         }
 
         Pattern formulaPattern =  Pattern.compile("^(\\d+):( \\d+)+$");
-        for ( var line : input ) {
+        for (var line : input) {
             var formulaMatcher = formulaPattern.matcher(line);
             if (formulaMatcher.find()) {
                 var totalString = formulaMatcher.group(1);
