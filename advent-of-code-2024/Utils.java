@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class Utils {
+public final class Utils {
+    // Private constructor to prevent instantiation of this stateless class
+    private Utils() {}
+
     public static ArrayList<String> parseAsLines(String inputPath) throws FileNotFoundException {
         var input = new ArrayList<String>();
 
