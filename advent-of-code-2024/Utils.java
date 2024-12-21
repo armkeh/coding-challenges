@@ -6,7 +6,22 @@ import java.util.Scanner;
 
 public final class Utils {
     // Private constructor to prevent instantiation of this stateless class
-    private Utils() {}
+    private Utils() {
+    }
+
+    public static String parseAsString(String inputPath) throws FileNotFoundException {
+        var input = "";
+
+        Scanner scanner = new Scanner(new File(inputPath));
+
+        while (scanner.hasNextLine()) {
+            input += scanner.nextLine();
+        }
+
+        scanner.close();
+
+        return input;
+    }
 
     public static ArrayList<String> parseAsLines(String inputPath) throws FileNotFoundException {
         var input = new ArrayList<String>();

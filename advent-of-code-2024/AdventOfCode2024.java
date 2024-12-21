@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 public class AdventOfCode2024 {
     public static void main(String[] args) {
-        var inputPath = "inputs/day02.txt";
+        var inputPath = "inputs/day03.txt";
 
-        System.out.println(Day02.part1(inputPath));
+        System.out.println(Day03.part1(inputPath));
     }
 }
