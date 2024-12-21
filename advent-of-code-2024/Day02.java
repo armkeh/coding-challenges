@@ -18,6 +18,19 @@ public final class Day02 {
         return String.format("There are %d safe reports.", safeReports(reports, 0));
     }
 
+    public static String part2(String inputPath) {
+        ArrayList<String> input;
+        try {
+            input = Utils.parseAsLines(inputPath);
+        } catch(FileNotFoundException e) {
+            return String.format("Input file %s not found; " + e, inputPath);
+        }
+
+        var reports = Utils.parseLinesToIntegerLists(input);
+
+        return String.format("There are %d safe reports.", safeReports(reports, 1));
+    }
+
     private static int safeReports(ArrayList<ArrayList<Integer>> reports, int unsafeLevelToleration) {
         var safeReports = 0;
 
@@ -50,18 +63,19 @@ public final class Day02 {
                 if (unsafeLevels > unsafeLevelToleration) {
                     return false;
                 } else {
-                    System.out.println(String.format("Unsafe level found after index %d in report %s!", i, report.toString()));
-
                     // Try again, with either of levels removed.
+                    // Also try removing the first element (which may be misleading us on whether the sequence is increasing/decreasing).
                     var dampenedReport1 = (ArrayList)report.clone();
                     var dampenedReport2 = (ArrayList)report.clone();
+                    var dampenedReport3 = (ArrayList)report.clone();
 
                     dampenedReport1.remove(i);
-                    dampenedReport2.remove(i+1);
+                    dampenedReport2.remove(i + 1);
+                    dampenedReport3.remove(0);
 
-                    System.out.println(String.format("Trying again with modified reports %s and %s.\n", dampenedReport1.toString(), dampenedReport2.toString()));
-
-                    var safe = isReportSafe(dampenedReport1, unsafeLevelToleration - 1) || isReportSafe(dampenedReport2, unsafeLevelToleration - 1);
+                    var safe = isReportSafe(dampenedReport1, unsafeLevelToleration - 1) ||
+                        isReportSafe(dampenedReport2, unsafeLevelToleration - 1) ||
+                        isReportSafe(dampenedReport3, unsafeLevelToleration - 1);
 
                     if (safe) {
                         System.out.println("Report was found to be safe after level removed!\n");
