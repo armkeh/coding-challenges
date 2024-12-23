@@ -65,23 +65,17 @@ public final class Day02 {
                 } else {
                     // Try again, with either of levels removed.
                     // Also try removing the first element (which may be misleading us on whether the sequence is increasing/decreasing).
-                    var dampenedReport1 = (ArrayList)report.clone();
-                    var dampenedReport2 = (ArrayList)report.clone();
-                    var dampenedReport3 = (ArrayList)report.clone();
+                    var dampenedReport1 = (ArrayList<Integer>)report.clone();
+                    var dampenedReport2 = (ArrayList<Integer>)report.clone();
+                    var dampenedReport3 = (ArrayList<Integer>)report.clone();
 
                     dampenedReport1.remove(i);
                     dampenedReport2.remove(i + 1);
                     dampenedReport3.remove(0);
 
-                    var safe = isReportSafe(dampenedReport1, unsafeLevelToleration - 1) ||
+                    return isReportSafe(dampenedReport1, unsafeLevelToleration - 1) ||
                         isReportSafe(dampenedReport2, unsafeLevelToleration - 1) ||
                         isReportSafe(dampenedReport3, unsafeLevelToleration - 1);
-
-                    if (safe) {
-                        System.out.println("Report was found to be safe after level removed!\n");
-                    }
-
-                    return safe;
                 }
             }
         }
