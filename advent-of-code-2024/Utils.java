@@ -9,7 +9,7 @@ public final class Utils {
     private Utils() {
     }
 
-    public static String parseAsString(String inputPath) throws FileNotFoundException {
+    public static String parseFileToString(String inputPath) throws FileNotFoundException {
         var input = "";
 
         Scanner scanner = new Scanner(new File(inputPath));
@@ -23,7 +23,7 @@ public final class Utils {
         return input;
     }
 
-    public static ArrayList<String> parseAsLines(String inputPath) throws FileNotFoundException {
+    public static ArrayList<String> parseFileToLines(String inputPath) throws FileNotFoundException {
         var input = new ArrayList<String>();
 
         Scanner scanner = new Scanner(new File(inputPath));

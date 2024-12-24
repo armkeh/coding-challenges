@@ -8,7 +8,7 @@ public class Tuple<X, Y> {
         this.y = y; 
     }
 
-    public static Tuple<ArrayList<Integer>, ArrayList<Integer>> parseLinesToTupleOfIntegerLists(ArrayList<String> strings) throws IllegalArgumentException, NumberFormatException {
+    public static Tuple<ArrayList<Integer>, ArrayList<Integer>> parseLinesToIntegerLists(ArrayList<String> strings) throws IllegalArgumentException, NumberFormatException {
         var xList = new ArrayList<Integer>();
         var yList = new ArrayList<Integer>();
 

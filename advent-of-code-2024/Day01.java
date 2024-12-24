@@ -9,12 +9,12 @@ public final class Day01 {
     public static String part1(String inputPath) {
         ArrayList<String> input;
         try {
-            input = Utils.parseAsLines(inputPath);
+            input = Utils.parseFileToLines(inputPath);
         } catch(FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
 
-        var lists = Tuple.parseLinesToTupleOfIntegerLists(input);
+        var lists = Tuple.parseLinesToIntegerLists(input);
         var leftList = lists.x;
         var rightList = lists.y;
 
@@ -32,12 +32,12 @@ public final class Day01 {
     public static String part2(String inputPath) {
         ArrayList<String> input;
         try {
-            input = Utils.parseAsLines(inputPath);
+            input = Utils.parseFileToLines(inputPath);
         } catch(FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
 
-        var lists = Tuple.parseLinesToTupleOfIntegerLists(input);
+        var lists = Tuple.parseLinesToIntegerLists(input);
         var leftList = lists.x;
         var rightList = lists.y;
 

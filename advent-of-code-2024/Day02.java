@@ -8,7 +8,7 @@ public final class Day02 {
     public static String part1(String inputPath) {
         ArrayList<String> input;
         try {
-            input = Utils.parseAsLines(inputPath);
+            input = Utils.parseFileToLines(inputPath);
         } catch(FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
@@ -21,7 +21,7 @@ public final class Day02 {
     public static String part2(String inputPath) {
         ArrayList<String> input;
         try {
-            input = Utils.parseAsLines(inputPath);
+            input = Utils.parseFileToLines(inputPath);
         } catch(FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }

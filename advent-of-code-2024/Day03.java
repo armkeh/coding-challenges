@@ -12,7 +12,7 @@ public final class Day03 {
     public static String part1(String inputPath) {
         String input;
         try {
-            input = Utils.parseAsString(inputPath);
+            input = Utils.parseFileToString(inputPath);
         } catch (FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
@@ -35,7 +35,7 @@ public final class Day03 {
     public static String part2(String inputPath) {
         String input;
         try {
-            input = Utils.parseAsString(inputPath);
+            input = Utils.parseFileToString(inputPath);
         } catch (FileNotFoundException e) {
             return String.format("Input file %s not found; " + e, inputPath);
         }
