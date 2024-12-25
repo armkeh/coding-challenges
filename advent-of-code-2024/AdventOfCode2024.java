@@ -41,15 +41,15 @@ public class AdventOfCode2024 {
             var result = String.format("Day %d, part %d not yet implemented.", day, part);
             if (part == 1) {
                 switch (day) {
-                case 1: result = Day01.part1(inputPath);
-                case 2: result = Day02.part1(inputPath);
-                case 3: result = Day03.part1(inputPath);
+                case 1: result = Day01.part1(inputPath); break;
+                case 2: result = Day02.part1(inputPath); break;
+                case 3: result = Day03.part1(inputPath); break;
                 }
             } else if (part == 2) {
                 switch (day) {
-                case 1: result = Day01.part2(inputPath);
-                case 2: result = Day02.part2(inputPath);
-                case 3: result = Day03.part2(inputPath);
+                case 1: result = Day01.part2(inputPath); break;
+                case 2: result = Day02.part2(inputPath); break;
+                case 3: result = Day03.part2(inputPath); break;
                 }
             }
 
