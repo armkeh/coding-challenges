@@ -65,9 +65,9 @@ public final class Day02 {
                 } else {
                     // Try again, with either of levels removed.
                     // Also try removing the first element (which may be misleading us on whether the sequence is increasing/decreasing).
-                    var dampenedReport1 = (ArrayList<Integer>)report.clone();
-                    var dampenedReport2 = (ArrayList<Integer>)report.clone();
-                    var dampenedReport3 = (ArrayList<Integer>)report.clone();
+                    var dampenedReport1 = new ArrayList<Integer>(report);
+                    var dampenedReport2 = new ArrayList<Integer>(report);
+                    var dampenedReport3 = new ArrayList<Integer>(report);
 
                     dampenedReport1.remove(i);
                     dampenedReport2.remove(i + 1);
