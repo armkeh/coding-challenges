@@ -2,14 +2,11 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public final class Day03 {
-    // Private constructor to prevent instantiation of this stateless class
-    private Day03() {
-    }
+public final class Day03 implements Day {
 
     static private Pattern mulInstruction = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
 
-    public static String part1(String inputPath) {
+    public String part1(String inputPath) {
         String input;
         try {
             input = Utils.parseFileToString(inputPath);
@@ -32,7 +29,7 @@ public final class Day03 {
 
     static private Pattern conditionalOrMulInstruction = Pattern.compile("do\\(\\)|don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)");
 
-    public static String part2(String inputPath) {
+    public String part2(String inputPath) {
         String input;
         try {
             input = Utils.parseFileToString(inputPath);

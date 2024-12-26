@@ -2,11 +2,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public final class Day01 {
-    // Private constructor to prevent instantiation of this stateless class
-    private Day01() {}
+public final class Day01 implements Day {
 
-    public static String part1(String inputPath) {
+    public String part1(String inputPath) {
         ArrayList<String> input;
         try {
             input = Utils.parseFileToLines(inputPath);
@@ -29,7 +27,7 @@ public final class Day01 {
         return String.format("The sum of differences in the entries is %d.", sumOfDifferences);
     }
 
-    public static String part2(String inputPath) {
+    public String part2(String inputPath) {
         ArrayList<String> input;
         try {
             input = Utils.parseFileToLines(inputPath);

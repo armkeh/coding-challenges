@@ -1,11 +1,9 @@
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-public final class Day02 {
-    // Private constructor to prevent instantiation of this stateless class
-    private Day02() {}
+public final class Day02 implements Day {
 
-    public static String part1(String inputPath) {
+    public String part1(String inputPath) {
         ArrayList<String> input;
         try {
             input = Utils.parseFileToLines(inputPath);
@@ -18,7 +16,7 @@ public final class Day02 {
         return String.format("There are %d safe reports.", safeReports(reports, 0));
     }
 
-    public static String part2(String inputPath) {
+    public String part2(String inputPath) {
         ArrayList<String> input;
         try {
             input = Utils.parseFileToLines(inputPath);
