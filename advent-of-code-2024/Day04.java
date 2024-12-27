@@ -73,6 +73,37 @@ public final class Day04 implements Day {
     }
 
     public String part2(String inputPath) {
-        return "Day or part not yet implemented!";
+        char[][] input;
+        try {
+            input = Utils.parseFileToCharMatrix(inputPath);
+        } catch (FileNotFoundException e) {
+            return String.format("Input file %s not found; " + e, inputPath);
+        }
+
+        // Note: Parse function ensures that all the input arrays have the same length.
+
+        // Due to the constraints of the X shape, we can skip over the outermost characters in our iteration.
+        int xMasCount = 0;
+        for (int i = 1; i < input.length - 1; i++) {
+            for (int j = 1; j < input[i].length - 1; j++) {
+                // The center character must be an 'A'.
+                if (input[i][j] != 'A') {
+                    continue;
+                }
+
+                // If a MAS is found, set a 1; otherwise set a 0.
+                var downRight = input[i-1][j-1] == 'M' && input[i+1][j+1] == 'S' ? 1 : 0;
+                var upRight   = input[i+1][j-1] == 'M' && input[i-1][j+1] == 'S' ? 1 : 0;
+                var downLeft  = input[i-1][j+1] == 'M' && input[i+1][j-1] == 'S' ? 1 : 0;
+                var upLeft    = input[i+1][j+1] == 'M' && input[i-1][j-1] == 'S' ? 1 : 0;
+
+                // Check we have found 2 MAS's (Note: It's really only possible to find 2).
+                if (2 <= downRight + upRight + downLeft + upLeft) {
+                    xMasCount++;
+                }
+            }
+        }
+
+        return String.format("Found %d instances of X's made from MAS's in the wordsearch.", xMasCount);
     }
 }
