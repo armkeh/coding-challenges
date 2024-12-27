@@ -15,7 +15,7 @@ public final class Utils {
         Scanner scanner = new Scanner(new File(inputPath));
 
         while (scanner.hasNextLine()) {
-            input += scanner.nextLine();
+            input += scanner.nextLine() + "\n";
         }
 
         scanner.close();
