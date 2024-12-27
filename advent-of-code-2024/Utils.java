@@ -37,6 +37,36 @@ public final class Utils {
         return input;
     }
 
+    public static char[][] parseFileToCharMatrix(String inputPath) throws FileNotFoundException {
+        var input = new ArrayList<char[]>();
+
+        Scanner scanner = new Scanner(new File(inputPath));
+
+        // Parse first line to get expected line lengths.
+        int lineLength = 0;
+        if (scanner.hasNextLine()) {
+            var firstLine = scanner.nextLine();
+            lineLength = firstLine.length();
+            input.add(firstLine.toCharArray());
+        }
+
+        while (scanner.hasNextLine()) {
+            var line = scanner.nextLine();
+            
+            if (line.length() != lineLength) {
+                throw new IllegalArgumentException(String.format("Error; line '%s' does not have the expected number of characters (%d)!", line, lineLength));
+            }
+
+            input.add(line.toCharArray());
+        }
+
+        scanner.close();
+
+        var result = new char[lineLength][input.size()];
+        input.toArray(result);
+        return result;
+    }
+
     public static <T> HashMap<T,Integer> occurrenceMap(ArrayList<T> list) {
         var occMap = new HashMap<T,Integer>();
 

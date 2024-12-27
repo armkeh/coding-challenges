@@ -43,6 +43,7 @@ public class AdventOfCode2024 {
             case 1: dayRunner = new Day01(); break;
             case 2: dayRunner = new Day02(); break;
             case 3: dayRunner = new Day03(); break;
+            case 4: dayRunner = new Day04(); break;
             default: dayRunner = new UnimplementedDay(); break;
             }
 
