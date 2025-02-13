@@ -1,0 +1,6 @@
+# Ignore .exercism directories, which contain sensitive data
+**/.exercism
+
+# Ignore generated/build files
+**/build/*
+**/.gradle
