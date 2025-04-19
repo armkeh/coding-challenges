@@ -2,8 +2,8 @@ package io.github.armkeh
 
 import java.io.File
 
-val input = File("src/inputs/day02.txt").readText()
+val input = File("src/inputs/day03.txt").readText()
 
 fun main() {
-    Day02.part02(input.trimEnd { it == '\n' })
+    Day03.part1(input.trimEnd { it == '\n' })
 }
